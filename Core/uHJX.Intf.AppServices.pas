@@ -65,10 +65,11 @@ type
         function GetFuncDispatcher: IInterface; // 这个接口重要性几乎等同于dmClient
         function GetApplication: TObject;       // 主程序的Application对象
         function GetHost: TObject;              // 返回主程序的MainForm对象
-        function GetMeters: TObject;
-        function GetMeterGroups: TObject;
-        function GetDSNames: TObject;
-        function GetLayouts: TObject;
+        function GetMeters: TObject;            // 仪器集合
+        function GetMeterGroups: TObject;       // 仪器组集合
+        function GetDSNames: TObject;           // 数据名称集合
+        function GetLayouts: TObject;           // 分布图集合
+        function GetTemplates: TObject;         // 模板集合
 
         function Logged: Boolean;
 
@@ -112,12 +113,13 @@ type
         property Application: TObject read GetApplication;
         property Host: TObject read GetHost;
         property FuncDispatcher: IInterface read GetFuncDispatcher;
-        ///<summary>仪器集合</summary>
+        /// <summary>仪器集合</summary>
         property Meters: TObject read GetMeters;
-        ///<summary>仪器组集合</summary>
+        /// <summary>仪器组集合</summary>
         property MeterGroups: TObject read GetMeterGroups;
         property DSNames: TObject read GetDSNames;
         property Layouts: TObject read GetLayouts;
+        property Templates: TObject read GetTemplates;
     end;
 
 var

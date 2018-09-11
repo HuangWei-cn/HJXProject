@@ -61,6 +61,9 @@ type
         MDs: TDataDefines;
         PDs: TDataDefines;
         ChartDefineName: string; // 图表定义名2018-07-25
+        ChartTemplate: string;
+        WGTemplate: string;
+        XLTemplate: string;
     end;
 
     TMeterParams = record

@@ -146,6 +146,7 @@ type
         // FName  : string;
         // FType  : string;
         FMeters: TStrings;
+    protected
         function GetMeterCount: Integer; override;
         function GetItem(Index: Integer): string; override;
     public

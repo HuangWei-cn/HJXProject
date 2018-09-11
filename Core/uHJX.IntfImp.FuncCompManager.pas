@@ -91,8 +91,13 @@ type
           一些具备完整功能的插件往往仅有此项注册，对它们的调用可以是通过主菜单完成。
           如果需要被其他功能件搜索查找到，则将自己注册为类、组件等，或注册到调度器中。 }
         procedure RegisterEntry(AFCType: PFuncCompRegister);
-
+        /// <summary>
+        /// 初始化过程产生的消息。常用来判断初始化过程中出现的问题。
+        /// </summary>
         property InitMessage: string read FInitMsg;
+        /// <summary>
+        /// 加载过程产生的消息
+        /// </summary>
         property LoadMessage: string read FLoadMsg;
     end;
 

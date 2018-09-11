@@ -51,6 +51,7 @@ type
         FMeterGroups: TObject;
         FDSNames    : TObject;
         FLayouts    : TObject;
+        FTemplates  : TObject;
 
         procedure ClearAll;
 
@@ -84,6 +85,7 @@ type
         function GetMeterGroups: TObject;
         function GetDSNames: TObject;
         function GetLayouts: TObject;
+        function GetTemplates: TObject;
 
         { 登录状态 }
         function Logged: Boolean;
@@ -102,6 +104,7 @@ type
         procedure SetMeterGroups(MeterGroupList: TObject);
         procedure SetLayouts(ALayoutList: TObject);
         procedure SetDSNames(DSNameList: TObject);
+        procedure SetTemplates(ATmpl: TObject);
 
         { 事件，产生事件的功能件调用这些方法，由AppServices传播到注册需求者 }
         procedure OnLogin(Sender: TObject);
@@ -341,6 +344,16 @@ end;
 procedure THJXAppService.SetLayouts(ALayoutList: TObject);
 begin
     FLayouts := ALayoutList;
+end;
+
+function THJXAppService.GetTemplates: TObject;
+begin
+    Result := FTemplates;
+end;
+
+procedure THJXAppService.SetTemplates(ATmpl: TObject);
+begin
+    FTemplates := ATmpl;
 end;
 
 { ----------------------------------------------------------------------------- }

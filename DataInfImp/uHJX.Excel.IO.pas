@@ -51,8 +51,8 @@ implementation
 function TmyWorkbook.Open(FileName: WideString): Integer;
 begin
     FullName := FileName;
-    Opened := True;
     Result := inherited Open(FileName);
+    Opened := Result = 1;
 end;
 
 function TmyWorkbook.SheetByName(AName: WideString): IXLSWorkSheet;
