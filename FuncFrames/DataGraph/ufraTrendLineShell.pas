@@ -43,7 +43,11 @@ implementation
 
 uses
     {uHJX.Excel.Meters} uHJX.Classes.Meters,
-    uTLDefineProc, uFuncDrawTLByStyle, //2018-07-26增加根据Style绘图相关的单元
+    {
+        uTLDefineProc, uFuncDrawTLByStyle, //2018-07-26增加根据Style绘图相关的单元
+        2018-09-13 这两个单元被ChartTemplate、ChartTemplateProc单元取代
+}
+    uHJX.Template.ChartTemplate, uHJX.Template.ChartTemplateProc, // 2018-09-13 新绘图模板类及其处理
     VCLTee.TeeJPEG, VCLTee.TeePNG, VCLTee.TeeHTML5Canvas;
 {$R *.dfm}
 
@@ -82,7 +86,7 @@ begin
     mt := ExcelMeters.Meter[ADsnName];
     { 2018-07-26 用过程线定义绘图 }
     if mt.ChartPreDef <> nil then
-        DrawMeterSeries(FfraTL.chtLine, mt.ChartPreDef as TTrendlinePreDefine, ADsnName, 0, 0)
+        DrawMeterSeries(FfraTL.chtLine, mt.ChartPreDef as TChartTemplate {TTrendlinePreDefine}, ADsnName, 0, 0)
     else
     begin
         if (mt.Params.MeterType = '锚杆应力计') and (mt.PrjParams.GroupID <> '') then
@@ -108,7 +112,7 @@ begin
         mt := ExcelMeters.Meter[ADsnName];
         { 2018-07-26 用过程线预定义绘图 }
         if mt.ChartPreDef <> nil then
-            DrawMeterSeries(FfraTL.chtLine, mt.ChartPreDef as TTrendlinePreDefine, ADsnName,
+            DrawMeterSeries(FfraTL.chtLine, mt.ChartPreDef as TChartTemplate{TTrendlinePreDefine}, ADsnName,
                 DTStart, DTEnd)
         else
         begin

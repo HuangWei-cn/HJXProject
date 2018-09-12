@@ -35,7 +35,7 @@ type
     TMeterExcelParamchangedSet = set of TMeterExcelParamChanged;
 
 { 加载工程配置文件，该文件指明了参数文件和数据列表文件所在，程序根据这些逐一处理 }
-function LoadProjectConfig(prjBookName: String): Boolean;
+function LoadProjectConfig(prjBookName: string): Boolean;
 { 加载参数文件，包括仪器基本参数、工程参数、数据结构定义等 }
 function LoadParams(ParamBook: IXLSWorkBook): Boolean;
 { 加载仪器数据文件列表，将每个仪器所对应的工作簿和工作表赋值给Meter的对应属性 }
@@ -51,8 +51,10 @@ function LoadMeterTypes(ParamBook: IXLSWorkBook): Boolean;
 function LoadProjectLocations(ParamBook: IXLSWorkBook): Boolean;
 { 加载仪器组定义 }
 function LoadMeterGroup(ParamBook: IXLSWorkBook): Boolean;
-{ 加载过程线预定义 }
+{ 加载过程线预定义  2018-09-03本方法被LoadTemplates方法替代 }
 function LoadTrendLinePreDefines(ParamBook: IXLSWorkBook): Boolean;
+{ 加载模板：ChartTemplates、WebGridTemplates、XLSGridTemplates等 }
+function LoadTemplates(ParamBook: IXLSWorkBook): Boolean;
 { 保存参数，对已存在的仪器不改变其设计编号，允许创建新的仪器参数 }
 function SaveParams(AMeter: TMeterDefine; NewMeter: Boolean = False): Boolean; overload;
 { 保存参数，允许更改仪器设计编号 }
@@ -60,15 +62,18 @@ function SaveParams(AMeter: TMeterDefine; OldName: string): Boolean; overload;
 
 var
     { 以下三个全局变量用于编辑参数文件时，快速访问这些工作簿文件，省的打开工程文件再去找 }
-    xlsPrjFile   : string; // 工程设置文件
-    xlsParamFile : string; // 参数文件
-    xlsDFListFile: string; // 数据工作簿列表文件
+    xlsPrjFile   : string;   // 工程设置文件
+    xlsParamFile : string;   // 参数文件
+    xlsDFListFile: string;   // 数据工作簿列表文件
+    IssueList    : TStrings; // 参数加载过程问题列表
 
 implementation
 
 uses
     uHJX.EnvironmentVariables, uHJX.Excel.Meters, System.RegularExpressions, System.IOUtils,
-    uTLDefineProc {2018-07-26 过程线模板对象定义单元，同时负责解析模板代码，暂时被本单元直接引用};
+    // uTLDefineProc {2018-07-26 过程线模板对象定义单元，同时负责解析模板代码，暂时被本单元直接引用};
+    uHJX.Classes.Templates, uHJX.Template.ChartTemplate, uHJX.Template.WebGrid,
+    uHJX.Template.XLGrid;
 
 type
     { 参数表列定义结构 }
@@ -90,7 +95,7 @@ type
         destructor Destroy; override;
         function AddNew: PColDefine;
         property Count: Integer read GetCount;
-        property Item[Index: Integer]: PColDefine read GetItem;
+        property Item[index: Integer]: PColDefine read GetItem;
         property Col[AName: string]: Integer read GetCol;
     end;
 
@@ -105,6 +110,8 @@ type
         GRP: TParamColsList; // 2018-05-29 增加仪器组定义结构
         DPD: TParamColsList; // 2018-07-24 增加数据表结构预定义结构
         TLD: TParamColsList; // 2018-07-24 增加过程线预定义结构
+        WGT: TParamColsList; // WebGrid Template sheet structure define
+        XLT: TParamColsList; // XLGrid template sheet structure define
         constructor Create;
         destructor Destroy; override;
     end;
@@ -142,7 +149,7 @@ end;
 
 function TParamColsList.GetItem(Index: Integer): PColDefine;
 begin
-    Result := FList.Items[Index];
+    Result := FList.Items[index];
 end;
 
 function TParamColsList.AddNew: PColDefine;
@@ -173,6 +180,8 @@ begin
     GRP := TParamColsList.Create; // 2018-05-29
     DPD := TParamColsList.Create; // 2018-07-24
     TLD := TParamColsList.Create; // 2018-07-24
+    WGT := TParamColsList.Create; // 2018-09-13
+    XLT := TParamColsList.Create; // 2018-09-13
 end;
 
 destructor TParamCols.Destroy;
@@ -183,6 +192,8 @@ begin
     GRP.Free; // 2018-05-29
     DPD.Free; // 2018-07-24
     TLD.Free; // 2018-07-24
+    WGT.Free; // 2018-09-13
+    XLT.Free; // 2018-09-13
     inherited;
 end;
 
@@ -197,8 +208,7 @@ begin
     Sht := ExcelIO.GetSheet(ParamBook, 'ParamSheetStructure');
     if Sht = nil then
     begin
-        ShowMessage('参数表中没有“ParamSheetStructure”工作表，你可能打开了'#13#10
-            + '假的参数表，请再检查一下。');
+        ShowMessage('参数表中没有“ParamSheetStructure”工作表，你可能打开了'#13#10 + '假的参数表，请再检查一下。');
         Exit;
     end;
 
@@ -281,6 +291,32 @@ begin
         ColDef.Col := ColNum;
     end;
 
+    // 2018-09-13 WebGrid模板定义表结构
+    for iRow := 3 to 100 do
+    begin
+        S := Trim(VarToStr(Sht.Cells[iRow, 26].Value));
+        if S = '' then
+            Break;
+        sNum := VarToStr(Sht.Cells[iRow, 27].Value);
+        ColNum := StrToInt(sNum);
+        ColDef := theCols.WGT.AddNew;
+        ColDef.ParamName := S;
+        ColDef.Col := ColNum;
+    end;
+
+    // 2018-09-13 XLGrid模板定义结构
+    for iRow := 3 to 100 do
+    begin
+        S := Trim(VarToStr(Sht.Cells[iRow, 30].Value));
+        if S = '' then
+            Break;
+        sNum := VarToStr(Sht.Cells[iRow, 31].Value);
+        ColNum := StrToInt(sNum);
+        ColDef := theCols.XLT.AddNew;
+        ColDef.ParamName := S;
+        ColDef.Col := ColNum;
+    end;
+
     Result := True;
 end;
 
@@ -314,7 +350,7 @@ end;
 function _GetDateTimeValue(ASht: IXLSWorksheet; ARow: Integer; ColList: TParamColsList;
     AName: string): TDateTime;
 var
-    sValue: String;
+    sValue: string;
 begin
     Result := 0;
     sValue := _GetStrValue(ASht, ARow, ColList, AName);
@@ -382,7 +418,7 @@ var
     begin
         Result := _GetFloatValue(Sht, iRow, theCols.PRM, AName);
     end;
-    function DateTimeValue(AName: String): TDateTime;
+    function DateTimeValue(AName: string): TDateTime;
     begin
         Result := _GetDateTimeValue(Sht, iRow, theCols.PRM, AName);
     end;
@@ -448,13 +484,13 @@ var
         // SS2.DelimitedText := datCols;
         { TODO:需要考虑两者数量不同的情况，以及和MDCount、PDCount不一致的情况 }
         if (Length(SS1) > 0) { and (Length(SS2) > 0) } then
-            for i := Low(SS1) to High(SS1) do
+            for i := low(SS1) to high(SS1) do
             begin
                 pdd := DDs.AddNew;
                 pdd.Name := SS1[i];
                 // 有可能没有提供列号，这时SS2不是数组。
                 if Length(SS2) > 0 then
-                    if i <= High(SS2) then
+                    if i <= high(SS2) then
                         pdd.Column := StrToInt(SS2[i]);
             end;
     end;
@@ -467,7 +503,7 @@ var
         // SS1.Clear;
         // SS1.DelimitedText := EVDefine;
         if Length(SS1) > 0 then
-            for i := low(SS1) to High(SS1) do
+            for i := low(SS1) to high(SS1) do
             begin
                 k := StrToInt(SS1[i]) - 1;
                 DSS.PDs.Items[k].HasEV := True;
@@ -479,7 +515,10 @@ begin
     DSS.DTStartCol := Trunc(FloatValue('DTStartCol'));
     DSS.AnnoCol := Trunc(FloatValue('Annotation'));
     DSS.BaseLine := Trunc(FloatValue('BaseLine'));
-    DSS.ChartDefineName := StrValue('ChartPreDefine'); // 2018-07-26 提取图表定义名
+    DSS.ChartDefineName := StrValue('ChartTemplate'); // 2018-07-26 提取图表定义名
+    DSS.ChartTemplate := StrValue('ChartTemplate');
+    DSS.WGTemplate := StrValue('WebGridTemplate');
+    DSS.XLTemplate := StrValue('XLSGridTemplate');
 
     S1 := StrValue('MDDefine');
     S2 := StrValue('MDCols');
@@ -505,7 +544,7 @@ function LoadPreDefineDataStru(ParamBook: IXLSWorkBook): Boolean;
 var
     iRow    : Integer;
     Sht     : IXLSWorksheet;
-    S       : String;
+    S       : string;
     PreDItem: TPreDefineDataStructure;
 begin
     Result := False;
@@ -544,6 +583,7 @@ var
     S, S1      : string;
     LocalDefine: TDataSheetStructure;
     PDDS       : TPreDefineDataStructure;
+    Obj        : TObject;
 
     procedure ClearLocalDefine;
     begin
@@ -553,6 +593,10 @@ var
         LocalDefine.DTStartCol := 0;
         LocalDefine.AnnoCol := 0;
         LocalDefine.BaseLine := 0;
+        LocalDefine.ChartDefineName := '';
+        LocalDefine.ChartTemplate := '';
+        LocalDefine.WGTemplate := '';
+        LocalDefine.XLTemplate := '';
     end;
 
     { 用本地设置替换预定义 }
@@ -567,22 +611,22 @@ var
         var
             ii: Integer;
         begin
-            if Local.Count = MTDefine.Count then
-                for ii := 0 to Local.Count - 1 do
+            if local.Count = MTDefine.Count then
+                for ii := 0 to local.Count - 1 do
                 begin
                     MTDefine.Items[ii].Name := local.Items[ii].Name;
                     MTDefine.Items[ii].Alias := local.Items[ii].Alias;
                     MTDefine.Items[ii].DataUnit := local.Items[ii].DataUnit;
-                    if Local.Items[ii].Column <> 0 then
+                    if local.Items[ii].Column <> 0 then
                     begin
-                        MTDefine.Items[ii].Column := Local.Items[ii].Column;
+                        MTDefine.Items[ii].Column := local.Items[ii].Column;
                         MTDefine.Items[ii].HasEV := local.Items[ii].HasEV;
                     end;
                 end
             else
             begin
                 MTDefine.Clear;
-                MTDefine.Assign(Local);
+                MTDefine.Assign(local);
             end;
         end;
 
@@ -593,12 +637,21 @@ var
         ReplaceIntValue(LocalDefine.BaseLine, AMeter.DataSheetStru.BaseLine);
 
         // 设置Chart定义名，之后设置对象
-        if LocalDefine.ChartDefineName <> '' then
-            AMeter.DataSheetStru.ChartDefineName := LocalDefine.ChartDefineName;
+        with AMeter.DataSheetStru do
+        begin
+            if LocalDefine.ChartDefineName <> '' then
+                ChartDefineName := LocalDefine.ChartDefineName;
+            ChartTemplate := LocalDefine.ChartTemplate;
+            WGTemplate := LocalDefine.WGTemplate;
+            XLTemplate := LocalDefine.XLTemplate;
+        end;
+
         if AMeter.DataSheetStru.ChartDefineName <> '' then
         begin
-            if TLPreDefines.ContainsKey(AMeter.DataSheetStru.ChartDefineName) then
-                AMeter.ChartPreDef := TLPreDefines.Items[AMeter.DataSheetStru.ChartDefineName];
+            Obj := (IAppServices.Templates as TTemplates).ItemByName
+                [AMeter.DataSheetStru.ChartDefineName];
+            if Obj <> nil then
+                AMeter.ChartPreDef := Obj;
         end;
         // 下面覆盖MDs。LocalDefine的MDs存在如下情况(PDs相同):
         // 1. 有名，有列，数量相等，直接覆盖全部；
@@ -643,6 +696,9 @@ begin
                         MDs.Assign(PDDS.DataDefine.MDs);
                         PDs.Assign(PDDS.DataDefine.PDs);
                         ChartDefineName := PDDS.DataDefine.ChartDefineName;
+                        ChartTemplate := PDDS.DataDefine.ChartTemplate;
+                        WGTemplate := PDDS.DataDefine.WGTemplate;
+                        XLTemplate := PDDS.DataDefine.XLTemplate;
                     end;
             end;
 
@@ -688,6 +744,7 @@ begin
     LoadPreDefineDataStru(ParamBook);
     // 加载过程线预定义表
     LoadTrendLinePreDefines(ParamBook);
+    LoadTemplates(ParamBook);
     // 加载基本参数表
     LoadMeterParams(ParamBook);
     // 加载数据结构定义表
@@ -725,8 +782,7 @@ begin
 
     // 验证Datafilepath是否存在、是否正确
     if (ENV_DataRoot = '') or not DirectoryExists(ENV_DataRoot) then
-        if (DataFilePath = '') or (not DirExists(DataFilePath)) then
-                ;
+        if (DataFilePath = '') or (not DirExists(DataFilePath)) then;
 
     for iRow := 3 to 10000 do
     begin
@@ -795,14 +851,10 @@ end;
 ----------------------------------------------------------------------------- }
 function LoadLayoutList(DFBook: IXLSWorkBook): Boolean;
 var
-    Sht : IXLSWorksheet;
-    iRow: Integer;
-    sName,
-        sFile,
-        sPath,
-        sMeters,
-        sAnno: string;
-    ARec     : PLayoutRec;
+    Sht                                : IXLSWorksheet;
+    iRow                               : Integer;
+    sName, sFile, sPath, sMeters, sAnno: string;
+    ARec                               : PLayoutRec;
 begin
     Result := False;
     Sht := ExcelIO.GetSheet(DFBook, '分布图文件列表');
@@ -891,7 +943,7 @@ begin
         S1 := StrValue(iRow, 'GroupMeters');
         SS := SplitString(S1, '|');
         if Length(SS) > 0 then
-            for i := Low(SS) to High(SS) do
+            for i := low(SS) to high(SS) do
                 AItem.AddMeter(SS[i]);
     end;
     Result := True;
@@ -910,12 +962,25 @@ var
     S, sPF, sDLF   : string;
     iRow           : Integer;
 
-    sDataRt: string; // 数据文件根目录
-    sScheme: string; // 分布图目录
-    sCX    : string; // 测斜、测量目录
-    sTemp  : string; // 临时
+    sDataRt   : string; // 数据文件根目录
+    sScheme   : string; // 分布图目录
+    sCX       : string; // 测斜、测量目录
+    sTemp     : string; // 临时
+    sTemplBook: string; // Excel DataGrid template workbook
+
+    function _GetFullPath(APath: string): string;
+    begin
+        try
+            Result := TPath.GetFullPath(APath);
+        except
+            Result := '';
+        end;
+    end;
+
 begin
     Result := False;
+    IssueList.Clear;
+
     xlsPrjFile := prjBookName;
 
     // 解析出配置文件所在路径，以后要用到
@@ -923,6 +988,13 @@ begin
     // 清空全部已创建的仪器，要重新加载了~~
     ExcelMeters.ReleaseAllMeters;
     MeterGroup.ReleaseAllItems;
+
+    // 清空环境量
+    ENV_DataRoot := '';
+    ENV_SchemePath := '';
+    ENV_CXDataPath := '';
+    ENV_TempPath := '';
+    ENV_XLTemplBook := '';
 
     Wbk := TXLSWorkbook.Create;
 
@@ -961,32 +1033,63 @@ begin
             else if S = '测斜孔数据目录' then
                 sCX := Trim(VarToStr(Sht.Cells[iRow, 3].Value))
             else if S = '临时目录' then
-                sTemp := Trim(VarToStr(Sht.Cells[iRow, 3].Value));
+                sTemp := Trim(VarToStr(Sht.Cells[iRow, 3].Value))
+            else if S = 'Excel报表模板' then
+                sTemplBook := Trim(VarToStr(Sht.Cells[iRow, 3].Value));
         end;
 
         xlsParamFile := sPF;
         xlsDFListFile := sDLF;
 
+        if not FileExists(sPF) then
+        begin
+            IssueList.Add(Format('仪器参数文件“%s”无效', [sPF]));
+            xlsParamFile := '';
+        end;
+
+        if not FileExists(sDLF) then
+        begin
+            IssueList.Add(Format('仪器数据文件列表工作簿“%s”不是有效文件', [sDLF]));
+        end;
+
         // 设置文件路径
         S := GetCurrentDir;
         SetCurrentDir(ENV_ConfigPath);
         // 将相对目录替换为绝对目录
-        sDataRt := TPath.GetFullPath(sDataRt);
-        sScheme := TPath.GetFullPath(sScheme);
-        sCX := TPath.GetFullPath(sCX);
-        sTemp := TPath.GetFullPath(sTemp);
+        sDataRt := _GetFullPath(sDataRt);
+        sScheme := _GetFullPath(sScheme);
+        sCX := _GetFullPath(sCX);
+        sTemp := _GetFullPath(sTemp);
+        sTemplBook := _GetFullPath(sTemplBook);
+
         // ShowMessage(sDataRt + #13 + sScheme + #13 + sCX + #13 + sTemp);
         // 测试这些目录是否存在，若不存在则清空
         if DirectoryExists(sDataRt) then
-            ENV_DataRoot := sDataRt;
-        if DirectoryExists(sScheme) then
-            ENV_SchemePath := sScheme;
-        if DirectoryExists(sCX) then
-            ENV_CXDataPath := sCX;
-        if DirectoryExists(sTemp) then
-            ENV_TempPath := sTemp;
+            ENV_DataRoot := sDataRt
+        else
+            IssueList.Add('数据文件根目录无效或不存在');
 
-// 加载仪器参数表工作簿
+        if DirectoryExists(sScheme) then
+            ENV_SchemePath := sScheme
+        else
+            IssueList.Add('监测仪器布置图文件夹无效或不存在');
+
+        if DirectoryExists(sCX) then
+            ENV_CXDataPath := sCX
+        else
+            IssueList.Add('测斜孔数据文件夹无效或不存在');
+
+        if DirectoryExists(sTemp) then
+            ENV_TempPath := sTemp
+        else
+            IssueList.Add('临时文件夹无效或不存在');
+
+        if FileExists(sTemplBook) then
+            ENV_XLTemplBook := sTemplBook
+        else
+            IssueList.Add(Format('“%s”不是有效的文件', [sTemplBook]));
+
+        // 加载仪器参数表工作簿
         if sPF <> '' then
             try
                 Wbk1 := TXLSWorkbook.Create;
@@ -1017,6 +1120,9 @@ begin
             ShowMessage(e.Message);
     end;
     SetCurrentDir(S);
+
+    if IssueList.Count > 0 then
+        ShowMessage(IssueList.Text);
 end;
 
 { -----------------------------------------------------------------------------
@@ -1027,7 +1133,7 @@ function LoadFieldDispNames(ParamBook: IXLSWorkBook): Boolean;
 var
     Sht   : IXLSWorksheet;
     iRow  : Integer;
-    S1, S2: String;
+    S1, S2: string;
 begin
     Result := False;
     Sht := ExcelIO.GetSheet(ParamBook, '字段名表');
@@ -1055,7 +1161,7 @@ function LoadMeterTypes(ParamBook: IXLSWorkBook): Boolean;
 var
     Sht : IXLSWorksheet;
     iRow: Integer;
-    S   : String;
+    S   : string;
 begin
     Result := False;
     PG_MeterTypes.Clear;
@@ -1099,39 +1205,140 @@ end;
   Description: 加载过程线预定义表内容
 ----------------------------------------------------------------------------- }
 function LoadTrendLinePreDefines(ParamBook: IXLSWorkBook): Boolean;
+(*
+    var
+        Sht     : IXLSWorksheet;
+        S, sName: string;
+        iRow    : Integer;
+        NewDF   : TTrendlinePreDefine;
+*)
+begin
+(*
+        Result := False;
+        // 先清空集合
+        for NewDF in TLPreDefines.Values do NewDF.Free;
+        TLPreDefines.Clear;
+
+        Sht := ExcelIO.GetSheet(ParamBook, '过程线预定义');
+        if Sht = nil then Exit;
+        for iRow := 2 to 1000 do
+        begin
+            // define name
+            sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
+            if sName = '' then Break;
+
+            NewDF := TTrendlinePreDefine.Create;
+            // type string
+            S := Trim(VarToStr(Sht.Cells[iRow, 3].Value));
+            // define string
+            S := Trim(VarToStr(Sht.Cells[iRow, 4].Value));
+            NewDF.DecodeDefine(S);
+            NewDF.Name := sName; // decodedefine的时候，要Clear一次，结果删除了Name
+            // annotation string
+            S := Trim(VarToStr(Sht.Cells[iRow, 5].Value));
+            TLPreDefines.Add(NewDF.Name, NewDF);
+        end;
+*)
+end;
+
+function LoadTemplates(ParamBook: IXLSWorkBook): Boolean;
 var
     Sht     : IXLSWorksheet;
     S, sName: string;
     iRow    : Integer;
-    NewDF   : TTrendlinePreDefine;
+    ct      : TChartTemplate;
+    wg      : TWebGridTemplate;
+    xl      : TXLGridTemplate;
+    ts      : TTemplates;
 begin
-    Result := False;
-    //先清空集合
-    for NewDF in TLPreDefines.Values do
-        NewDF.Free;
-    TLPreDefines.Clear;
+    // 清空集合
+    ts := IAppServices.Templates as TTemplates;
+    ts.ClearAll;
+    // 加载ChartTemplates
+    Sht := ExcelIO.GetSheet(ParamBook, '过程线模板');
+    if Sht <> nil then
+        for iRow := 2 to 1000 do
+        begin
+            sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
+            if sName = '' then
+                Break;
 
-    Sht := ExcelIO.GetSheet(ParamBook, '过程线预定义');
-    if Sht = nil then
-        Exit;
-    for iRow := 2 to 1000 do
-    begin
-        // define name
-        sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
-        if sName = '' then
-            Break;
+            ct := ts.AddChartTemplate(TChartTemplate) as TChartTemplate;
+            ct.TemplateName := sName;
+            // type
+            S := Trim(VarToStr(Sht.Cells[iRow, 3].Value));
+            // template str
+            S := Trim(VarToStr(Sht.Cells[iRow, 4].Value));
+            ct.TemplateStr := S;
+            // annotation
+            S := Trim(VarToStr(Sht.Cells[iRow, 5].Value));
+            ct.Annotation := S;
+        end;
 
-        NewDF := TTrendlinePreDefine.Create;
-        // type string
-        S := Trim(VarToStr(Sht.Cells[iRow, 3].Value));
-        // define string
-        S := Trim(VarToStr(Sht.Cells[iRow, 4].Value));
-        NewDF.DecodeDefine(S);
-        NewDF.Name := sName; // decodedefine的时候，要Clear一次，结果删除了Name
-        // annotation string
-        S := Trim(VarToStr(Sht.Cells[iRow, 5].Value));
-        TLPreDefines.Add(NewDF.Name, NewDF);
-    end;
+    Sht := ExcelIO.GetSheet(ParamBook, 'WebGrid基本表模板');
+    if Sht <> nil then
+        for iRow := 2 to 1000 do
+        begin
+            sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
+            if sName = '' then
+                Break;
+
+            wg := ts.AddWGTemplate(TWebGridTemplate) as TWebGridTemplate;
+            wg.TemplateName := sName;
+
+            // 仪器类型属性已经写入了模板代码，在设置模板代码时会设置，这里就不从表中读取了。
+
+            // template string
+            S := Trim(VarToStr(Sht.Cells[iRow, 4].Value));
+            wg.TemplateStr := S;
+            // annotation
+            S := Trim(VarToStr(Sht.Cells[iRow, 5].Value));
+            wg.Annotation := S;
+        end;
+
+    Sht := ExcelIO.GetSheet(ParamBook, 'Excel基本表模板');
+    if Sht <> nil then
+        for iRow := 2 to 1000 do
+        begin
+            sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
+            if sName = '' then
+                Break;
+
+            xl := ts.AddXLTemplate(TXLGridTemplate) as TXLGridTemplate;
+            xl.TemplateName := sName;
+            // meter type
+            S := Trim(VarToStr(Sht.Cells[iRow, 3].Value));
+            xl.MeterType := S;
+            // group
+            S := Trim(VarToStr(Sht.Cells[iRow, 4].Value));
+            if S = '否' then
+                xl.ApplyToGroup := False
+            else
+                xl.ApplyToGroup := True;
+            // sheet name
+            S := Trim(VarToStr(Sht.Cells[iRow, 5].Value));
+            xl.TemplateSheet := S;
+            // xlgrid type
+            S := Trim(VarToStr(Sht.Cells[iRow, 6].Value));
+            if S = '动态行' then
+                xl.GridType := xlgdynrow
+            else if S = '动态列' then
+                xl.GridType := xlgdyncol
+            else if S = '静态表' then
+                xl.GridType := xlgstatic;
+            // title range
+            S := Trim(VarToStr(Sht.Cells[iRow, 7].Value));
+            xl.TitleRangeRef := S;
+            // head range
+            S := Trim(VarToStr(Sht.Cells[iRow, 8].Value));
+            xl.HeadRangeRef := S;
+            // data range
+            S := Trim(VarToStr(Sht.Cells[iRow, 9].Value));
+            xl.DataRangeRef := S;
+            // annotation
+            S := Trim(VarToStr(Sht.Cells[iRow, 10].Value));
+            xl.Annotation := S;
+        end;
 end;
 
 { -----------------------------------------------------------------------------
@@ -1139,7 +1346,7 @@ end;
   Description:  内部使用。在基本参数表、工程属性表、数据格式表中查找指定设计
                 编号的监测仪器
 ----------------------------------------------------------------------------- }
-function _FindMeter(Sht: IXLSWorksheet; AName: String; StartRow: Integer = 1): Integer;
+function _FindMeter(Sht: IXLSWorksheet; AName: string; StartRow: Integer = 1): Integer;
 var
     iRow : Integer;
     S, S1: string;
@@ -1353,7 +1560,7 @@ end;
   Procedure  : SaveParams
   Description: 保存参数，本函数允许改变仪器的设计编号
 ----------------------------------------------------------------------------- }
-function SaveParams(AMeter: TMeterDefine; OldName: String): Boolean;
+function SaveParams(AMeter: TMeterDefine; OldName: string): Boolean;
 var
     Wbk: IXLSWorkBook;
     Sht: IXLSWorksheet;
@@ -1368,9 +1575,11 @@ end;
 initialization
 
 theCols := TParamCols.Create;
+IssueList := TStringList.Create;
 
 finalization
 
 theCols.Free;
+IssueList.Free;
 
 end.
