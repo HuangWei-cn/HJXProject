@@ -81,6 +81,14 @@ type
         { 设置 }
         procedure SetProject(AProject: IHJXProject);
         procedure SetGlobalDatas(AGD: IHJXProjectGlobalDatas);
+
+        //2018-09-13 将下面5个Set...添加到接口中
+        procedure SetMeters(MeterList: TObject);
+        procedure SetMeterGroups(MeterGroupList: TObject);
+        procedure SetLayouts(ALayoutList: TObject);
+        procedure SetDSNames(DSNameList: TObject);
+        procedure SetTemplates(ATmpl: TObject);
+
         { 2016-7-28 }
         procedure OpenDatabaseManager;
 

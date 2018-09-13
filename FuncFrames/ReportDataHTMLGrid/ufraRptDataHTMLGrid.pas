@@ -108,6 +108,8 @@ implementation
 uses
     uWBLoadHTML, uWebGridCross, uWeb_DataSet2HTML, uHJX.Intf.GraphDispatcher,
     uHJX.Intf.FunctionDispatcher, uHJX.EnvironmentVariables,
+    {todo:将模板处理功能迁移到模板调度器中，各功能件从调度器调用模板粗粒}
+    uHJX.Template.WebGridProc {用模板替代代码生成} ,
     PreviewForm;
 
 const
@@ -278,7 +280,12 @@ begin
             sContent := sContent + '<h3>' + sType + '</h3>';
         end;
 
-        sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
+        { 2018-09-13 有模板的仪器，根据模板生成表格，没有模板的用代码生成通用表格 }
+        if AMeter.DataSheetStru.WGTemplate <> '' then
+            sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>' +
+                GenWebGrid(AMeter.DesignName) + '<p> </p>' { 根据模板生成 }
+        else
+            sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
         // 添加图形链接
         if chkCreateChart.Checked then
         begin

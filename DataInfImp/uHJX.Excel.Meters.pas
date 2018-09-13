@@ -23,7 +23,7 @@ interface
 
 uses
     System.Classes, System.SysUtils, System.Variants, System.Generics.Collections,
-    uHJX.Classes.Meters;
+    uHJX.Intf.AppServices, uHJX.Classes.Meters;
 
 type
 // TDataDefine = record
@@ -352,7 +352,7 @@ begin
         Result := PrjParams.Stake
     else if S = 'PROFILE' then
         Result := PrjParams.Profile
-    else if S='DESIGNNAME' then
+    else if S = 'DESIGNNAME' then
         Result := Self.DesignName
     else
         Result := 'Unknow parameter';
@@ -798,6 +798,11 @@ DSNames := ThjxDSNameList.Create;
 MeterGroup := TMeterGroupList.Create;
 Layouts := TLayoutList.Create;
 DSDefines := TPreDefineDSList.Create;
+
+IAppServices.SetMeters(ExcelMeters);
+IAppServices.SetMeterGroups(MeterGroup);
+IAppServices.SetDSNames(DSNames);
+IAppServices.SetLayouts(Layouts);
 
 finalization
 

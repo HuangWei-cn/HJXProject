@@ -636,14 +636,17 @@ var
         ReplaceIntValue(LocalDefine.AnnoCol, AMeter.DataSheetStru.AnnoCol);
         ReplaceIntValue(LocalDefine.BaseLine, AMeter.DataSheetStru.BaseLine);
 
-        // 设置Chart定义名，之后设置对象
+        // 设置Templates name，之后设置对象
         with AMeter.DataSheetStru do
         begin
             if LocalDefine.ChartDefineName <> '' then
                 ChartDefineName := LocalDefine.ChartDefineName;
-            ChartTemplate := LocalDefine.ChartTemplate;
-            WGTemplate := LocalDefine.WGTemplate;
-            XLTemplate := LocalDefine.XLTemplate;
+            if LocalDefine.ChartTemplate <> '' then
+                ChartTemplate := LocalDefine.ChartTemplate;
+            if LocalDefine.WGTemplate <> '' then
+                WGTemplate := LocalDefine.WGTemplate;
+            if LocalDefine.XLTemplate <> '' then
+                XLTemplate := LocalDefine.XLTemplate;
         end;
 
         if AMeter.DataSheetStru.ChartDefineName <> '' then
@@ -973,6 +976,7 @@ var
         try
             Result := TPath.GetFullPath(APath);
         except
+            // IssueList.Add(APath + '不是有效的文件名或路径');
             Result := '';
         end;
     end;
@@ -1038,29 +1042,30 @@ begin
                 sTemplBook := Trim(VarToStr(Sht.Cells[iRow, 3].Value));
         end;
 
-        xlsParamFile := sPF;
-        xlsDFListFile := sDLF;
-
-        if not FileExists(sPF) then
-        begin
-            IssueList.Add(Format('仪器参数文件“%s”无效', [sPF]));
-            xlsParamFile := '';
-        end;
-
-        if not FileExists(sDLF) then
-        begin
-            IssueList.Add(Format('仪器数据文件列表工作簿“%s”不是有效文件', [sDLF]));
-        end;
-
         // 设置文件路径
         S := GetCurrentDir;
         SetCurrentDir(ENV_ConfigPath);
+
+
         // 将相对目录替换为绝对目录
+        xlsParamFile := _GetFullPath(sPF);
+        xlsDFListFile := _GetFullPath(sDLF);
         sDataRt := _GetFullPath(sDataRt);
         sScheme := _GetFullPath(sScheme);
         sCX := _GetFullPath(sCX);
         sTemp := _GetFullPath(sTemp);
         sTemplBook := _GetFullPath(sTemplBook);
+
+        if (xlsParamFile = '') or (not FileExists(sPF)) then
+        begin
+            IssueList.Add(Format('仪器参数文件“%s”无效', [sPF]));
+            xlsParamFile := '';
+        end;
+
+        if (xlsDFListFile = '') or (not FileExists(sDLF)) then
+        begin
+            IssueList.Add(Format('仪器数据文件列表工作簿“%s”不是有效文件', [sDLF]));
+        end;
 
         // ShowMessage(sDataRt + #13 + sScheme + #13 + sCX + #13 + sTemp);
         // 测试这些目录是否存在，若不存在则清空
@@ -1087,7 +1092,7 @@ begin
         if FileExists(sTemplBook) then
             ENV_XLTemplBook := sTemplBook
         else
-            IssueList.Add(Format('“%s”不是有效的文件', [sTemplBook]));
+            IssueList.Add(Format('“%s”不是有效的文件，无法加载Excel模板工作簿。', [sTemplBook]));
 
         // 加载仪器参数表工作簿
         if sPF <> '' then
