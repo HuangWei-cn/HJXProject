@@ -19,12 +19,13 @@ uses
     System.Classes;
 
 type
+    { todo:TDrawFunc没有要求StartDate和EndDate，无法绘制数据区间的内容 }
     /// <summary>
     /// 绘图方法。完成对某仪器的绘图后，返回一个包含TeeChart组件的Component实例，
     /// 该实例的parent和Owner都是参数AOwner，且返回的Component.Align = alClient。
     /// 若AOwner = nil，则弹出一个form，绘图结果在此form中。
     /// </summary>
-    ///
+    /// <remarks>这个函数目前没有提供StartDate和EndDate，只能从头画到尾。</remarks>
     TDrawFunc = function(ADesignName: string; AOwner: TComponent): TComponent;
 
     { 导出图形到文件函数定义，导出格式默认为JPEG，主要用于Web页面的图形链接。输入参数DTStart、DTEnd

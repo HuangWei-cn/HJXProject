@@ -81,8 +81,8 @@ type
     TMethodByID = procedure(AID: Integer) of object;
     TProcByID   = procedure(AID: Integer);
 
-    //TMethodByAny = procedure(V) of object;
-    //TProcbyAny   = procedure(V);
+    // TMethodByAny = procedure(V) of object;
+    // TProcbyAny   = procedure(V);
 
     { 无参数方法, 比如刷新什么的 }
     TMethodNoneArg = procedure of object;
@@ -99,24 +99,47 @@ type
     { 入参类型 }
     TArgType = (atNone, atStr, atStrings, atList, atStrArray, atIntArray,
         atID, atVariant, atVariantArray, atUndefine);
+
 // TGeneralFunction = function(InParams: array of Variant;
 // var OutParams: array of Variant): TComponent;
     { ============================================================================================ }
-
+    /// <summary>
+    /// 功能调度器。<para>IFunctionDispatcher是本系统主功能调度器，向各个功能件提供了
+    /// 常用的、固定化的功能，将功能件与系统其它模块、功能件隔离开。如，当需要
+    /// 显示仪器过程线时，调用本调度器的ShowDataGraph方法，将仪器名、容器组件提供
+    /// 给方法即可，调用者完全不必关心是谁怎样完成绘图。这样，绘图功能可以不断
+    /// 改版、更换绘图组件(当前用Teechart)。  </para>
+    /// <para>本调度器提供了如下几种常用方法：绘图、显示观测数据、编辑数据、编辑
+    /// 参数等。
+    /// </para>
+    /// <para>除常用、固化方法外，本调度器还提供了几类不同参数类型的方法注册、调用
+    /// 方法。功能件可以将自己提供的功能方法注册到调度器，其他方法可以通过功能方法
+    /// 名称进行调用：CallFunction(FuncName, args)。</para>
+    ///
+    /// <para>当功能件所提供的方法调用比较复杂或通过本调度器进行调用比较复杂时，可以
+    /// 考虑采用额外的专用调度器的方式实现。新调度器向FunctionComponentManager注册，调用者
+    /// 从IAppServices.GetDispacther获得该调度器，根据该调度器的使用规则调用其注册方法。</para>
+    /// <para>使用新调度器的代码必须知道该调度器的规则。</para>
+    /// </summary>
     IFunctionDispatcher = interface(IInterface)
         ['{8B5D1907-B1C8-4103-A00C-5BA5875C7D42}']
         { 以下是特定类型的功能调用 }
+        ///<summary>显示仪器信息</summary>
         procedure ShowDMInfos(ADesignName: string);
         { 2018-06-05 新增方法，用于取代下面的DrawTrandLine和DrawMultiTrendLine }
+        ///<summary>显示仪器图形，可能是过程线、矢量图、位移图等。</summary>
         procedure ShowDataGraph(ADesignName: string; AContainer: TComponent = nil);
         { 2018-06-06 新增方法，弹出过程线之类的，如果指定了AContainer则将Frame放置其中 }
+        ///<summary>以弹出窗口的方式显示仪器图形</summary>
         procedure PopupDataGraph(ADesignName: string; AContainer: TComponent = nil);
         // 旧方法，将被ShowDataGraph取代
         procedure DrawTrendLine(ADesignName: string);
         // 旧方法，将被ShowDataGraph取代
         procedure DrawMultiTrendLine(ASensors: TStrings);
 
+        ///<summary>刷新仪器列表</summary>
         procedure RefreshDMList;
+        ///<summary>刷新仪器分组</summary>
         procedure RefreshGroup;
         // 旧方法，将被ShowData取代
         procedure BrowseSensorData(ADesignName: string);

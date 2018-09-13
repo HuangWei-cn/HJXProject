@@ -4,6 +4,9 @@
  Date:      04-五月-2018
  Purpose:   fraBaseTrendLine的壳，负责调用该Frame，本单元为其封装。
             需要绘制过程线的功能块则调用本Frame。
+            TfraTrendLineShell组件一方面可以作为独立组件被实例化，在用户程序
+            中显示出来，成为用户程序中的一部分；另一方面，本单元向图形调度器
+            提供了DrawMeterGraph方法的实际执行者。
  History:   2018-07-26 增加根据预定义Template绘图的功能
 ----------------------------------------------------------------------------- }
 
@@ -346,6 +349,7 @@ begin
                 { 2018-07-26 现在具备了根据预定义的Style绘图的功能，理论上讲，只要一个仪器有对应的
                   Style，则无论仪器类型都可以绘图，这种根据仪器类型进行绘图注册的方式已经落后于时代
                   了，需要改进 }
+                {TODO -ohw -cDrawGraph : 注册方法应该改进，根据模板中仪器类型和图形类型注册，而非代码中写死}
                 IGD.RegistDrawFuncs('多点位移计', DrawTrendLine);
                 IGD.RegistDrawFuncs('锚索测力计', DrawTrendLine);
                 IGD.RegistDrawFuncs('锚杆应力计', DrawTrendLine);

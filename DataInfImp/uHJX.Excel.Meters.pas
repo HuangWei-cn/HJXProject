@@ -798,6 +798,8 @@ DSNames := ThjxDSNameList.Create;
 MeterGroup := TMeterGroupList.Create;
 Layouts := TLayoutList.Create;
 DSDefines := TPreDefineDSList.Create;
+{ 2018-09-13 }
+CustomMeterGroup := TMeterGroupList.Create;
 
 IAppServices.SetMeters(ExcelMeters);
 IAppServices.SetMeterGroups(MeterGroup);
@@ -812,6 +814,7 @@ try
     FreeAndNil(MeterGroup);
     FreeAndNil(Layouts);
     FreeAndNil(DSDefines);
+    FreeAndNil(CustomMeterGroup);
 finally
 end;
 
