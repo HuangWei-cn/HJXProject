@@ -71,7 +71,7 @@ const
             Value 5: DesignName
  }
     RegExStr =
-        '%([a-zA-Z]*|((Meter)([1-9][0-9]*)\.)?(DesignName|(PD|MD)([1-9][0-9]*)\.(Name|Alias|DataUnit)))%';
+        '%([a-zA-Z]*|((Meter)([1-9][0-9]*)\.)?(DesignName|Elevation|Stake|Position|Deep|(PD|MD)([1-9][0-9]*)\.(Name|Alias|DataUnit)))%';
 
     { 下面的正则表达式用于数据行的匹配：%DTScale|Annotation%, %PD1%, %Meter1.PD1%这三类情况，匹配
       后分组为：
@@ -157,12 +157,12 @@ begin
                         j := StrToInt(MyGrps.Item[4].Value); // 仪器序号
                         S := MeterGroup.ItemByName[AMeter.PrjParams.GroupID].Items[j - 1];
                         mt := ExcelMeters.Meter[S];
-                        if mt <> nil then
-                                Result := StringReplace(Result, MyColl.Item[i].Value, mt.DesignName,
-                                [rfReplaceAll]);
+                        if mt <> nil then Result := StringReplace(Result, MyColl.Item[i].Value,
+                                { mt.DesignName } mt.ParamValue(MyGrps.Item[5].value), [rfReplaceAll]);
                     end
                     else // 否则用给定的仪器参数替换占位符
-                            Result := StringReplace(Result, MyColl.Item[i].Value, AMeter.DesignName,
+                            Result := StringReplace(Result, MyColl.Item[i].Value,
+                            { AMeter.DesignName } AMeter.ParamValue(MyGrps.Item[5].value),
                             [rfReplaceAll]);
                 end;
 
@@ -172,7 +172,8 @@ begin
                     begin
                         if AsGroup then
                         begin
-                            j := StrToInt(MyGrps.Item[4].Value); // 这个值是Meter后面的数字，即第几个Meter
+                            j := StrToInt(MyGrps.Item[4].Value);
+                            // 这个值是Meter后面的数字，即第几个Meter
                             S := MeterGroup.ItemByName[AMeter.PrjParams.GroupID].Items[j - 1];
                             mt := ExcelMeters.Meter[S]; // 这里暂不考虑仪器组问题，全部用AMeter替代
                         end

@@ -21,15 +21,15 @@ type
     TXLGridTemplate = class(ThjxTemplate)
     private
         // FTemplateName: string;  // template name
-        FTempSheet: string;     // template worksheet name
-        FGridType: TxlGridType; // grid type
-        FApplyToGroup: Boolean;
-        FTitleRect: TRect;      // title range rect
-        FHeadRect: TRect;       // grid head range rect
-        FDataRect: TRect;       // data row rect
+        FTempSheet    : string;      // template worksheet name
+        FGridType     : TxlGridType; // grid type
+        FApplyToGroup : Boolean;
+        FTitleRect    : TRect;  // title range rect
+        FHeadRect     : TRect;  // grid head range rect
+        FDataRect     : TRect;  // data row rect
         FTitleRangeRef: string; // like “A1:F1”
-        FHeadRangeRef: string;  // like "A2:F4"
-        FDataRangeRef: string;  // like "A5:F5"
+        FHeadRangeRef : string; // like "A2:F4"
+        FDataRangeRef : string; // like "A5:F5"
         procedure SetTitleRange(ARef: string);
         procedure SetHeadRange(ARef: string);
         procedure SetDataRange(ARef: string);
@@ -38,14 +38,14 @@ type
         constructor Create; override;
     published
         property TemplateSheet: string read FTempSheet write FTempSheet;
-        property GridType: TxlGridType read FGridType write FGridType;
-        property TitleRect: TRect read FTitleRect write FTitleRect;
-        property HeadRect: TRect read FHeadRect write FHeadRect;
-        property DataRect: TRect read FDataRect write FDataRect;
+        property GridType     : TxlGridType read FGridType write FGridType;
+        property TitleRect    : TRect read FTitleRect write FTitleRect;
+        property HeadRect     : TRect read FHeadRect write FHeadRect;
+        property DataRect     : TRect read FDataRect write FDataRect;
         property TitleRangeRef: string read FTitleRangeRef write SetTitleRange;
-        property HeadRangeRef: string read FHeadRangeRef write SetHeadRange;
-        property DataRangeRef: string read FDataRangeRef write SetDataRange;
-        property ApplyToGroup: Boolean read FApplyToGroup write FApplyToGroup;
+        property HeadRangeRef : string read FHeadRangeRef write SetHeadRange;
+        property DataRangeRef : string read FDataRangeRef write SetDataRange;
+        property ApplyToGroup : Boolean read FApplyToGroup write FApplyToGroup;
     end;
 
 implementation
@@ -63,9 +63,9 @@ const
 // row, col -  zero-based indexes
 function GetCellRef(cellref: string; var row: integer; var col: integer): integer;
 var
-    i, cnt: integer;
+    i, cnt    : integer;
     lrow, lcol: integer;
-    ch: char;
+    ch        : char;
 begin
     Result := 1;
     lcol := 0;
@@ -170,8 +170,8 @@ end;
 function ColNameToColIndex(Name: string): integer;
 var
     i, cnt: integer;
-    lcol: integer;
-    ch: char;
+    lcol  : integer;
+    ch    : char;
 begin
     lcol := 0;
     cnt := Length(name);
@@ -225,7 +225,7 @@ end;
 function GetCellRange(Value: string; var r1, c1, r2, c2: integer): integer;
 var
     cell1, cell2: string;
-    i: integer;
+    i           : integer;
 begin
     i := Pos(':', Value);
     if i > 0 then
@@ -291,18 +291,22 @@ procedure TXLGridTemplate.SetTitleRange(ARef: string);
 begin
     FTitleRangeRef := ARef;
     GetCellRange(ARef, FTitleRect.Top, FTitleRect.Left, FTitleRect.Bottom, FTitleRect.Right);
+    // 注意：此时得到的TitleRect各项数值是以0为起点，需要整个偏移1
+    FTitleRect.Offset(1, 1);
 end;
 
 procedure TXLGridTemplate.SetHeadRange(ARef: string);
 begin
     FHeadRangeRef := ARef;
     GetCellRange(ARef, FHeadRect.Top, FHeadRect.Left, FHeadRect.Bottom, FHeadRect.Right);
+    FHeadRect.Offset(1, 1)
 end;
 
 procedure TXLGridTemplate.SetDataRange(ARef: string);
 begin
     FDataRangeRef := ARef;
     GetCellRange(ARef, FDataRect.Top, FDataRect.Left, FDataRect.Bottom, FDataRect.Right);
+    FDataRect.Offset(1, 1);
 end;
 
 end.

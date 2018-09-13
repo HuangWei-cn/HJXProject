@@ -89,6 +89,8 @@ begin
         Copy(Result.RCRange[FirstRow, FirstCol, LastRow + 1, LastCol + 1], xlPasteAll);
         Result.RCRange[FirstRow, FirstCol, LastRow + 1, LastCol + 1].Formula := Formula;
     end;
+
+    //nExcel无法设置冻结区，因此产生的结果将是没有冻结区的工作表。
 end;
 
 { Use Excel or ET duplacation a worksheet to an other workbook. }
@@ -138,8 +140,8 @@ end;
 
 { 解析数据区单元格占位符，填写到DataCell结构中对应的项：若有对应数据字段设置字段对象，若无则源内容
   为字符串，可以不用管，在填写数据方法中会将源区域拷贝到新位置 }
-procedure __ProcDataCell(AValue: Variant; ACell: TXLDataCell; AMeter: TMeterDefine; DS: TDataSet;
-    AsGroup: Boolean = False);
+procedure __ProcDataCell(AValue: Variant; var ACell: TXLDataCell; AMeter: TMeterDefine;
+    DS: TDataSet; AsGroup: Boolean = False);
 var
     S: string;
 begin
@@ -258,14 +260,15 @@ begin
                 SetDataCells;
                 DS.First;
                 repeat
+                    SrcRange.Copy(Sht.RCRange[newRect.Top, newRect.Left, newRect.Bottom,
+                            newRect.Right]);
+
                     for i := 0 to high(DataRangeCells) do
                     begin
                         DataRangeCells[i].SetCellValue(Sht);
                         DataRangeCells[i].Offset;
                     end;
 
-                    SrcRange.Copy(Sht.RCRange[newRect.Top, newRect.Left, newRect.Bottom,
-                            newRect.Right]);
                     newRect.Offset(Offcol, Offrow);
 
                     DS.Next;
