@@ -10,9 +10,15 @@ unit uHJX.CoreUnits;
 
 interface
 uses
-    uHJX.Intf.AppServices, uHJX.Intf.FuncCompManager, uHJX.Intf.ProjectGlobal, uHJX.Intf.Datas,
-    uHJX.IntfImp.AppServices,uHJX.IntfImp.FuncCompManager, uHJX.IntfImp.FunctionDispatcher,
+    uHJX.Intf.AppServices,
+    uHJX.Intf.FuncCompManager,
+    uHJX.Intf.ProjectGlobal,
+    uHJX.Intf.Datas,
+    uHJX.IntfImp.AppServices,
+    uHJX.IntfImp.FuncCompManager,
+    uHJX.IntfImp.FunctionDispatcher,
     uHJX.Classes.Meters,
+    uHJX.Classes.Templates,
     uHJX.Core.FuncCompTypes,
     uHJX.Data.Types,
     uHJX.EnvironmentVariables;
