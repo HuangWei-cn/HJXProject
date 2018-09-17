@@ -1,0 +1,83 @@
+object frmQuerySetupDate: TfrmQuerySetupDate
+  Left = 0
+  Top = 0
+  Caption = #20202#22120#23433#35013#26085#26399#34920
+  ClientHeight = 383
+  ClientWidth = 709
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poMainFormCenter
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 14
+  object Panel1: TPanel
+    Left = 582
+    Top = 0
+    Width = 127
+    Height = 366
+    Align = alRight
+    BevelOuter = bvLowered
+    TabOrder = 0
+    ExplicitLeft = 508
+    ExplicitHeight = 337
+    object Button1: TButton
+      Left = 8
+      Top = 12
+      Width = 113
+      Height = 25
+      Caption = #26597#35810
+      TabOrder = 0
+      OnClick = Button1Click
+    end
+    object Edit1: TEdit
+      Left = 8
+      Top = 56
+      Width = 113
+      Height = 25
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -14
+      Font.Name = 'Consolas'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      Text = 'Edit1'
+    end
+  end
+  object grdQuery: TStringGrid
+    Left = 0
+    Top = 0
+    Width = 582
+    Height = 366
+    Align = alClient
+    DefaultColWidth = 100
+    RowCount = 2
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -14
+    Font.Name = 'Consolas'
+    Font.Style = []
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
+    ParentFont = False
+    TabOrder = 1
+    ExplicitLeft = 2
+    ExplicitWidth = 508
+    ExplicitHeight = 337
+  end
+  object ProgressBar1: TProgressBar
+    Left = 0
+    Top = 366
+    Width = 709
+    Height = 17
+    Align = alBottom
+    Smooth = True
+    Step = 1
+    TabOrder = 2
+    Visible = False
+  end
+end
