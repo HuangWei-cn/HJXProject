@@ -91,6 +91,7 @@ type
         FStream         : TMemoryStream;
         procedure GenRptGrid;
         function GenMeterGrid(AMeter: TMeterDefine): string;
+        function GenMeterGridByTempalte(ADsnName: string): string; // 2018-09-17根据模板创建表格
         // 各类仪器分别生成表格
         function GenMeterGridDDWY(AMeter: TMeterDefine): string;
         function GenMeterGridMS(AMeter: TMeterDefine): string;
@@ -283,7 +284,7 @@ begin
         { 2018-09-13 有模板的仪器，根据模板生成表格，没有模板的用代码生成通用表格 }
         if AMeter.DataSheetStru.WGTemplate <> '' then
             sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>' +
-                GenWebGrid(AMeter.DesignName) + '<p> </p>' { 根据模板生成 }
+                GenMeterGridByTempalte(AMeter.DesignName) + '<p> </p>' { 根据模板生成 }
         else
             sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
         // 添加图形链接
@@ -751,6 +752,14 @@ begin
         WCV.Free;
         SetLength(V, 0);
     end;
+end;
+
+function TfraRptDataHTMLGrid.GenMeterGridByTempalte(ADsnName: string): string;
+begin
+    if rbAllDatas.Checked then
+        Result := GenWebGrid(ADsnName)
+    else
+        Result := GenWebGrid(ADsnName, dtpStart.Date, dtpEnd.Date);
 end;
 
 end.

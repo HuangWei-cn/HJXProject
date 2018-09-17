@@ -22,18 +22,20 @@ type
         MaxDate: TDateTime;
         MinValue: Double;
         MinDate: TDateTime;
+        Increment: Double; // 2018-09-18 增量，末日值-起始值
+        Amplitude: Double; // 2018-09-18 振幅，最大值-最小值
         procedure Init;
         procedure CompareData(DT: TDateTime; Value: Double);
     end;
 
     TEVDataStru = record
-        ID: String; // DesignName
-        PDIndex: Integer; // 物理量序号
-        LifeEV: TEVDataEntry; // 自安装以来特征值
-        YearEV: TEVDataEntry; // 年特征值
+        ID: String;            // DesignName
+        PDIndex: Integer;      // 物理量序号
+        LifeEV: TEVDataEntry;  // 自安装以来特征值
+        YearEV: TEVDataEntry;  // 年特征值
         MonthEV: TEVDataEntry; // 月特征值
-        CurValue: Double; // 当前值
-        CurDate: TDateTime; // 当前值日期
+        CurValue: Double;      // 当前值
+        CurDate: TDateTime;    // 当前值日期
         procedure Init;
     end;
 
@@ -45,9 +47,9 @@ implementation
 procedure TEVDataEntry.Init;
 begin
     MaxValue := -999999;
-    MaxDate  := 0;
+    MaxDate := 0;
     MinValue := 999999;
-    MinDate  := 0;
+    MinDate := 0;
 end;
 
 procedure TEVDataEntry.CompareData(DT: TDateTime; Value: Double);
@@ -55,7 +57,7 @@ begin
     if Value > MaxValue then
     begin
         MaxValue := Value;
-        MaxDate  := DT;
+        MaxDate := DT;
     end
     else if Value = MaxValue then // 如果最大值相等，日期取最近值
     begin
@@ -66,7 +68,7 @@ begin
     if Value < MinValue then
     begin
         MinValue := Value;
-        MinDate  := DT;
+        MinDate := DT;
     end
     else if Value = MinValue then
     begin
@@ -82,7 +84,7 @@ begin
     YearEV.Init;
     MonthEV.Init;
     CurValue := 0;
-    CurDate  := 0;
+    CurDate := 0;
 end;
 
 end.

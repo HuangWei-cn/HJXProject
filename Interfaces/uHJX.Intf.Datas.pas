@@ -35,7 +35,7 @@ type
         function GetEVDatas(ADsnName: String; var EVDatas: PEVDataArray): Boolean;
         { 取回指定时段内的特征值 }
         function GetEVDataInPeriod(ADsnName: string; DT1, DT2: TDateTime;
-            var EVDatas: TDoubleDynArray): Boolean;
+            var EVDatas: PEVDataArray): Boolean;
         { 取回指定时段内的观测点次(即数据量，每个数据相当于一个点次) }
         function GetDataCount(ADsnName: string; DT1, DT2: TDateTime): Integer;
         { 设置DataSet的字段别名 }

@@ -15,6 +15,9 @@
 
             2018-06-14
             增加了查询仪器数据增量及月增量的功能
+            2018-09-18
+            特征值查询：完成了时间段内特征值查询功能，特征值中增加了“增量”和“振幅”
+            两项。
   ----------------------------------------------------------------------------- }
 
 unit uHJX.Excel.DataQuery;
@@ -64,7 +67,7 @@ type
         function GetEVDatas(ADsnName: String; var EVDatas: PEVDataArray): Boolean;
         { 取回指定时段内的特征值 }
         function GetEVDataInPeriod(ADsnName: string; DT1, DT2: TDateTime;
-            var EVDatas: TDoubleDynArray): Boolean;
+            var EVDatas: PEVDataArray): Boolean;
         { 取回指定时段内的观测点次 }
         function GetDataCount(ADsnName: string; DT1, DT2: TDateTime): Integer;
         { 设置DataSet字段别名，对于Excel数据驱动，这个对应表存储在Excel参数文件中，初始化参数时
@@ -231,7 +234,7 @@ begin
             Exit;
 
     // 4. 截止行等于给定日期
-    //先跳过空行，找到最后一行数据，取得最后日期
+    // 先跳过空行，找到最后一行数据，取得最后日期
     for iRow := iEnd downto iStart do
     begin
         IAppServices.ProcessMessages;
@@ -810,7 +813,7 @@ type
     end;
 
     { -----------------------------------------------------------------------------
-      Procedure  : GetEVData
+      Procedure  : GetEVData   （废弃不用，因为只返回第一个物理量的特征值）
       Description: 查找当前特征值，时间为最后一次观测时间，目前只能查询PD1的特征值
       对于多点位移计也是如此。
       ----------------------------------------------------------------------------- }
@@ -894,7 +897,7 @@ begin
 
     Result := True;
 end;
-
+{ 废弃不用了 }
 function ThjxDataQuery.GetEVData(ADsnName: string; var EVDatas: TDoubleDynArray): Boolean;
 var
     EVData: PEVDataStru;
@@ -983,12 +986,19 @@ var
     begin
         iCol := Meter.PDColumn(EVDatas[iev].PDIndex);
         D := ExcelIO.GetFloatValue(sht, iRow, iCol);
+
         EVDatas[iev].LifeEV.CompareData(dtScale, D);
+        EVDatas[iev].LifeEV.Increment := EVDatas[iev].CurValue - D; // 2018-09-18 生命期增量
+
         if YearOf(dtScale) = chkDate.theYear then
         begin
             EVDatas[iev].YearEV.CompareData(dtScale, D);
+            EVDatas[iev].YearEV.Increment := EVDatas[iev].CurValue - D; // 2018-09-18 年增量
             if MonthOf(dtScale) = chkDate.theMon then
+            begin
                 EVDatas[iev].MonthEV.CompareData(dtScale, D);
+                EVDatas[iev].MonthEV.Increment := EVDatas[iev].CurValue - D; // 月增量
+            end;
         end;
     end;
 
@@ -1055,17 +1065,163 @@ begin
             FindEVData(i);
     end;
 
+    //2018-09-18振幅
+    for i := 0 to High(evdatas) do
+        with EVDatas[i]^ do
+        begin
+            LifeEV.Amplitude := LifeEV.MaxValue - LifeEV.MinValue;
+            YearEV.Amplitude := YearEV.MaxValue - YearEV.MinValue;
+            MonthEV.Amplitude := MonthEV.MaxValue - MonthEV.MinValue;
+        end;
+
     Result := True;
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetEVDataInPeriod
-  Description: 返回指定时段内的特征值，暂时没有完成
+  Description: 返回指定时段内的特征值
+  2018-09-17 基本照抄GetEVDatas函数，只是改变了查询范围，从查询全部改为只查询
+  时段内。下一步将两个函数合并为一个，GetEVDatas调用本函数完成全部数据查询
 ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetEVDataInPeriod(ADsnName: string; DT1: TDateTime; DT2: TDateTime;
-    var EVDatas: TDoubleDynArray): Boolean;
+    var EVDatas: PEVDataArray): Boolean;
+var
+    Meter     : TMeterDefine;
+    i, n      : Integer;
+    wbk       : IXLSWorkBook;
+    sht       : IXLSWorksheet;
+    chkDate   : TevCheckDate;
+    iRow      : Integer;
+    Row1, Row2: Integer; // 指定日期起止行
+    S         : String;
+    dtScale   : TDateTime;
+    // 释放调用者提供的evdatas占用的内存，不同的仪器特征值数量不同
+    procedure ReleaseEVDatas;
+    var
+        ii: Integer;
+    begin
+        if Length(EVDatas) > 0 then
+            for ii := Low(EVDatas) to High(EVDatas) do
+                try
+                    Dispose(EVDatas[ii]);
+                except
+                end;
+        SetLength(EVDatas, 0);
+    end;
+    procedure SetDate(DT: TDateTime);
+    begin
+        chkDate.theYear := YearOf(DT);
+        chkDate.theMon := MonthOf(DT);
+        chkDate.dtYear1 := EncodeDate(chkDate.theYear, 1, 1);
+        chkDate.dtYear2 := EndOfAYear(chkDate.theYear);
+        chkDate.dtMon1 := EncodeDate(chkDate.theYear, chkDate.theMon, 1);
+        chkDate.dtMon2 := EndOfAMonth(chkDate.theYear, chkDate.theMon);
+    end;
+    procedure FindEVData(iev: Integer);
+    var
+        D   : double;
+        iCol: Integer;
+    begin
+        iCol := Meter.PDColumn(EVDatas[iev].PDIndex);
+        D := ExcelIO.GetFloatValue(sht, iRow, iCol);
+        with EVDatas[iev]^ do
+        begin
+            LifeEV.CompareData(dtScale, D);
+            LifeEV.Increment := CurValue - D;
+            if YearOf(dtScale) = chkDate.theYear then
+            begin
+                YearEV.CompareData(dtScale, D);
+                YearEV.Increment := CurValue - D;
+                if MonthOf(dtScale) = chkDate.theMon then
+                begin
+                    MonthEV.CompareData(dtScale, D);
+                    MonthEV.Increment := CurValue - D;
+                end;
+            end;
+        end;
+    end;
+
 begin
     Result := False;
+    chkDate.theYear := 0;
+    chkDate.theMon := 0;
+    // 必要的检查和初始化
+    Meter := ExcelMeters.Meter[ADsnName];
+    if Meter = nil then
+        Exit;
+
+    { 这里需要处理：如果仪器初值日期比DT2还晚，就不查了 }
+    if Meter.Params.BaseDate > DT2 then
+        Exit;
+
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+        Exit;
+    if FUseSession then
+        wbk := SSWorkBook
+    else
+        wbk := TmyWorkbook.Create;
+
+    if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+        if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
+            Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+        Exit;
+
+    // 对EVDatas数组初始化，释放多余的内存
+    ReleaseEVDatas;
+    // 根据Meter具有特征值的物理量数量初始化EVDatas数组
+    n := 0;
+    for i := 0 to Meter.PDDefines.Count - 1 do
+        if Meter.PDDefine[i].HasEV then
+        begin
+            inc(n);
+            SetLength(EVDatas, n);
+            New(EVDatas[n - 1]);
+            EVDatas[n - 1].Init;
+            EVDatas[n - 1].PDIndex := i;
+            EVDatas[n - 1].ID := ADsnName;
+        end;
+
+    { 与GetEVDatas不同的地方在这里： }
+    Row1 := _LocateDTRow(sht, DT1, Meter.DataSheetStru.DTStartRow, dloClosest);
+    Row2 := _LocateDTRow(sht, DT2, Meter.DataSheetStru.DTStartRow, dloBefore);
+    // for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
+    for iRow := Row2 downto Row1 do
+    begin
+        IAppServices.ProcessMessages;
+        S := trim(VarToStr(sht.Cells[iRow, 1].value));
+        if S = '' then
+            Continue;
+        if TryStrToDateTime(S, dtScale) = False then
+            Continue;
+        // 如果没有设置时间，则现在设置：即以最后一条记录的时间作为该仪器的特征值统计时间
+        if chkDate.theYear = 0 then
+        begin
+            SetDate(dtScale); // 初始化时间设置
+            // 设置当前值
+            for i := 0 to High(EVDatas) do
+            begin
+                EVDatas[i].CurDate := dtScale;
+                EVDatas[i].CurValue := ExcelIO.GetFloatValue(sht, iRow,
+                    Meter.PDColumn(EVDatas[i].PDIndex));
+            end;
+        end;
+        //
+        for i := 0 to High(EVDatas) do
+            FindEVData(i);
+    end;
+
+    // 计算振幅
+    for i := 0 to high(EVDatas) do
+        with EVDatas[i]^ do
+        begin
+            LifeEV.Amplitude := LifeEV.MaxValue - LifeEV.MinValue;
+            YearEV.Amplitude := YearEV.MaxValue - YearEV.MinValue;
+            MonthEV.Amplitude := MonthEV.MaxValue - MonthEV.MinValue;
+        end;
+
+    Result := True;
 end;
 
 { -----------------------------------------------------------------------------

@@ -6,8 +6,12 @@
   嵌入的IE浏览器中，用户可拷贝粘贴到其他软件中。
   History:
     2018-06-14  修改了表格格式，按工程部位拆分了表格
+    2018-09-18  增加了查询时间段内特征值的功能，增加了“增量”和“振幅”两项。
   ----------------------------------------------------------------------------- }
 { todo:允许采用分表形式显示特征值数据，可按安装部位进行分组分表 }
+{ todo:允许用户选择表格内容，如可选是否有年特征、月特征、当前值、增量、振幅等等。
+虽然查询结果是返回全部内容，但是表示的时候允许挑选，以免生成一个巨大表格，还需再编辑 }
+{ todo:提供EhGrid显示的特征值，这个组件允许按列排序，这样在分组后再排序是非常有用的 }
 unit ufraEigenvalueWeb;
 
 interface
@@ -28,8 +32,10 @@ type
         GroupBox1: TGroupBox;
         optLast: TRadioButton;
         optSpecialDate: TRadioButton;
-        dtpSpecial: TDateTimePicker;
+        dtpStart: TDateTimePicker;
         rdgMeterOption: TRadioGroup;
+        dtpEnd: TDateTimePicker;
+        ProgressBar1: TProgressBar;
         procedure btnGetEVDataClick(Sender: TObject);
     private
         { Private declarations }
@@ -115,6 +121,7 @@ begin
         GetEVDatas(S);
     finally
         Screen.Cursor := crDefault;
+        ProgressBar1.Visible := false;
     end;
 end;
 
@@ -122,6 +129,7 @@ constructor TfraEigenvalueWeb.Create(AOwner: TComponent);
 begin
     inherited;
     FIDList := tstringlist.Create;
+    dtpEnd.Date := Now;
 end;
 
 destructor TfraEigenvalueWeb.Destroy;
@@ -141,13 +149,13 @@ begin
         // V[1] := '仪器类型';
         V[0] := '设计编号';
         V[1] := '物理量';
-        for i := 2 to 5 do
+        for i := 2 to 7 do
             V[i] := '自安装以来特征值';
-        for i := 6 to 9 do
+        for i := 8 to 13 do
             V[i] := '年特征值';
-        for i := 10 to 13 do
+        for i := 14 to 19 do
             V[i] := '月特征值';
-        for i := 14 to 15 do
+        for i := 20 to 21 do
             V[i] := '当前值';
     end
     else
@@ -161,16 +169,25 @@ begin
         V[3] := '最大值日期';
         V[4] := '最小值';
         V[5] := '最小值日期';
-        V[6] := '年最大值';
-        V[7] := '最大值日期';
-        V[8] := '年最小值';
-        V[9] := '最小值日期';
-        V[10] := '月最大值';
-        V[11] := '最大值日期';
-        V[12] := '月最小值';
-        V[13] := '最小值日期';
-        V[14] := '当前值';
-        V[15] := '观测日期';
+        V[6] := '增量';
+        V[7] := '振幅';
+
+        V[8] := '年最大值';
+        V[9] := '最大值日期';
+        V[10] := '年最小值';
+        V[11] := '最小值日期';
+        V[12] := '年增量';
+        V[13] := '年振幅';
+
+        V[14] := '月最大值';
+        V[15] := '最大值日期';
+        V[16] := '月最小值';
+        V[17] := '最小值日期';
+        V[18] := '月增量';
+        V[19] := '月振幅';
+
+        V[20] := '当前值';
+        V[21] := '观测日期';
     end;
 end;
 
@@ -180,19 +197,25 @@ var
     i: Integer;
 begin
     AW.TitleRows := 2;
-    AW.ColCount := 16;
+    AW.ColCount := { 16 } 22; // 2018-09-18 增加了增量和振幅
     AW.ColHeader[0].AllowColSpan := true;
     // AW.ColHeader[1].AllowColSpan := true;
     // AW.ColHeader[2].AllowColSpan := true;
-    for i := 2 to 15 do
+    for i := 2 to 21 do
     begin
-        if (i mod 2 = 0) then
-            AW.ColHeader[i].Align := taRightJustify
+        case i of
+            2, 4, 6, 7, 8, 10, 12, 13, 14, 16, 18, 19, 20:
+                AW.ColHeader[i].Align := taRightJustify;
         else
             AW.ColHeader[i].Align := taCenter;
+        end;
+        { if (i mod 2 = 0) then
+            AW.ColHeader[i].Align := taRightJustify
+        else
+            AW.ColHeader[i].Align := taCenter; }
     end;
 
-    SetLength(V, 16);
+    SetLength(V, 22);
     _GetTitleRowStr(1, V);
     AW.AddRow(V);
     // WCV.AddCaptionRow(V);
@@ -203,7 +226,7 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetFirstEVDatas
-  Description: 本方法仅返回第一个物理量的特征值
+  Description: 本方法仅返回第一个物理量的特征值(已废弃！！！！！）
   ----------------------------------------------------------------------------- }
 procedure TfraEigenvalueWeb.GetFirstEVDatas(IDList: string);
 var
@@ -257,40 +280,36 @@ var
     Body   : string;
     sPos   : string;
     sType  : string;
+    bGet   : Boolean;
 begin
     FIDList.Text := IDList;
     if FIDList.Count = 0 then
         Exit;
 
+    ProgressBar1.Min := 1;
+    ProgressBar1.Max := FIDList.Count;
+    ProgressBar1.Position := 1;
+    ProgressBar1.Visible := true;
+
     WCV := TWebCrossView.Create;
-// WCV.TitleRows := 2;
-// WCV.ColCount := 18;
-// WCV.ColHeader[0].AllowColSpan := true;
-// WCV.ColHeader[1].AllowColSpan := true;
-// WCV.ColHeader[2].AllowColSpan := true;
-// for i := 4 to 17 do
-// begin
-// if (i mod 2 = 0) then
-// WCV.ColHeader[i].Align := taRightJustify
-// else
-// WCV.ColHeader[i].Align := taCenter;
-// end;
-//
-// SetLength(V, 18);
-// _GetTitleRowStr(1, V);
-// WCV.AddRow(V);
-// //WCV.AddCaptionRow(V);
-// _GetTitleRowStr(2, V);
-// WCV.AddRow(V);
-// //WCV.AddCaptionRow(V);
 
     _SetGrid(WCV);
-    SetLength(V, 16);
+    // SetLength(V, 16);
+    SetLength(V, 22); // 2018-09-18 增加“增量”，“振幅”两项
 
     Body := '<H2>观测数据特征值表</H2>';
     try
         for i := 0 to FIDList.Count - 1 do
-            if IHJXClientFuncs.GetEVDatas(FIDList.Strings[i], EVDatas) then
+        begin
+            progressbar1.Position := i+1;
+
+            if optLast.Checked then
+                bGet := IHJXClientFuncs.GetEVDatas(FIDList.Strings[i], EVDatas)
+            else
+                bGet := IHJXClientFuncs.GetEVDataInPeriod(FIDList.Strings[i], dtpStart.Date,
+                    dtpEnd.Date, EVDatas);
+
+            if bGet then
             begin
                 Meter := ExcelMeters.Meter[FIDList.Strings[i]];
                 if i = 0 then
@@ -335,19 +354,25 @@ begin
                             V[3] := FormatDateTime('yyyy-mm-dd', Lifeev.MaxDate);
                             V[4] := Lifeev.MinValue;
                             V[5] := FormatDateTime('yyyy-mm-dd', Lifeev.MinDate);
+                            V[6] := Lifeev.Increment;
+                            V[7] := Lifeev.Amplitude;
 
-                            V[6] := YearEV.MaxValue;
-                            V[7] := FormatDateTime('yyyy-mm-dd', YearEV.MaxDate);
-                            V[8] := YearEV.MinValue;
-                            V[9] := FormatDateTime('yyyy-mm-dd', YearEV.MinDate);
+                            V[8] := YearEV.MaxValue;
+                            V[9] := FormatDateTime('yyyy-mm-dd', YearEV.MaxDate);
+                            V[10] := YearEV.MinValue;
+                            V[11] := FormatDateTime('yyyy-mm-dd', YearEV.MinDate);
+                            V[12] := YearEV.Increment;
+                            V[13] := YearEV.Amplitude;
 
-                            V[10] := MonthEV.MaxValue;
-                            V[11] := FormatDateTime('yyyy-mm-dd', MonthEV.MaxDate);
-                            V[12] := MonthEV.MinValue;
-                            V[13] := FormatDateTime('yyyy-mm-dd', MonthEV.MinDate);
+                            V[14] := MonthEV.MaxValue;
+                            V[15] := FormatDateTime('yyyy-mm-dd', MonthEV.MaxDate);
+                            V[16] := MonthEV.MinValue;
+                            V[17] := FormatDateTime('yyyy-mm-dd', MonthEV.MinDate);
+                            V[18] := MonthEV.Increment;
+                            V[19] := MonthEV.Amplitude;
 
-                            V[14] := CurValue;
-                            V[15] := FormatDateTime('yyyy-mm-dd', CurDate);
+                            V[20] := CurValue;
+                            V[21] := FormatDateTime('yyyy-mm-dd', CurDate);
                         end;
                         WCV.AddRow(V);
                     end;
@@ -364,6 +389,8 @@ begin
                 // V[j + 4] := D[j];
                 // end;
             end;
+            IAppServices.ProcessMessages;
+        end;
         Body := Body + WCV.CrossGrid;
         page := StringReplace(htmPageCode2, '@PageTitle@', '观测数据特征值表', []);
         page := StringReplace(page, '@PageContent@', Body, []);
@@ -381,6 +408,7 @@ begin
                 end;
             SetLength(EVDatas, 0);
         end;
+        progressbar1.Visible := false;
     end;
 
 end;

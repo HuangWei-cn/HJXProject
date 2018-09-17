@@ -15,6 +15,7 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 0
     object btnGetEVData: TButton
       Left = 8
       Top = 12
@@ -28,7 +29,7 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
       Left = 6
       Top = 43
       Width = 127
-      Height = 90
+      Height = 118
       Caption = #26102#38388#36873#39033
       TabOrder = 1
       object optLast: TRadioButton
@@ -49,19 +50,28 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
         Caption = #25351#23450#24180#26376
         TabOrder = 1
       end
-      object dtpSpecial: TDateTimePicker
+      object dtpStart: TDateTimePicker
         Left = 12
         Top = 59
         Width = 105
         Height = 21
-        Date = 42838.077415358800000000
-        Time = 42838.077415358800000000
+        Date = 42430.000000000000000000
+        Time = 42430.000000000000000000
         TabOrder = 2
+      end
+      object dtpEnd: TDateTimePicker
+        Left = 12
+        Top = 86
+        Width = 105
+        Height = 21
+        Date = 43360.961305289360000000
+        Time = 43360.961305289360000000
+        TabOrder = 3
       end
     end
     object rdgMeterOption: TRadioGroup
       Left = 6
-      Top = 139
+      Top = 163
       Width = 127
       Height = 58
       Caption = #20202#22120#36873#39033
@@ -70,6 +80,17 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
         #20840#37096#20202#22120
         #37096#20998#20202#22120)
       TabOrder = 2
+    end
+    object ProgressBar1: TProgressBar
+      Left = 0
+      Top = 393
+      Width = 138
+      Height = 17
+      Align = alBottom
+      Smooth = True
+      Step = 1
+      TabOrder = 3
+      Visible = False
     end
   end
   object wbEVPage: TWebBrowser
