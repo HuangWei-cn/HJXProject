@@ -11,9 +11,9 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
   OnResize = FrameResize
   object hvReport: THtmlViewer
     Left = 2
-    Top = 185
+    Top = 181
     Width = 803
-    Height = 422
+    Height = 426
     BorderStyle = htFocused
     CharSet = GB2312_CHARSET
     DefBackground = clWhite
@@ -34,6 +34,8 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     TabOrder = 2
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
+    ExplicitTop = 185
+    ExplicitHeight = 422
   end
   object Panel1: TPanel
     Left = 2
@@ -123,14 +125,15 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     Left = 2
     Top = 61
     Width = 803
-    Height = 124
+    Height = 120
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
     Visible = False
+    ExplicitTop = 57
     DesignSize = (
       803
-      124)
+      120)
     object pnlCloseSetupPanel: TSpeedButton
       Left = 776
       Top = 6
@@ -148,7 +151,7 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
       OnClick = pnlCloseSetupPanelClick
     end
     object GroupBox1: TGroupBox
-      Left = 4
+      Left = 167
       Top = 6
       Width = 365
       Height = 51
@@ -194,9 +197,9 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
       end
     end
     object rdgMeterOption: TRadioGroup
-      Left = 375
-      Top = 6
-      Width = 104
+      Left = 167
+      Top = 63
+      Width = 90
       Height = 51
       Caption = #20202#22120#36873#39033
       ItemIndex = 0
@@ -205,46 +208,132 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
         #37096#20998#20202#22120)
       TabOrder = 1
     end
-    object GroupBox2: TGroupBox
-      Left = 485
-      Top = 6
-      Width = 156
-      Height = 51
-      Caption = #22270#34920#36873#39033
-      TabOrder = 2
-      object chkCreateChart: TCheckBox
-        Left = 9
-        Top = 12
-        Width = 173
-        Height = 17
-        Caption = #29983#25104#25968#25454#22270'('#36807#31243#32447#31561')'
-        Checked = True
-        State = cbChecked
-        TabOrder = 0
-        OnClick = chkCreateChartClick
-      end
-      object chkExportChart: TCheckBox
-        Left = 9
-        Top = 30
-        Width = 125
-        Height = 17
-        Caption = #23548#20986#25968#25454#22270#25991#20214
-        Checked = True
-        State = cbChecked
-        TabOrder = 1
-      end
-    end
     object rdgDTRangeOption: TRadioGroup
-      Left = 4
-      Top = 58
-      Width = 134
-      Height = 55
-      Caption = #32472#22270#36873#39033
+      Left = 254
+      Top = 63
+      Width = 123
+      Height = 51
+      Caption = #32472#22270#26102#27573#36873#39033
       ItemIndex = 0
       Items.Strings = (
         #20840#26102#27573#36807#31243#32447
         #25351#23450#26102#27573#36807#31243#32447)
+      TabOrder = 2
+    end
+    object GroupBox3: TGroupBox
+      Left = 5
+      Top = 6
+      Width = 156
+      Height = 107
+      Caption = #20869#23481#36873#39033
       TabOrder = 3
+      object optSheetAndChart: TRadioButton
+        Left = 8
+        Top = 16
+        Width = 113
+        Height = 17
+        Caption = #25968#25454#34920#21644#36807#31243#32447
+        Checked = True
+        TabOrder = 0
+        TabStop = True
+      end
+      object optSheetOnly: TRadioButton
+        Left = 8
+        Top = 32
+        Width = 113
+        Height = 17
+        Caption = #20165#25968#25454#34920
+        TabOrder = 1
+      end
+      object optChartOnly: TRadioButton
+        Left = 8
+        Top = 48
+        Width = 73
+        Height = 17
+        Caption = #20165#36807#31243#32447
+        TabOrder = 2
+      end
+      object chkIDTitle: TCheckBox
+        Left = 24
+        Top = 83
+        Width = 101
+        Height = 17
+        Caption = #20202#22120#21517#65288#26631#39064#65289
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
+      end
+      object chkExportChart: TCheckBox
+        Left = 24
+        Top = 66
+        Width = 97
+        Height = 17
+        Caption = #23548#20986'Chart'
+        Checked = True
+        Enabled = False
+        State = cbChecked
+        TabOrder = 3
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 383
+      Top = 63
+      Width = 149
+      Height = 51
+      Caption = #32472#22270#23610#23544#36873#39033
+      TabOrder = 4
+      object Label1: TLabel
+        Left = 3
+        Top = 24
+        Width = 12
+        Height = 13
+        Caption = #38271
+      end
+      object Label2: TLabel
+        Left = 72
+        Top = 23
+        Width = 12
+        Height = 13
+        Caption = #39640
+      end
+      object Edit1: TEdit
+        Left = 16
+        Top = 20
+        Width = 35
+        Height = 21
+        TabOrder = 0
+        Text = '600'
+      end
+      object Edit2: TEdit
+        Left = 86
+        Top = 20
+        Width = 34
+        Height = 21
+        TabOrder = 1
+        Text = '300'
+      end
+      object udChartWidth: TUpDown
+        Left = 51
+        Top = 20
+        Width = 16
+        Height = 21
+        Associate = Edit1
+        Min = 300
+        Max = 2048
+        Position = 600
+        TabOrder = 2
+      end
+      object udChartHeight: TUpDown
+        Left = 120
+        Top = 20
+        Width = 16
+        Height = 21
+        Associate = Edit2
+        Min = 100
+        Max = 1080
+        Position = 300
+        TabOrder = 3
+      end
     end
   end
   object PopupMenu1: TPopupMenu

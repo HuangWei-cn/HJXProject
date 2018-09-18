@@ -52,8 +52,6 @@ type
         hvReport: THtmlViewer;
         PopupMenu1: TPopupMenu;
         miCopyAll: TMenuItem;
-        chkExportChart: TCheckBox;
-        chkCreateChart: TCheckBox;
         miCopySelected: TMenuItem;
         N1: TMenuItem;
         miPrint: TMenuItem;
@@ -63,18 +61,29 @@ type
         miSave: TMenuItem;
         dlgSave: TSaveDialog;
         rdgMeterOption: TRadioGroup;
-        GroupBox2: TGroupBox;
         pnlSetup: TPanel;
         pnlCloseSetupPanel: TSpeedButton;
         btnShowSetupPanel: TSpeedButton;
         rdgDTRangeOption: TRadioGroup;
+        GroupBox3: TGroupBox;
+        optSheetAndChart: TRadioButton;
+        optSheetOnly: TRadioButton;
+        optChartOnly: TRadioButton;
+        chkIDTitle: TCheckBox;
+        chkExportChart: TCheckBox;
+        GroupBox2: TGroupBox;
+        Label1: TLabel;
+        Label2: TLabel;
+        Edit1: TEdit;
+        Edit2: TEdit;
+        udChartWidth: TUpDown;
+        udChartHeight: TUpDown;
         procedure btnCreateReportClick(Sender: TObject);
         procedure FrameResize(Sender: TObject);
         procedure lblBreakClick(Sender: TObject);
         procedure dtpStartClick(Sender: TObject);
         procedure miCopyAllClick(Sender: TObject);
         procedure hvReportImageRequest(Sender: TObject; const SRC: string; var Stream: TStream);
-        procedure chkCreateChartClick(Sender: TObject);
         procedure miCopySelectedClick(Sender: TObject);
         procedure miPrintClick(Sender: TObject);
         procedure miPrintPreviewClick(Sender: TObject);
@@ -134,6 +143,9 @@ const
         + '@PageContent@'#13#10
         + '</body>'#13#10
         + '</html>';
+
+    defWidth  = 600;
+    defHeight = 300;
 {$R *.dfm}
 
 
@@ -164,11 +176,6 @@ end;
 procedure TfraRptDataHTMLGrid.btnShowSetupPanelClick(Sender: TObject);
 begin
     pnlSetup.Visible := True;
-end;
-
-procedure TfraRptDataHTMLGrid.chkCreateChartClick(Sender: TObject);
-begin
-    chkExportChart.Enabled := chkCreateChart.Checked;
 end;
 
 constructor TfraRptDataHTMLGrid.Create(AOwner: TComponent);
@@ -232,7 +239,8 @@ begin
     if FChartExportPath = '' then
         FChartExportPath := ENV_TempPath;
 
-    if chkCreateChart.Checked then
+    // if chkCreateChart.Checked then
+    if optSheetAndChart.Checked or optChartOnly.Checked then
         if chkExportChart.Checked then
             if SelectDirectory('选择保存数据图形的文件夹', '', FChartExportPath) then
                 if Trim(FChartExportPath) <> '' then
@@ -282,13 +290,21 @@ begin
         end;
 
         { 2018-09-13 有模板的仪器，根据模板生成表格，没有模板的用代码生成通用表格 }
-        if AMeter.DataSheetStru.WGTemplate <> '' then
-            sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>' +
-                GenMeterGridByTempalte(AMeter.DesignName) + '<p> </p>' { 根据模板生成 }
-        else
-            sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
+        { 2018-09-18 允许生成图表、仅表、仅图三种，若仅图，则可选加仪器名标题或不加 }
+        if optSheetAndChart.Checked or optSheetOnly.Checked then
+        begin
+            if AMeter.DataSheetStru.WGTemplate <> '' then
+                sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>' +
+                    GenMeterGridByTempalte(AMeter.DesignName) + '<p> </p>' { 根据模板生成 }
+            else
+                sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
+        end
+        else if chkIDTitle.Checked then
+            sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>';
+
         // 添加图形链接
-        if chkCreateChart.Checked then
+        // if chkCreateChart.Checked then
+        if optSheetAndChart.Checked or optChartOnly.Checked then
         begin
             if chkExportChart.Checked then
             begin
@@ -296,10 +312,12 @@ begin
                 begin
                     if rdgDTRangeOption.ItemIndex = 0 then
                         sImgFile := IGD.ExportChartToFile(sDsnName, 0, 0,
-                            FChartExportPath, 600, 300)
+                            FChartExportPath, { 600, 300 } udChartWidth.Position,
+                            udChartHeight.Position)
                     else
                         sImgFile := IGD.ExportChartToFile(sDsnName, dtpStart.DateTime,
-                            dtpEnd.DateTime, FChartExportPath, 600, 300);
+                            dtpEnd.DateTime, FChartExportPath, { 600, 300 } udChartWidth.Position,
+                            udChartHeight.Position);
 
                     if sImgFile <> '' then
                     begin
@@ -345,9 +363,11 @@ begin
             FStream := TMemoryStream.Create;
         FStream.Clear;
         if rdgDTRangeOption.ItemIndex = 0 then
-            IGD.SaveChartToStream(sName, 0, 0, FStream, 600, 300)
+            IGD.SaveChartToStream(sName, 0, 0, FStream, { 600, 300 } udChartWidth.Position,
+                udChartHeight.Position)
         else
-            IGD.SaveChartToStream(sName, dtpStart.DateTime, dtpEnd.DateTime, FStream, 600, 300);
+            IGD.SaveChartToStream(sName, dtpStart.DateTime, dtpEnd.DateTime, FStream,
+                { 600, 300 } udChartWidth.Position, udChartHeight.Position);
         Stream := FStream;
     end;
 end;
