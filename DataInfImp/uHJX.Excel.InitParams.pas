@@ -145,9 +145,9 @@ const
     /// <summary>仪器Chart模板</summary>
     SHTCHARTTEMPLS = '过程线模板';
     /// <summary>仪器观测数据的WebGrid形式的模板，EhGrid也将使用这个模板</summary>
-    SHTWGTEMPLS = 'WebGrid基本模板';
+    SHTWGTEMPLS = 'WebGrid基本表模板';
     /// <summary>导出Excel形式数据表所使用的模板目录，模板本身保存在另一个Excel文件。</summary>
-    SHTXLTEMPLS = 'Excel基本模板';
+    SHTXLTEMPLS = 'Excel基本表模板';
 
 var
     // PARAMCOLS: TParamStruColDefine;
