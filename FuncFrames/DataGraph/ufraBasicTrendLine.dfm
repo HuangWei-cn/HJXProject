@@ -50,7 +50,6 @@ object fraBasicTrendLine: TfraBasicTrendLine
         Visible = False
       end>
     BottomAxis.Title.Caption = #35266#27979#26085#26399
-    BottomAxis.Title.Font.Height = -13
     BottomAxis.Title.Font.Name = #40657#20307
     BottomAxis.Title.Font.Quality = fqNormal
     LeftAxis.AxisValuesFormat = '#,##0.00#'
@@ -58,12 +57,10 @@ object fraBasicTrendLine: TfraBasicTrendLine
     LeftAxis.Grid.Style = psDot
     LeftAxis.Grid.Width = 0
     LeftAxis.Title.Caption = #24038#36724
-    LeftAxis.Title.Font.Height = -13
     LeftAxis.Title.Font.Name = #40657#20307
     Panning.MouseWheel = pmwNone
     RightAxis.Grid.Visible = False
     RightAxis.Title.Caption = #21491#36724
-    RightAxis.Title.Font.Height = -13
     RightAxis.Title.Font.Name = #40657#20307
     Shadow.Visible = False
     View3D = False
@@ -166,6 +163,13 @@ object fraBasicTrendLine: TfraBasicTrendLine
     object piSetupSeries: TMenuItem
       Caption = #26354#32447#35774#32622
       OnClick = piSetupSeriesClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object piMinimalism: TMenuItem
+      Caption = #26497#31616
+      OnClick = piMinimalismClick
     end
   end
 end

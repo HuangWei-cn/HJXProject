@@ -59,6 +59,8 @@ function LoadTemplates(ParamBook: IXLSWorkBook): Boolean;
 function SaveParams(AMeter: TMeterDefine; NewMeter: Boolean = False): Boolean; overload;
 { 保存参数，允许更改仪器设计编号 }
 function SaveParams(AMeter: TMeterDefine; OldName: string): Boolean; overload;
+{ 更新单个参数 }
+//function UpdateParam(ADsnName: string; ParamName: string; Param:Variant):Boolean;
 
 var
     { 以下三个全局变量用于编辑参数文件时，快速访问这些工作簿文件，省的打开工程文件再去找 }
@@ -102,6 +104,7 @@ type
 { TParamCols用于访问Excel参数文件时，指明各个参数项所对应的工作表列号。这个定义已经在参数表
       中的“ParamSheetStructure”工作表中预先定义好了，加载参数之前首先读取这个表中的定义，设置
       本对象，以后读取参数时，通过本对象可获取各个对应参数所在的列 }
+    ///<summary>参数表结构定义，参数-列号 </summary>
     TParamCols = class
     public
         PRJ: TParamColsList;
@@ -120,8 +123,35 @@ const
     MAXMETERNUMBER = 5000;
     PathPattern    = '^[a-zA-Z]:(((\\(?! )[^/:*?<>\""|\\]+)+\\?)|(\\)?)\s*$'; // 文件路径正则表达式
 
+    // 2018-09-19参数表各工作表名
+    /// <summary>参数定义文件各工作表结构定义</summary>
+    SHTSTRUDEFINE = 'ParamSheetStructure';
+    /// <summary>传感器基本参数，出厂参数为主</summary>
+    SHTSENSORPARAMS = '仪器基本属性表';
+    /// <summary>监测仪器工程属性表，如部位、桩号、高程、安装日期等</summary>
+    SHTPRJPARAMS = '仪器工程属性表';
+    /// <summary>监测仪器数据计算表格式定义表</summary>
+    SHTMETERDATAS = '仪器数据格式定义';
+    /// <summary>字段名表，主要是仪器参数的字段名和对应的中文名（显示的名字）</summary>
+    SHTDSNAME = '字段名表';
+    /// <summary>预定义的内容，如仪器类型、工程部位</summary>
+    SHTPREDEFINE = '预定义项';
+    /// <summary>仪器组定义，组名-组内仪器名单</summary>
+    SHTGROUPDEFINE = '仪器组定义表';
+    /// <summary>根据仪器类型预定义的数据表格式，一般情况下仪器数据结构指明采用哪个预定义项，
+    /// 若仪器有特定的设置，加载参数时用预定义的格式替换之。
+    /// </summary>
+    SHTDATASTRUC = '数据格式预定义';
+    /// <summary>仪器Chart模板</summary>
+    SHTCHARTTEMPLS = '过程线模板';
+    /// <summary>仪器观测数据的WebGrid形式的模板，EhGrid也将使用这个模板</summary>
+    SHTWGTEMPLS = 'WebGrid基本模板';
+    /// <summary>导出Excel形式数据表所使用的模板目录，模板本身保存在另一个Excel文件。</summary>
+    SHTXLTEMPLS = 'Excel基本模板';
+
 var
     // PARAMCOLS: TParamStruColDefine;
+    //参数工作簿各个参数表结构定义，用于快速访问参数表
     theCols     : TParamCols;
     DataFilePath: string; // 数据文件夹路径，在文件列表工作表的C1单元格
 
@@ -205,7 +235,8 @@ var
     ColDef      : PColDefine;
 begin
     Result := False;
-    Sht := ExcelIO.GetSheet(ParamBook, 'ParamSheetStructure');
+    // Sht := ExcelIO.GetSheet(ParamBook, 'ParamSheetStructure');
+    Sht := ExcelIO.GetSheet(ParamBook, SHTSTRUDEFINE);
     if Sht = nil then
     begin
         ShowMessage('参数表中没有“ParamSheetStructure”工作表，你可能打开了'#13#10 + '假的参数表，请再检查一下。');
@@ -425,7 +456,7 @@ var
 
 begin
     Result := False;
-    Sht := ExcelIO.GetSheet(ParamBook, '仪器基本属性表');
+    Sht := ExcelIO.GetSheet(ParamBook, { '仪器基本属性表' } SHTSENSORPARAMS);
     if Sht = nil then
         Exit;
     for iRow := 4 to MAXMETERNUMBER do
@@ -533,6 +564,8 @@ begin
 
     SetLength(SS1, 0);
     SetLength(SS2, 0);
+
+    Result := True;
 end;
 
 { -----------------------------------------------------------------------------
@@ -548,7 +581,7 @@ var
     PreDItem: TPreDefineDataStructure;
 begin
     Result := False;
-    Sht := ExcelIO.GetSheet(ParamBook, '数据格式预定义');
+    Sht := ExcelIO.GetSheet(ParamBook, { '数据格式预定义' } SHTDATASTRUC);
     if Sht = nil then
     begin
         ShowMessage('参数工作簿中没有包含"数据格式预定义"工作表，可能是旧版参数文件。'#13#10'请更新参数文件后再来玩。');
@@ -668,7 +701,7 @@ var
 
 begin
     Result := False;
-    Sht := ExcelIO.GetSheet(ParamBook, '仪器数据格式定义');
+    Sht := ExcelIO.GetSheet(ParamBook, { '仪器数据格式定义' } SHTMETERDATAS);
     if Sht = nil then
         Exit;
     LocalDefine.MDs := TDataDefineList.Create;
@@ -854,10 +887,10 @@ end;
 ----------------------------------------------------------------------------- }
 function LoadLayoutList(DFBook: IXLSWorkBook): Boolean;
 var
-    Sht                                : IXLSWorksheet;
-    iRow                               : Integer;
-    sName, sFile, sPath, sMeters, sAnno: string;
-    ARec                               : PLayoutRec;
+    Sht                       : IXLSWorksheet;
+    iRow                      : Integer;
+    sName, sFile, sPath, sAnno: string;
+    ARec                      : PLayoutRec;
 begin
     Result := False;
     Sht := ExcelIO.GetSheet(DFBook, '分布图文件列表');
@@ -932,7 +965,7 @@ var
 
 begin
     Result := False;
-    Sht := ExcelIO.GetSheet(ParamBook, '仪器组定义表');
+    Sht := ExcelIO.GetSheet(ParamBook, { '仪器组定义表' } SHTGROUPDEFINE);
     if Sht = nil then
         Exit;
     for iRow := 4 to MAXMETERNUMBER do
@@ -1046,8 +1079,7 @@ begin
         S := GetCurrentDir;
         SetCurrentDir(ENV_ConfigPath);
 
-
-        // 将相对目录替换为绝对目录
+// 将相对目录替换为绝对目录
         xlsParamFile := _GetFullPath(sPF);
         xlsDFListFile := _GetFullPath(sDLF);
         sDataRt := _GetFullPath(sDataRt);
@@ -1141,7 +1173,7 @@ var
     S1, S2: string;
 begin
     Result := False;
-    Sht := ExcelIO.GetSheet(ParamBook, '字段名表');
+    Sht := ExcelIO.GetSheet(ParamBook, { '字段名表' } SHTDSNAME);
     if Sht = nil then
         Exit;
 
@@ -1170,7 +1202,7 @@ var
 begin
     Result := False;
     PG_MeterTypes.Clear;
-    Sht := ExcelIO.GetSheet(ParamBook, '预定义项');
+    Sht := ExcelIO.GetSheet(ParamBook, { '预定义项' } SHTPREDEFINE);
     if Sht = nil then
         Exit;
     for iRow := 2 to Sht.UsedRange.LastRow + 1 do
@@ -1194,7 +1226,7 @@ var
 begin
     Result := False;
     PG_Locations.Clear;
-    Sht := ExcelIO.GetSheet(ParamBook, '预定义项');
+    Sht := ExcelIO.GetSheet(ParamBook, { '预定义项' } SHTPREDEFINE);
     if Sht = nil then
         Exit;
     for iRow := 2 to Sht.UsedRange.LastRow + 1 do
@@ -1260,7 +1292,7 @@ begin
     ts := IAppServices.Templates as TTemplates;
     ts.ClearAll;
     // 加载ChartTemplates
-    Sht := ExcelIO.GetSheet(ParamBook, '过程线模板');
+    Sht := ExcelIO.GetSheet(ParamBook, { '过程线模板' } SHTCHARTTEMPLS);
     if Sht <> nil then
         for iRow := 2 to 1000 do
         begin
@@ -1280,7 +1312,7 @@ begin
             ct.Annotation := S;
         end;
 
-    Sht := ExcelIO.GetSheet(ParamBook, 'WebGrid基本表模板');
+    Sht := ExcelIO.GetSheet(ParamBook, { 'WebGrid基本表模板' } SHTWGTEMPLS);
     if Sht <> nil then
         for iRow := 2 to 1000 do
         begin
@@ -1301,7 +1333,7 @@ begin
             wg.Annotation := S;
         end;
 
-    Sht := ExcelIO.GetSheet(ParamBook, 'Excel基本表模板');
+    Sht := ExcelIO.GetSheet(ParamBook, { 'Excel基本表模板' } SHTXLTEMPLS);
     if Sht <> nil then
         for iRow := 2 to 1000 do
         begin
@@ -1559,6 +1591,8 @@ begin
     // Open meter's parameter worksheet
     Sht := ExcelIO.GetSheet(Wbk, '仪器基本属性表');
     _SaveMeterBaseParams(Sht, AMeter, NewMeter);
+
+    { todo:完善保存工程参数和数据格式参数的选项 }
 end;
 
 { -----------------------------------------------------------------------------

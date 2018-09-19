@@ -45,13 +45,15 @@ var
 begin
     Result := nil;
     i := ABook.WorkSheets.Index[SheetName];
-    if i > 0 then Result := ABook.WorkSheets.Entries[i];
+    if i > 0 then
+        Result := ABook.WorkSheets.Entries[i];
 end;
 
 function __HasSheet(ABook: IXLSWorkBook; AName: string): Boolean;
 begin
     Result := False;
-    if ABook.WorkSheets.Index[AName] > 0 then Result := True;
+    if ABook.WorkSheets.Index[AName] > 0 then
+        Result := True;
 end;
 
 // 返回可用的名称，如果AName存在，则自动添加序号，再查，直到没有为止
@@ -67,7 +69,8 @@ begin
             inc(i);
             Result := AName + IntToStr(i);
         end
-        else Break;
+        else
+            Break;
     until False;
 end;
 
@@ -76,7 +79,8 @@ function __DupWorksheet(SrcSheet: IXLSWorkSheet; DesBook: IXLSWorkBook; NewSheet
     : IXLSWorkSheet;
 begin
     Result := nil;
-    if (SrcSheet = nil) or (DesBook = nil) then Exit;
+    if (SrcSheet = nil) or (DesBook = nil) then
+        Exit;
 
     Result := DesBook.WorkSheets.Add;
 
@@ -90,7 +94,7 @@ begin
         Result.RCRange[FirstRow, FirstCol, LastRow + 1, LastCol + 1].Formula := Formula;
     end;
 
-    //nExcel无法设置冻结区，因此产生的结果将是没有冻结区的工作表。
+    // nExcel无法设置冻结区，因此产生的结果将是没有冻结区的工作表。
 end;
 
 { Use Excel or ET duplacation a worksheet to an other workbook. }
@@ -106,9 +110,12 @@ end;
 procedure TXLDataCell.Offset;
 begin
     case GridType of
-        xlgDynRow: inc(Row, OffsetStep);
-        xlgStatic:;
-        xlgDynCol: inc(Col, OffsetStep);
+        xlgDynRow:
+            inc(Row, OffsetStep);
+        xlgStatic:
+            ;
+        xlgDynCol:
+            inc(Col, OffsetStep);
     end;
 end;
 
@@ -116,8 +123,10 @@ end;
 function TXLDataCell.GetValue: Variant;
 begin
     // Result := Null;
-    if Field = nil then Result := null
-    else Result := Field.Value;
+    if Field = nil then
+        Result := null
+    else
+        Result := Field.Value;
 end;
 
 procedure TXLDataCell.SetCellValue(Sht: IXLSWorkSheet);
@@ -130,11 +139,12 @@ end;
 function __ProcHeadCell(AValue: Variant; AMeter: TMeterDefine; AsGroup: Boolean = False): Variant;
 var
     S: string;
-    i: Integer;
+//    i: Integer;
 begin
     Result := AValue;
     S := VarToStr(AValue);
-    if S = '' then Exit;
+    if S = '' then
+        Exit;
     Result := ProcParamSpecifiers(S, AMeter, AsGroup);
 end;
 
@@ -149,7 +159,8 @@ begin
     ACell.TempStr := S;
     ACell.Field := nil;
 
-    if S = '' then Exit;
+    if S = '' then
+        Exit;
     ACell.Specifier := ProcDataSpecifiers(S, AMeter, AsGroup);
     ACell.Field := DS.FindField(ACell.Specifier);
 end;
@@ -159,16 +170,16 @@ procedure _ProcTitleHeadRange(Tmpl: TXLGridTemplate; Sht: IXLSWorkSheet; AMeter:
     AsGroup: Boolean = False);
 var
     iRow, iCol: Integer;
-    S, Str    : string;
+//    S, Str    : string;
 begin
     for iCol := Tmpl.TitleRect.Left to Tmpl.TitleRect.Right do
         for iRow := Tmpl.TitleRect.Top to Tmpl.TitleRect.Bottom do
-                Sht.Cells[iRow, iCol].Value := __ProcHeadCell(Sht.Cells[iRow, iCol].Value,
+            Sht.Cells[iRow, iCol].Value := __ProcHeadCell(Sht.Cells[iRow, iCol].Value,
                 AMeter, AsGroup);
 
     for iCol := Tmpl.HeadRect.Left to Tmpl.HeadRect.Right do
         for iRow := Tmpl.HeadRect.Top to Tmpl.HeadRect.Bottom do
-                Sht.Cells[iRow, iCol].Value := __ProcHeadCell(Sht.Cells[iRow, iCol].Value,
+            Sht.Cells[iRow, iCol].Value := __ProcHeadCell(Sht.Cells[iRow, iCol].Value,
                 AMeter, AsGroup);
 end;
 
@@ -178,12 +189,11 @@ procedure _ProcDataRange(Tmpl: TXLGridTemplate; Sht: IXLSWorkSheet; AMeter: TMet
     AsGroup: Boolean = False);
 var
     // iRow, iCol: Integer;
-    i, n          : Integer;
+    i             : Integer;
     Offrow, Offcol: Integer;
     newRect       : TRect;
     SrcRange      : IXLSRange;
     DS            : TClientDataSet;
-    S             : string;
     GetData       : Boolean;
     procedure CopyNewRange;
     begin
@@ -215,7 +225,8 @@ var
                     xlgDynRow:
                         DataRangeCells[i].OffsetStep := Tmpl.DataRect.Bottom -
                             Tmpl.DataRect.Top + 1;
-                    xlgStatic: DataRangeCells[i].OffsetStep := 0;
+                    xlgStatic:
+                        DataRangeCells[i].OffsetStep := 0;
                     xlgDynCol:
                         DataRangeCells[i].OffsetStep := Tmpl.DataRect.Right -
                             Tmpl.DataRect.Left + 1;
@@ -242,16 +253,19 @@ begin
     Offcol := 0;
     newRect := Tmpl.DataRect;
     case Tmpl.GridType of
-        xlgDynRow: Offrow := Tmpl.DataRect.Bottom - Tmpl.DataRect.Top + 1;
-        xlgDynCol: Offcol := Tmpl.DataRect.Right - Tmpl.DataRect.Left + 1;
+        xlgDynRow:
+            Offrow := Tmpl.DataRect.Bottom - Tmpl.DataRect.Top + 1;
+        xlgDynCol:
+            Offcol := Tmpl.DataRect.Right - Tmpl.DataRect.Left + 1;
     end;
 
     DS := TClientDataSet.Create(nil);
 
     try
         if AsGroup then
-                GetData := IAppServices.ClientDatas.GetGroupAllPDDatas(AMeter.PrjParams.GroupID, DS)
-        else GetData := IAppServices.ClientDatas.GetAllPDDatas(AMeter.DesignName, DS);
+            GetData := IAppServices.ClientDatas.GetGroupAllPDDatas(AMeter.PrjParams.GroupID, DS)
+        else
+            GetData := IAppServices.ClientDatas.GetAllPDDatas(AMeter.DesignName, DS);
 
         if GetData then
         begin
@@ -261,7 +275,7 @@ begin
                 DS.First;
                 repeat
                     SrcRange.Copy(Sht.RCRange[newRect.Top, newRect.Left, newRect.Bottom,
-                            newRect.Right]);
+                        newRect.Right]);
 
                     for i := 0 to high(DataRangeCells) do
                     begin
@@ -275,9 +289,11 @@ begin
                 until DS.Eof;
                 DS.Close;
             end
-            else ClearDataRange;
+            else
+                ClearDataRange;
         end
-        else ClearDataRange;
+        else
+            ClearDataRange;
     finally
         DS.Free;
     end;
@@ -294,8 +310,10 @@ begin
     RBook := TXLSWorkbook.Create;
     { todo:check open error }
     TBook.Open(TmpBookName);
-    if FileExists(ResBookName) then RBook.Open(ResBookName)
-    else RBook.SaveAs(ResBookName);
+    if FileExists(ResBookName) then
+        RBook.Open(ResBookName)
+    else
+        RBook.SaveAs(ResBookName);
 
     Result := GenXLGrid(grdTmp, ADsnName, TBook, RBook);
     RBook.Save;
@@ -310,19 +328,24 @@ var
 begin
     Result := '';
     Meter := TMeterDefines(IAppServices.Meters).Meter[ADsnName];
-    if Meter = nil then Exit;
+    if Meter = nil then
+        Exit;
 
-    if (Meter.PrjParams.GroupID <> '') and grdTmp.ApplyToGroup then bGroup := True
-    else bGroup := False;
+    if (Meter.PrjParams.GroupID <> '') and grdTmp.ApplyToGroup then
+        bGroup := True
+    else
+        bGroup := False;
 
     tmpSht := __GetSheet(TmpBook, grdTmp.TemplateSheet);
-    if tmpSht = nil then Exit;
+    if tmpSht = nil then
+        Exit;
 
     { 在这里复制工作表的问题在于已经用nExcel打开了工作簿，如果用Excel或ET完成复制，则需要重新打开着
      两个文件。一个解决办法是提供另一个方法，在那个方法中处理仪器集合，它一次性地为每只仪器复制好
      工作表，再调用本方法进行逐一处理 }
     desSht := __DupWorksheet(tmpSht, ResBook, ADsnName);
-    if desSht = nil then Exit;
+    if desSht = nil then
+        Exit;
 
     _ProcTitleHeadRange(grdTmp, desSht, Meter, bGroup);
     _ProcDataRange(grdTmp, desSht, Meter, bGroup);

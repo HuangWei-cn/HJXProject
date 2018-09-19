@@ -56,6 +56,8 @@ type
         Series1: TLineSeries;
         Series2: TLineSeries;
         TeeGDIPlus1: TTeeGDIPlus;
+        N1: TMenuItem;
+        piMinimalism: TMenuItem;
         procedure chtLineClickSeries(Sender: TCustomChart; Series: TChartSeries; ValueIndex: Integer;
             Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
         procedure piSetupSeriesClick(Sender: TObject);
@@ -68,9 +70,11 @@ type
         procedure chtLineClick(Sender: TObject);
         procedure chtLineMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
         procedure chtLineDblClick(Sender: TObject);
+        procedure piMinimalismClick(Sender: TObject);
     private
         { Private declarations }
         FSelectedSeries: TChartSeries;
+        FBeMinimalism  : Boolean; // 是否极简
     public
         { Public declarations }
         constructor Create(AOwner: TComponent); override;
@@ -87,6 +91,12 @@ type
         procedure SetChartTitle(ATitle: string);
         // 创建一条新线，在没有样式定义的情况下，自动分配颜色和数据点形状
         function NewLine(ATitle: string; VAxisIsLeft: Boolean = True): Integer;
+        // 正常，或者极简
+        procedure SetMinimalism(V: Boolean);
+        /// <summary>是否极简主义？读取或设置之</summary>
+        /// <remarks>极简风格，将隐藏标题、坐标轴、图例，同时将过程线的点尺寸缩小到1，
+        /// 基本只保留图形本身</remarks>
+        property Minimalism: Boolean read FBeMinimalism write SetMinimalism;
     end;
 
 implementation
@@ -212,7 +222,7 @@ begin
     // 颜色
     ls.Color := chtLine.GetFreeSeriesColor;
     // 数据点
-    ls.Pointer.visible := True;
+    ls.Pointer.Visible := True;
 
     { todo:这里应考虑线太多出错的问题，这个版本最多有16中点型 }
     ls.Pointer.Style := TSeriesPointerStyle(chtLine.Seriescount - 1);
@@ -231,13 +241,19 @@ end;
 procedure TfraBasicTrendLine.piCopyAsEMFClick(Sender: TObject);
 begin
     chtLine.CopyToClipboardMetafile(True);
-    chtline.CopyToClipboardBitmap;
+    chtLine.CopyToClipboardBitmap;
+end;
+
+procedure TfraBasicTrendLine.piMinimalismClick(Sender: TObject);
+begin
+    piMinimalism.Checked := not piMinimalism.Checked;
+    Minimalism := piMinimalism.Checked;
 end;
 
 procedure TfraBasicTrendLine.piCopyAsBitmapClick(Sender: TObject);
 begin
     chtLine.CopyToClipboardBitmap;
-    chtline.CopyToClipboardMetafile(True);
+    chtLine.CopyToClipboardMetafile(True);
 end;
 
 procedure TfraBasicTrendLine.piSaveAsEMFClick(Sender: TObject);
@@ -264,6 +280,60 @@ procedure TfraBasicTrendLine.piSetupSeriesClick(Sender: TObject);
 begin
     if FSelectedSeries <> nil then
         EditSeries(nil, FSelectedSeries);
+end;
+
+procedure TfraBasicTrendLine.SetMinimalism(V: Boolean);
+var
+    i: Integer;
+begin
+    { 如果极简主义，则隐藏一堆东西，同时将过程线的点变小 }
+    chtLine.Title.Visible := not V;
+    chtLine.Legend.Visible := not V;
+    // chtLine.LeftAxis.Visible := not V;
+    with chtLine.leftaxis do
+    begin
+        Title.Visible := not V;
+        if V then
+            LabelsFont.Size := 6
+        else
+            LabelsFont.Size := 8;
+    end;
+    chtLine.RightAxis.Visible := not V;
+    // chtLine.BottomAxis.Visible := not V;
+    with chtLine.BottomAxis do
+    begin
+        Title.Visible := not V;
+        if V then
+            LabelsFont.Size := 6
+        else
+            LabelsFont.Size := 8;
+    end;
+
+    if V then
+    begin
+        chtLine.MarginLeft := 0;
+        chtLine.MarginBottom := 0;
+    end
+    else
+    begin
+        chtLine.MarginLeft := 20;
+        chtLine.MarginBottom := 4;
+    end;
+
+    for i := 0 to chtLine.Seriescount - 1 do
+        if chtLine.Series[i] is TLineSeries then
+            with (chtLine.Series[i] as TLineSeries) do
+            begin
+                if V then
+                    Pointer.Size := 1
+                else
+                begin
+                    if i = 0 then
+                        Pointer.Size := 2
+                    else
+                        Pointer.Size := 3;
+                end;
+            end;
 end;
 
 end.

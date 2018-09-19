@@ -360,7 +360,6 @@ var
     var
         kk: Integer;
     begin
-        Result := nil;
         for kk := 0 to FRegister.Count - 1 do
         begin
             Result := FRegister[kk];

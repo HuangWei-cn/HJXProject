@@ -24,6 +24,9 @@ unit uHJX.Excel.DataQuery;
 
 { todo:GetLastPDDatas方法等没有返回备注字段的内容，有时备注内容十分重要 }
 { todo:应考虑在SessionBegin时设置WorkBook Pool，凡打开过的保留下来，下一次使用时直接调用，不再创建 }
+{ todo:注册打开数据库方法、数据连接及注销事件 }
+{ todo:注册仪器列表加载更新事件 }
+{ todo:注册仪器参数更新加载事件 }
 interface
 
 uses
@@ -138,7 +141,7 @@ var
     d1, d2      : Integer;
     iRow        : Integer;
     iStart, iEnd: Integer;
-    Delta       : Integer;
+//    Delta       : Integer;
     S           : string;
     { 递归查询 }
     function _Locate(StartRow, EndRow: Integer): Integer;
@@ -354,7 +357,7 @@ end;
 procedure _SetGroupFieldsDisplayName(DS: TDataSet; AGroup: TMeterGroupItem);
 var
     i, j, n: Integer;
-    fld    : TField;
+//    fld    : TField;
     MT     : TMeterDefine;
 begin
     with DS as TClientDataSet do
@@ -468,9 +471,9 @@ var
     wbk      : IXLSWorkBook;
     sht      : IXLSWorksheet;
     iCount, i: Integer;
-    iRow, j  : Integer;
-    S        : String;
-    DT1      : TDateTime;
+    iRow  : Integer;
+//    S        : String;
+//    DT1      : TDateTime;
 begin
     Result := False;
     SetLength(Values, 0);
@@ -548,7 +551,7 @@ var
     sht         : IXLSWorksheet;
     iCount      : Integer;
     iRow, iLRow : Integer;
-    S           : String;
+//    S           : String;
     DT1         : TDateTime;
     dLast, dThis: double;
 
@@ -708,7 +711,8 @@ begin
     _SetFieldsDisplayName(DS, Meter.PDDefines);
 
     if Meter.DataSheetStru.AnnoCol > 0 then
-        AnnoCol := Meter.DataSheetStru.AnnoCol;
+        AnnoCol := Meter.DataSheetStru.AnnoCol
+    else annocol := 0;
 
     for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 1 do
     begin
@@ -783,7 +787,8 @@ begin
     _SetFieldsDisplayName(DS, Meter.PDDefines);
 
     if Meter.DataSheetStru.AnnoCol > 0 then
-        AnnoCol := Meter.DataSheetStru.AnnoCol;
+        AnnoCol := Meter.DataSheetStru.AnnoCol
+    else annocol := 0;
 
     // 查询、添加数据
     for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 2 do
@@ -1536,7 +1541,7 @@ var
     i, iDTStart: Integer;
     iRow, iDays: Integer; // 行号，间隔日期
     iMonRow    : Integer; // 上个月数据所在行
-    S, pdName  : String;
+//    S, pdName  : String;
     sType      : string;   // 仪器类型
     D, d2, d30 : double;   // 当前值，增量，月增量
     procedure ClearValues; // 清理并初始化传入的Values参数

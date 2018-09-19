@@ -9,6 +9,9 @@
 { todo:显示数据集中数据的特征值 }
 { todo:允许连接到过程线功能 }
 { todo:允许连接到仪器参数功能 }
+{ todo:使用仪器的WebGridTemplate定制仪器的表头、需要显示的列 }
+{ todo:将本功能扩展到可以显示特征值、观测值（及物理量）、变差值等多种形式 }
+{ todo:充分利用EhGrid的分组、Local Filter、DetailPanel等高级特性，增强数据表现力 }
 interface
 
 uses
@@ -50,6 +53,7 @@ type
     public
         { Public declarations }
         destructor Destroy; override;
+        ///<summary>显示指定仪器的观测数据（物理量）</summary>
         procedure ShowMeterDatas(DesignName: string);
         property OnFree: TNotifyEvent read FOnFree write FOnFree;
     end;

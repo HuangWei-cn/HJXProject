@@ -94,9 +94,11 @@ begin
         PopupDataViewer(ADesignName)
     else
     begin
+        //下面的做法带来的问题是，fraDataViewer只有一个。如果需要多个呢？岂不弄不成了？
+        //所以，fra的释放、管理应该由Container完成，用户不释放Container，fra就保留。
         if fraDataViewer = nil then
         begin
-            fraDataViewer := TfraHJXDataGrid.Create(Host);
+            fraDataViewer := TfraHJXDataGrid.Create(Host); //其实，应该用AContainer。
             fraDataViewer.Parent := AContainer as TWinControl;
             fraDataViewer.Align := alClient;
             fraDataViewer.OnFree := Replier.OnFrameFree;
@@ -111,6 +113,7 @@ begin
     IFD.RegistFuncPopupDataViewer(Replier.PopupDataViewer);
     IFD.RegistFuncShowData(Replier.ShowDataViewer);
     //Host := TForm(IAppServices.Host); //这时候Host还未指定
+    { todo:以通用方法的形式再注册这两个方法，调用者可以通过方法名进行调用 }
     fraDataViewer := nil;
 end;
 

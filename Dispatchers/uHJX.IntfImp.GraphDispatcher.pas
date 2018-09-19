@@ -1,4 +1,4 @@
-{-----------------------------------------------------------------------------
+{ -----------------------------------------------------------------------------
  Unit Name: uHJX.IntfImp.GraphDispatcher
  Author:    黄伟
  Date:      17-七月-2018
@@ -6,8 +6,8 @@
             2018-07-17 取消了原ufuncDataGraph单元的功能，全部迁移至本单元实现，
             原uFuncDataGraph单元仅用于引用需要提供功能的实际功能单元。
  History:
------------------------------------------------------------------------------}
-
+----------------------------------------------------------------------------- }
+{ todo:考虑如何让用户一次设置好所有弹出式Chart是否是极简风格 }
 unit uHJX.IntfImp.GraphDispatcher;
 
 interface
@@ -177,6 +177,7 @@ begin
         frm.height := FDefFormHeight;
         frm.OnResize := Self.Resize;
         frm.BorderStyle := bsSizeToolWin;
+        frm.ScreenSnap := True;
         frm.Caption := IAppServices.ClientDatas.GetMeterTypeName(ADesignName) + ADesignName
             + '观测数据图形';
         try
@@ -253,6 +254,7 @@ var
     i  : integer;
     Reg: PSaveToStreamFuncReg;
 begin
+    Result := False;
     if FSaveToStreamFuncs.Count = 0 then
         Exit;
     mt := ExcelMeters.Meter[ADesignName].Params.MeterType;

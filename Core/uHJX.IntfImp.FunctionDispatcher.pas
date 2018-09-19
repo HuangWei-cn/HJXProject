@@ -328,8 +328,8 @@ end;
 ----------------------------------------------------------------------------- }
 
 procedure TFuncDispatchCenter.DrawTrendLine(ADesignName: string);
-var
-    v: Variant;
+//var
+//    v: Variant;
 // freg: pfuncregister;
 // i: Integer;
 begin
@@ -370,8 +370,8 @@ procedure TFuncDispatchCenter.GeneralProc(AProc: string; Sender: TObject;
     InParams: array of Variant; var OutParams: array of Variant);
 var
     i : Integer;
-    gp: TGeneralProc;
-    gm: PGMRec;
+//    gp: TGeneralProc;
+//    gm: PGMRec;
 
     FuncReg: PFuncRegister;
 begin
@@ -994,7 +994,7 @@ function _GetFuncRegByArgType(AFuncName: string; ArgType: TArgType; RegList: TLi
 var
     i: Integer;
 begin
-    Result := nil;
+    //Result := nil;
     for i := 0 to RegList.Count - 1 do
     begin
         Result := RegList.Items[i];
