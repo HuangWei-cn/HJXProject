@@ -34,8 +34,6 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     TabOrder = 2
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
-    ExplicitTop = 185
-    ExplicitHeight = 422
   end
   object Panel1: TPanel
     Left = 2
@@ -130,7 +128,6 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     BevelOuter = bvNone
     TabOrder = 3
     Visible = False
-    ExplicitTop = 57
     DesignSize = (
       803
       120)

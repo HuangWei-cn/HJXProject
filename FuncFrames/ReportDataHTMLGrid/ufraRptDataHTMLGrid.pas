@@ -117,7 +117,7 @@ implementation
 
 uses
     uWBLoadHTML, uWebGridCross, uWeb_DataSet2HTML, uHJX.Intf.GraphDispatcher,
-    uHJX.Intf.FunctionDispatcher, uHJX.EnvironmentVariables,
+    uHJX.Intf.FunctionDispatcher, uHJX.EnvironmentVariables, uHJX.Classes.Templates,
     {todo:将模板处理功能迁移到模板调度器中，各功能件从调度器调用模板粗粒}
     uHJX.Template.WebGridProc {用模板替代代码生成} ,
     PreviewForm;
@@ -294,8 +294,7 @@ begin
         if optSheetAndChart.Checked or optSheetOnly.Checked then
         begin
             if AMeter.DataSheetStru.WGTemplate <> '' then
-                sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>' +
-                    GenMeterGridByTempalte(AMeter.DesignName) + '<p> </p>' { 根据模板生成 }
+                sContent := sContent + GenMeterGridByTempalte(AMeter.DesignName) { 根据模板生成 }
             else
                 sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
         end
@@ -775,11 +774,43 @@ begin
 end;
 
 function TfraRptDataHTMLGrid.GenMeterGridByTempalte(ADsnName: string): string;
+var
+    s : string;
+    mt: TMeterDefine;
+    tp: ThjxTemplate;
+    gi: TMeterGroupItem;
+    i:integer;
 begin
+    Result := '';
     if rbAllDatas.Checked then
-        Result := GenWebGrid(ADsnName)
+        s := GenWebGrid(ADsnName)
     else
-        Result := GenWebGrid(ADsnName, dtpStart.Date, dtpEnd.Date);
+        s := GenWebGrid(ADsnName, dtpStart.Date, dtpEnd.Date);
+
+    // 处理仪器组问题，判断是否按照仪器组处理
+    mt := ExcelMeters.Meter[ADsnName];
+    if mt.PrjParams.GroupID = '' then
+        Result := '<H4>' + ADsnName + '</H4>' + s + '<p> </p>'
+    else //是仪器组成员
+    begin
+        //判断模板是否是组模板，若是则将组内成员全部加入到FIDList中
+        tp := (IAppServices.Templates as TTemplates).ItemByName[mt.DataSheetStru.WGTemplate];
+
+        //if tp.ApplyGroup then
+        //else
+
+        { 这里暂时就按组处理，因为从AppServices得到的模板没有ApplyGroup属性，无法得知该仪器的
+          模板是否支持组。仪器组成员可以用组模板，也可以用单支仪器模板，后者就不应将其他组成员
+          列出跳过表 }
+        {TODO -ohw -c观测数据报表 : 需要ThjxTemplate对象有ApplyGroup属性可查}
+        gi := MeterGroup.ItemByName[mt.PrjParams.GroupID];
+        for i := 0 to gi.Count -1 do
+            fidlist.Add(gi.Items[i]);
+
+        //返回结果
+        Result := Format('<H4>%s</H4>%s<P> </P>',[gi.Name, s]);
+    end;
+
 end;
 
 end.

@@ -15,7 +15,6 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 0
     object btnGetEVData: TButton
       Left = 8
       Top = 12
@@ -100,6 +99,7 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
     Height = 410
     Align = alClient
     TabOrder = 1
+    OnBeforeNavigate2 = wbEVPageBeforeNavigate2
     ExplicitLeft = 6
     ExplicitTop = 6
     ExplicitWidth = 386

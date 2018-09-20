@@ -37,9 +37,12 @@ type
         dtpEnd: TDateTimePicker;
         ProgressBar1: TProgressBar;
         procedure btnGetEVDataClick(Sender: TObject);
+        procedure wbEVPageBeforeNavigate2(ASender: TObject; const pDisp: IDispatch; const URL, Flags,
+            TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
     private
         { Private declarations }
-        FIDList: TStrings; // 仪器列表
+        FIDList  : TStrings; // 仪器列表
+        FLoadding: Boolean;
     public
         { Public declarations }
         constructor Create(AOwner: TComponent); override;
@@ -269,6 +272,18 @@ begin
     end;
 end;
 
+procedure TfraEigenvalueWeb.wbEVPageBeforeNavigate2(ASender: TObject; const pDisp: IDispatch;
+    const URL, Flags, TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
+begin
+    // 加载特征值页面时，不处理跳转链接事件
+    if FLoadding then
+        Exit;
+
+    { TODO -ohw -c特征值 : 在这里处理用户点击仪器编号链接事件 }
+    // showmessage(vartostr(URL));
+    Cancel := true;
+end;
+
 procedure TfraEigenvalueWeb.GetEVDatas(IDList: string);
 var
     i, j   : Integer;
@@ -281,6 +296,7 @@ var
     sPos   : string;
     sType  : string;
     bGet   : Boolean;
+    S      : string;
 begin
     FIDList.Text := IDList;
     if FIDList.Count = 0 then
@@ -301,7 +317,7 @@ begin
     try
         for i := 0 to FIDList.Count - 1 do
         begin
-            progressbar1.Position := i+1;
+            ProgressBar1.Position := i + 1;
 
             if optLast.Checked then
                 bGet := IHJXClientFuncs.GetEVDatas(FIDList.Strings[i], EVDatas)
@@ -345,6 +361,9 @@ begin
                     begin
                         // V[0] := Meter.PrjParams.Position;
                         // V[1] := Meter.Params.MeterType;
+                        { TODO -ohw -c特征值 : 仪器链接应该可选 }
+                        S := FIDList.Strings[i];
+                        // V[0] := Format('<a href="Meter:%s">%s</a>', [S, S]);
                         V[0] := FIDList.Strings[i];
                         V[1] := Meter.PDDefine[EVDatas[j].PDIndex].Name;
                         // 添加各项
@@ -395,7 +414,9 @@ begin
         page := StringReplace(htmPageCode2, '@PageTitle@', '观测数据特征值表', []);
         page := StringReplace(page, '@PageContent@', Body, []);
         // WB_LoadHTML(wbEVPage, WCV.CrossPage);
+        FLoadding := true;
         WB_LoadHTML(wbEVPage, page);
+        FLoadding := false;
     finally
         WCV.Free;
         SetLength(V, 0);
@@ -408,7 +429,7 @@ begin
                 end;
             SetLength(EVDatas, 0);
         end;
-        progressbar1.Visible := false;
+        ProgressBar1.Visible := false;
     end;
 
 end;
