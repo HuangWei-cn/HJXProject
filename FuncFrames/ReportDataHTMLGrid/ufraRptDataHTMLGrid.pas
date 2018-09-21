@@ -228,6 +228,7 @@ var
     sImg              : string;
     sImgFile          : string;
     AMeter            : TMeterDefine;
+    GI                : TMeterGroupItem;
     iMeter            : integer;
     i, iCount         : integer;
 begin
@@ -328,6 +329,15 @@ begin
             else
             begin
                 sContent := sContent + Format('<img src="GETCHART:%s">', [sDsnName]);
+            end;
+            // 处理组成员，由于现在ThjxTemplate没有ApplyGroup属性，权当已经按组处理了
+            if AMeter.PrjParams.GroupID <> '' then
+            begin
+                {TODO -ohw -c观测数据报表 : 这里需要判断绘图模板是否支持组}
+                GI := MeterGroup.ItemByName[AMeter.PrjParams.GroupID];
+                // 将组成员添加到FIDList中
+                for i := 0 to GI.Count - 1 do
+                    FIDList.Add(GI.Items[i]);
             end;
         end;
 
@@ -778,8 +788,8 @@ var
     s : string;
     mt: TMeterDefine;
     tp: ThjxTemplate;
-    gi: TMeterGroupItem;
-    i:integer;
+    GI: TMeterGroupItem;
+    i : integer;
 begin
     Result := '';
     if rbAllDatas.Checked then
@@ -791,24 +801,24 @@ begin
     mt := ExcelMeters.Meter[ADsnName];
     if mt.PrjParams.GroupID = '' then
         Result := '<H4>' + ADsnName + '</H4>' + s + '<p> </p>'
-    else //是仪器组成员
+    else // 是仪器组成员
     begin
-        //判断模板是否是组模板，若是则将组内成员全部加入到FIDList中
+        // 判断模板是否是组模板，若是则将组内成员全部加入到FIDList中
         tp := (IAppServices.Templates as TTemplates).ItemByName[mt.DataSheetStru.WGTemplate];
 
-        //if tp.ApplyGroup then
-        //else
+        // if tp.ApplyGroup then
+        // else
 
         { 这里暂时就按组处理，因为从AppServices得到的模板没有ApplyGroup属性，无法得知该仪器的
           模板是否支持组。仪器组成员可以用组模板，也可以用单支仪器模板，后者就不应将其他组成员
           列出跳过表 }
-        {TODO -ohw -c观测数据报表 : 需要ThjxTemplate对象有ApplyGroup属性可查}
-        gi := MeterGroup.ItemByName[mt.PrjParams.GroupID];
-        for i := 0 to gi.Count -1 do
-            fidlist.Add(gi.Items[i]);
+        { TODO -ohw -c观测数据报表 : 需要ThjxTemplate对象有ApplyGroup属性可查 }
+        GI := MeterGroup.ItemByName[mt.PrjParams.GroupID];
+        for i := 0 to GI.Count - 1 do
+            FIDList.Add(GI.Items[i]);
 
-        //返回结果
-        Result := Format('<H4>%s</H4>%s<P> </P>',[gi.Name, s]);
+        // 返回结果
+        Result := Format('<H4>%s</H4>%s<P> </P>', [GI.Name, s]);
     end;
 
 end;

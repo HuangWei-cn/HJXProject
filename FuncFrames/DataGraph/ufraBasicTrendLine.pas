@@ -251,9 +251,18 @@ begin
 end;
 
 procedure TfraBasicTrendLine.piCopyAsBitmapClick(Sender: TObject);
+var
+    JPG: TJPEGExportFormat;
 begin
-    chtLine.CopyToClipboardBitmap;
-    chtLine.CopyToClipboardMetafile(True);
+    JPG := TJPEGExportFormat.Create;
+    try
+        JPG.Panel := chtLine;
+        JPG.CopyToClipboard;
+    finally
+        JPG.Free;
+    end;
+    // chtLine.CopyToClipboardBitmap;
+    // chtLine.CopyToClipboardMetafile(True);
 end;
 
 procedure TfraBasicTrendLine.piSaveAsEMFClick(Sender: TObject);
