@@ -54,7 +54,7 @@ type
     private
         FTemplateStr: string;
         // FName        : string;
-        FApplyToGroup: Boolean;
+        // FApplyToGroup: Boolean; 2018-09-21 ThjxTemplate现在有ApplyGroup属性了
         // FMeterType   : String; // 目前只能针对一种类型，对于组无效。应考虑适应多种类型
     protected
         procedure SetTemplateStr(AStr: string); virtual;
@@ -73,8 +73,9 @@ type
         property HeadCell[ARow, ACol: Integer]: string read GetHeadCell;
         property DataCell[ACol: Integer]: string read GetDataCell;
         property HeadRowCount: Integer read GetHeadRowCount;
+    published
         // property MeterType: string read FMeterType;
-        property ApplyToGroup: Boolean read FApplyToGroup;
+        property ApplyGroup;//: Boolean; // read FApplyToGroup;
     end;
 
 implementation
@@ -99,11 +100,13 @@ var
 begin
     Titles.free;
     if Length(Heads) > 0 then
-        for i := 0 to high(Heads) do SetLength(Heads[i].Cols, 0);
+        for i := 0 to high(Heads) do
+            SetLength(Heads[i].Cols, 0);
     SetLength(Heads, 0);
 
     if Length(DataRows) > 0 then
-        for i := 0 to high(DataRows) do SetLength(DataRows[i].Cols, 0);
+        for i := 0 to high(DataRows) do
+            SetLength(DataRows[i].Cols, 0);
     SetLength(DataRows, 0);
 
     inherited;
@@ -126,24 +129,31 @@ begin
     for i := 0 to high(Rows) do
     begin
         j := pos(':', Rows[i]);
-        if j = 0 then continue;
+        if j = 0 then
+            continue;
         id := Trim(copy(Rows[i], 1, j - 1));
         content := Trim(copy(Rows[i], j + 1, Length(Rows[i]) - j));
-        if SameText(id, 'Name') then TemplateName := content
-        else if SameText(id, 'MeterType') then MeterType := content
+        if SameText(id, 'Name') then
+            TemplateName := content
+        else if SameText(id, 'MeterType') then
+            MeterType := content
         else if SameText(id, 'ApplyTo') then
         begin
-            if SameText(content, 'single') then FApplyToGroup := False
-            else if SameText(content, 'Group') then FApplyToGroup := True;
+            if SameText(content, 'single') then
+                ApplyGroup := False
+            else if SameText(content, 'Group') then
+                ApplyGroup := True;
         end
-        else if SameText(id, 'Title') then Titles.add(content)
+        else if SameText(id, 'Title') then
+            Titles.add(content)
         else if SameText(id, 'Head') then
         begin
             Cols := content.Split(['|']);
             { todo: 检查Cols是否为空、数量是否与前面的保持一致 }
             // 去掉前后空格
             if Length(Cols) > 0 then
-                for k := 0 to high(Cols) do Cols[k] := Trim(Cols[k]);
+                for k := 0 to high(Cols) do
+                    Cols[k] := Trim(Cols[k]);
             SetLength(Heads, Length(Heads) + 1);
             SetLength(Heads[high(Heads)].Cols, high(Cols));
             Heads[high(Heads)].Cols := Cols;
@@ -153,7 +163,8 @@ begin
             Cols := content.Split(['|']);
             // 去掉前后空格
             if Length(Cols) > 0 then
-                for k := 0 to high(Cols) do Cols[k] := Trim(Cols[k]);
+                for k := 0 to high(Cols) do
+                    Cols[k] := Trim(Cols[k]);
             SetLength(DataRows, Length(DataRows) + 1);
             DataRows[high(DataRows)].Cols := Cols;
             ColCount := high(Cols) - low(Cols) + 1;
@@ -165,8 +176,10 @@ end;
 
 function TWebGridTemplate.GetHeadRowCount: Integer;
 begin
-    if Length(Heads) = 0 then Result := 0
-    else Result := high(Self.Heads) + 1;
+    if Length(Heads) = 0 then
+        Result := 0
+    else
+        Result := high(Self.Heads) + 1;
 end;
 
 function TWebGridTemplate.GetDataCell(ACol: Integer): string;
@@ -176,7 +189,7 @@ begin
     if Length(DataRows) > 0 then
         if Length(DataRows[0].Cols) > 0 then
             if (ACol >= 0) and (ACol <= high(DataRows[0].Cols)) then
-                    Result := DataRows[0].Cols[ACol];
+                Result := DataRows[0].Cols[ACol];
 end;
 
 function TWebGridTemplate.GetHeadCell(ARow: Integer; ACol: Integer): string;
@@ -187,7 +200,7 @@ begin
         if (ARow >= 0) and (ARow <= high(Heads)) then
             if Length(Heads[ARow].Cols) > 0 then
                 if (ACol >= 0) and (ACol <= high(Heads[ARow].Cols)) then
-                        Result := Heads[ARow].Cols[ACol];
+                    Result := Heads[ARow].Cols[ACol];
 end;
 
 end.

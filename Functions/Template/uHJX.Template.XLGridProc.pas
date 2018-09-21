@@ -331,7 +331,7 @@ begin
     if Meter = nil then
         Exit;
 
-    if (Meter.PrjParams.GroupID <> '') and grdTmp.ApplyToGroup then
+    if (Meter.PrjParams.GroupID <> '') and grdTmp.ApplyGroup then
         bGroup := True
     else
         bGroup := False;

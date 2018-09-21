@@ -2,13 +2,13 @@ object fraBasicTrendLine: TfraBasicTrendLine
   Left = 0
   Top = 0
   Width = 800
-  Height = 300
+  Height = 350
   TabOrder = 0
   object chtLine: TChart
     Left = 0
     Top = 0
     Width = 800
-    Height = 300
+    Height = 350
     BackWall.Color = clWhite
     Border.Visible = True
     Legend.Alignment = laTop
@@ -73,6 +73,7 @@ object fraBasicTrendLine: TfraBasicTrendLine
     OnClick = chtLineClick
     OnDblClick = chtLineDblClick
     OnMouseMove = chtLineMouseMove
+    ExplicitHeight = 300
     DefaultCanvas = 'TGDIPlusCanvas'
     PrintMargins = (
       2

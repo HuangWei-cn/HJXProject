@@ -31,6 +31,9 @@ type
         actShowMeterDatas: TAction;
         actShowTrendLine: TAction;
         actShowTrendLine1: TMenuItem;
+        actOpenDataBook: TAction;
+    N1: TMenuItem;
+    N2: TMenuItem;
         procedure tvwMetersCreateNodeClass(Sender: TCustomTreeView; var NodeClass: TTreeNodeClass);
         procedure edtSearchChange(Sender: TObject);
         procedure tvwMetersCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
@@ -39,6 +42,7 @@ type
         procedure actShowMeterDatasExecute(Sender: TObject);
         procedure actShowTrendLineExecute(Sender: TObject);
         procedure tvwMetersDblClick(Sender: TObject);
+        procedure actOpenDataBookExecute(Sender: TObject);
     private
         { Private declarations }
         FOnShowMeterDatas      : TOnMeterOpEvent; // 显示数据表
@@ -59,6 +63,8 @@ type
 
 implementation
 
+uses ShellAPI;
+
 {$R *.dfm}
 
 
@@ -72,6 +78,17 @@ type
         Meter   : TMeterDefine;
         Grouped : Boolean; // 是否成组
     end;
+
+procedure TfraMeterList.actOpenDataBookExecute(Sender: TObject);
+var S:String;
+begin
+    if tvwMeters.Selected = nil then
+        Exit;
+
+    with tvwMeters.Selected as TmeterNode do
+        if Meter <> nil then
+            ShellExecute(0, PChar('open'), PChar(Meter.DataBook), nil, nil, SW_SHOWNORMAL);
+end;
 
 procedure TfraMeterList.actShowMeterDatasExecute(Sender: TObject);
 begin

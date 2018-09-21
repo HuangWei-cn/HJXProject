@@ -23,7 +23,7 @@ type
         // FTemplateName: string;  // template name
         FTempSheet    : string;      // template worksheet name
         FGridType     : TxlGridType; // grid type
-        FApplyToGroup : Boolean;
+        //FApplyToGroup : Boolean; 2018-09-21
         FTitleRect    : TRect;  // title range rect
         FHeadRect     : TRect;  // grid head range rect
         FDataRect     : TRect;  // data row rect
@@ -45,7 +45,7 @@ type
         property TitleRangeRef: string read FTitleRangeRef write SetTitleRange;
         property HeadRangeRef : string read FHeadRangeRef write SetHeadRange;
         property DataRangeRef : string read FDataRangeRef write SetDataRange;
-        property ApplyToGroup : Boolean read FApplyToGroup write FApplyToGroup;
+        property ApplyGroup;// : Boolean;// read FApplyToGroup write FApplyToGroup;
     end;
 
 implementation

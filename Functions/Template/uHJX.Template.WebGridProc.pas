@@ -123,7 +123,7 @@ begin
                 AMeter.Params.MeterType]);
 
     // 如果模板支持仪器组，且仪器归属于某个组，则进行组处理
-    if grdTemp.ApplyToGroup and (AMeter.PrjParams.GroupID <> '') then
+    if grdTemp.ApplyGroup and (AMeter.PrjParams.GroupID <> '') then
         bGroup := True;
 
     // 处理Title, 方法是将每行中的占位符替换为相应的仪器属性，若无占位符则原文输出
@@ -224,7 +224,7 @@ begin
                 AMeter.Params.MeterType]);
 
     // 如果模板支持仪器组，且仪器归属于某个组，则进行组处理
-    if grdTemp.ApplyToGroup and (AMeter.PrjParams.GroupID <> '') then
+    if grdTemp.ApplyGroup and (AMeter.PrjParams.GroupID <> '') then
         bGroup := True;
 
     // 处理Title, 方法是将每行中的占位符替换为相应的仪器属性，若无占位符则原文输出

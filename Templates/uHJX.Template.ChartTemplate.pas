@@ -114,7 +114,7 @@ type
     TChartTemplate = class(ThjxTemplate)
     private
         FTempStr     : string;
-        FApplyToGroup: Boolean;
+        //FApplyToGroup: Boolean;
         FChartTitle  : string;
         FChartType   : TchtType;
         FEnvType     : Integer;
@@ -155,7 +155,7 @@ type
         /// <summary>模板是否支持仪器组？如果模板支持仪器组，且给定仪器也属于某个组，则绘制该组
         /// 图形；若仪器单支，则仅绘制这一只仪器，忽略其他定义。
         /// </summary> array[0..10] of Integer = ();
-        property ApplyToGroup: Boolean read FApplyToGroup;
+        property ApplyGroup;//: Boolean;// read FApplyToGroup;
         /// <summary>环境量类型</summary>
         property EnvType: Integer read FEnvType write FEnvType;
     end;
@@ -172,7 +172,7 @@ begin
     VertAxises := TDictionary<string, TchtAxis>.Create;
     HoriAxises := TDictionary<string, TchtAxis>.Create;
     Series := TList<TchtSeries>.Create;
-    FApplyToGroup := False;
+    ApplyGroup := False;
     Self.Category := tplChart;
 end;
 
@@ -359,7 +359,7 @@ var
             Result := '1'; // 当没有<Meter X>项时，默认等于<Meter 1>
             pds := pdsMeter;
             sn := '*';
-            FApplyToGroup := False;
+            ApplyGroup := False;
             Exit;
         end;
         { 错误判断，出现下面的情况，忽略Meter设置 }
@@ -368,7 +368,7 @@ var
             Result := '1';
             pds := pdsMeter;
             sn := '*';
-            FApplyToGroup := False;
+            ApplyGroup := False;
             Exit;
         end;
 
@@ -393,20 +393,20 @@ var
             begin
                 Result := '0'; // mst[1]; MeterIndex = 0相当于n，对所有仪器有效
                 sn := '*';     // sn是SourceName项，*表示任何仪器
-                FApplyToGroup := True;
+                ApplyGroup := True;
             end
             else if TryStrToInt(mst[1], ii) then
             begin
                 Result := mst[1];
                 sn := '*';
-                if ii > 1 then FApplyToGroup := True
-                else FApplyToGroup := False;
+                if ii > 1 then ApplyGroup := True
+                else ApplyGroup := False;
             end
             else // 既不是n，也不是数字，那就是仪器编号或者环境量名称
             begin
                 Result := '-1'; // -1表示指定名称的仪器
                 sn := mst[1];   // 此时，mst[1]应该是仪器或环境量的名称
-                FApplyToGroup := False;
+                ApplyGroup := False;
             end;
         end;
         SetLength(mst, 0);

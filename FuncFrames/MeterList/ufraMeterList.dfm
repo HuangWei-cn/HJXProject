@@ -46,6 +46,12 @@ object fraMeterList: TfraMeterList
       Action = actShowTrendLine
       Caption = #26174#31034#36807#31243#32447
     end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object N2: TMenuItem
+      Action = actOpenDataBook
+    end
   end
   object actlstMeterOp: TActionList
     Left = 136
@@ -57,6 +63,10 @@ object fraMeterList: TfraMeterList
     object actShowTrendLine: TAction
       Caption = 'actShowTrendLine'
       OnExecute = actShowTrendLineExecute
+    end
+    object actOpenDataBook: TAction
+      Caption = #25171#24320#35266#27979#25968#25454#35745#31639#34920
+      OnExecute = actOpenDataBookExecute
     end
   end
 end

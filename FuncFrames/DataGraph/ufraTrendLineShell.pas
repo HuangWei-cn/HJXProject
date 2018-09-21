@@ -8,6 +8,7 @@
             中显示出来，成为用户程序中的一部分；另一方面，本单元向图形调度器
             提供了DrawMeterGraph方法的实际执行者。
  History:   2018-07-26 增加根据预定义Template绘图的功能
+            2018-09-21 当Frame宽度小于450或高度小于210时，自动转变为极简模式
 ----------------------------------------------------------------------------- }
 
 unit ufraTrendLineShell;
@@ -22,6 +23,7 @@ uses
 
 type
     TfraTrendLineShell = class(TFrame)
+        procedure FrameResize(Sender: TObject);
     private
         { Private declarations }
         FfraTL: TfraBasicTrendLine;
@@ -89,7 +91,8 @@ begin
     mt := ExcelMeters.Meter[ADsnName];
     { 2018-07-26 用过程线定义绘图 }
     if mt.ChartPreDef <> nil then
-        DrawMeterSeries(FfraTL.chtLine, mt.ChartPreDef as TChartTemplate {TTrendlinePreDefine}, ADsnName, 0, 0)
+        DrawMeterSeries(FfraTL.chtLine, mt.ChartPreDef as TChartTemplate { TTrendlinePreDefine } ,
+            ADsnName, 0, 0)
     else
     begin
         if (mt.Params.MeterType = '锚杆应力计') and (mt.PrjParams.GroupID <> '') then
@@ -115,7 +118,8 @@ begin
         mt := ExcelMeters.Meter[ADsnName];
         { 2018-07-26 用过程线预定义绘图 }
         if mt.ChartPreDef <> nil then
-            DrawMeterSeries(FfraTL.chtLine, mt.ChartPreDef as TChartTemplate{TTrendlinePreDefine}, ADsnName,
+            DrawMeterSeries(FfraTL.chtLine,
+                mt.ChartPreDef as TChartTemplate { TTrendlinePreDefine } , ADsnName,
                 DTStart, DTEnd)
         else
         begin
@@ -125,6 +129,14 @@ begin
                 _DrawNormalLine(mt.DesignName, DTStart, DTEnd);
         end;
     end;
+end;
+
+procedure TfraTrendLineShell.FrameResize(Sender: TObject);
+begin
+    if (Width <= 450) or (Height <= 210) then
+        FfraTL.Minimalism := True
+    else
+        FfraTL.Minimalism := False;
 end;
 
 { -----------------------------------------------------------------------------
@@ -349,7 +361,7 @@ begin
                 { 2018-07-26 现在具备了根据预定义的Style绘图的功能，理论上讲，只要一个仪器有对应的
                   Style，则无论仪器类型都可以绘图，这种根据仪器类型进行绘图注册的方式已经落后于时代
                   了，需要改进 }
-                {TODO -ohw -cDrawGraph : 注册方法应该改进，根据模板中仪器类型和图形类型注册，而非代码中写死}
+                { TODO -ohw -cDrawGraph : 注册方法应该改进，根据模板中仪器类型和图形类型注册，而非代码中写死 }
                 IGD.RegistDrawFuncs('多点位移计', DrawTrendLine);
                 IGD.RegistDrawFuncs('锚索测力计', DrawTrendLine);
                 IGD.RegistDrawFuncs('锚杆应力计', DrawTrendLine);

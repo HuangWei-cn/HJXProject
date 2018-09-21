@@ -86,7 +86,7 @@ var
 constructor TGraphDispatcher.Create;
 begin
     inherited;
-    FDefFormWidth := 600;
+    FDefFormWidth := 700;
     FDefFormHeight := 400;
     FDrawFuncs := TList.Create;
     FExpFuncs := TList.Create;
@@ -170,6 +170,7 @@ begin
         ShowDataGraph(ADesignName, AContainer)
     else
     begin
+        {TODO -ohw -cGraphDispatcher : 当弹出窗口时，自动排列位置，使之整整齐齐}
         MainForm := IAppServices.host as TForm;
         frm := TForm.Create(MainForm);
         frm.OnClose := MainForm.OnClose;
@@ -178,6 +179,7 @@ begin
         frm.OnResize := Self.Resize;
         frm.BorderStyle := bsSizeToolWin;
         frm.ScreenSnap := True;
+        frm.Tag := 100; //凡Tag=100的，都是弹出的Chart
         frm.Caption := IAppServices.ClientDatas.GetMeterTypeName(ADesignName) + ADesignName
             + '观测数据图形';
         try

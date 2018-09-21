@@ -29,6 +29,7 @@ type
         FMeterType   : string;
         FCatege      : TTplCategory;
         FAnnotation  : string;
+        FApplyGroup  : Boolean;
     public
         constructor Create; virtual;
     published
@@ -36,6 +37,7 @@ type
         property MeterType   : string read FMeterType write FMeterType;
         property Category    : TTplCategory read FCatege write FCatege;
         property Annotation  : string read FAnnotation write FAnnotation;
+        property ApplyGroup  : Boolean read FApplyGroup write FApplyGroup;
     end;
 
     /// <summary>

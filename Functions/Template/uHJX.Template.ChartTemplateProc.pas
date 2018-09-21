@@ -309,7 +309,7 @@ begin
         // 判断是否仪器组，若是，则判断给定的预定义是否支持仪器组。如锚杆应力计有组设置，若定义是针对仪器组
         // 的，则进行组处理；若定义是针对单支仪器的，则仅处理本仪器即可
         if mt.PrjParams.GroupID = '' then SetMeterLines(ADsnName, 1)
-        else if ChtTmpl.ApplyToGroup then
+        else if ChtTmpl.ApplyGroup then
         begin
             Grp := MeterGroup.ItemByName[mt.PrjParams.GroupID];
             if Grp = nil then SetMeterLines(ADsnName, 1)

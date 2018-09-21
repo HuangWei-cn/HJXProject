@@ -1349,9 +1349,9 @@ begin
             // group
             S := Trim(VarToStr(Sht.Cells[iRow, 4].Value));
             if S = '·ñ' then
-                xl.ApplyToGroup := False
+                xl.ApplyGroup := False
             else
-                xl.ApplyToGroup := True;
+                xl.ApplyGroup := True;
             // sheet name
             S := Trim(VarToStr(Sht.Cells[iRow, 5].Value));
             xl.TemplateSheet := S;

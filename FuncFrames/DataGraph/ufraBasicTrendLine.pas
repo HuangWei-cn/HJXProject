@@ -21,6 +21,7 @@
                 (2) 可将设置好的图形保存为tee文件，允许其他Chart加载显示；
  History:   2018-01-24
             2018-07-11 双击轴，该轴自动缩放。这个自动缩放貌似不是很理想。
+            2018-09-21 增加极简模式
 ----------------------------------------------------------------------------- }
 { TChart自带的坐标轴拖动方法可以用，但是缺少坐标轴缩放、滚轮缩放功能。可能仍然需要自己编程实现 }
 { todo:增加双击某坐标轴，则该轴变成自动比例 }
@@ -261,7 +262,7 @@ begin
     finally
         JPG.Free;
     end;
-    // chtLine.CopyToClipboardBitmap;
+    chtLine.CopyToClipboardBitmap;
     // chtLine.CopyToClipboardMetafile(True);
 end;
 
