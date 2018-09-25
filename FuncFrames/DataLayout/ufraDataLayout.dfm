@@ -23,6 +23,8 @@ object fraDataLayout: TfraDataLayout
     SnapToGrid = False
     TabOrder = 0
     OnContextPopup = sgDataLayoutContextPopup
+    OnKeyDown = sgDataLayoutKeyDown
+    OnKeyUp = sgDataLayoutKeyUp
     OnObjectSelect = sgDataLayoutObjectSelect
     OnObjectClick = sgDataLayoutObjectClick
     OnObjectDblClick = sgDataLayoutObjectDblClick
@@ -49,7 +51,9 @@ object fraDataLayout: TfraDataLayout
     object ToolButton1: TToolButton
       Left = 23
       Top = 0
+      Hint = #24179#31227#22270#24418#65288#25353#31354#26684#38190#65289
       Action = actPanMode
+      Caption = #24179#31227#22270#24418
     end
     object ToolButton2: TToolButton
       Left = 46
@@ -153,7 +157,7 @@ object fraDataLayout: TfraDataLayout
     Left = 158
     Top = 310
     Bitmap = {
-      494C010133003800480010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101330038004C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB

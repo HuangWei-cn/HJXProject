@@ -104,6 +104,8 @@ type
         procedure sgDataLayoutObjectContextPopup(Graph: TSimpleGraph; GraphObject: TGraphObject;
             const MousePos: TPoint; var Handled: Boolean);
         procedure sgDataLayoutContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+        procedure sgDataLayoutKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+        procedure sgDataLayoutKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     private
         { Private declarations }
         FOnNeedDataEvent     : TOnNeedDataEvent;
@@ -119,6 +121,9 @@ type
         FOnMeterClick   : TOnMeterEvent; // 选中仪器产生的事件，返回值为弹出菜单中图形的名称
         FPopupDataGraph : TOnMeterEvent; // 弹出数据图形事件
         FPopupDataViewer: TOnMeterEvent; // 弹出数据表事件
+
+        FPreCmd      : TGraphCommandMode; // 上一次命令
+        FHoldSpaceKey: Boolean;           // 按下Space键
 
         procedure LockMap(bLock: Boolean);
         procedure ShowDataItem(AnItem: TdmcDataItem);
@@ -180,6 +185,31 @@ begin
     end
     else
         Handled := True;
+end;
+
+procedure TfraDataLayout.sgDataLayoutKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+    FHoldSpaceKey := Key = 32;
+    if sgDataLayout.CommandMode <> cmPan then
+        if FHoldSpaceKey then
+        begin
+            FPreCmd := sgDataLayout.CommandMode;
+            sgDataLayout.CommandMode := cmPan;
+        end;
+end;
+
+procedure TfraDataLayout.sgDataLayoutKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+    if Key = 32 then
+    begin
+        if FHoldSpaceKey then
+        begin
+            FHoldSpaceKey := False;
+            sgDataLayout.CommandMode := FPreCmd;
+            if FPreCmd <> cmPan then
+                sgDataLayout.Invalidate;
+        end;
+    end;
 end;
 
 procedure TfraDataLayout.sgDataLayoutObjectClick(Graph: TSimpleGraph; GraphObject:
@@ -425,7 +455,7 @@ end;
 ----------------------------------------------------------------------------- }
 procedure TfraDataLayout.LoadDataLayout(AFile: string);
 var
-    i: integer;
+    i: Integer;
     S: string;
 begin
     FLayoutFileName := AFile;
@@ -449,7 +479,7 @@ end;
 
 procedure TfraDataLayout.LockMap(bLock: Boolean);
 var
-    i: integer;
+    i: Integer;
 begin
     with sgDataLayout.Objects do
         for i := 0 to Count - 1 do
@@ -480,7 +510,7 @@ end;
 
 procedure TfraDataLayout.Play(ShowIncrement: Boolean = False);
 var
-    i: integer;
+    i: Integer;
 begin
     if (not ShowIncrement) and (not Assigned(FOnNeedDataEvent)) then
         Exit;
@@ -511,7 +541,7 @@ end;
 
 procedure TfraDataLayout.ClearDatas;
 var
-    i: integer;
+    i: Integer;
 begin
     for i := 0 to sgDataLayout.Objects.Count - 1 do
         if sgDataLayout.Objects.Items[i] is TdmcDataItem then
@@ -585,7 +615,7 @@ var
     Data: Variant;
     DT  : TDateTime;
     S   : string;
-    Incr: integer;
+    Incr: Integer;
 begin
     OnNeedIncrementEvent(AnItem.DesignName, AnItem.DataName, Data, DT);
     if (VarIsNull(Data)) or (VarIsEmpty(Data)) or (VarToStr(Data) = '') then
