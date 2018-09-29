@@ -14,7 +14,7 @@ interface
 uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
     Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, {uHJX.Excel.Meters}
-    uHJX.Classes.Meters,
+    uHJX.Intf.AppServices, uHJX.Classes.Meters,
     Vcl.StdCtrls, Vcl.Menus, System.Actions, Vcl.ActnList;
 
 type
@@ -32,8 +32,8 @@ type
         actShowTrendLine: TAction;
         actShowTrendLine1: TMenuItem;
         actOpenDataBook: TAction;
-    N1: TMenuItem;
-    N2: TMenuItem;
+        N1: TMenuItem;
+        N2: TMenuItem;
         procedure tvwMetersCreateNodeClass(Sender: TCustomTreeView; var NodeClass: TTreeNodeClass);
         procedure edtSearchChange(Sender: TObject);
         procedure tvwMetersCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
@@ -49,8 +49,10 @@ type
         FOnShowMeterTrendLine  : TOnMeterOpEvent; // 显示过程线
         FOnShowMeterVectorGraph: TOnMeterOpEvent; // 显示向量图
         FOnDblClickMeter       : TOnMeterOpEvent; // 双击仪器事件
+        procedure OnDBConnected(Sender:TObject);  //数据库连接后
     public
         { Public declarations }
+        constructor Create(AOwner: TComponent);
         procedure ShowMeters;
     published
         property OnShowMeterDatas: TOnMeterOpEvent read FOnShowMeterDatas write FOnShowMeterDatas;
@@ -79,8 +81,15 @@ type
         Grouped : Boolean; // 是否成组
     end;
 
+constructor TfraMeterList.Create(AOwner: TComponent);
+begin
+    inherited;
+    IAppServices.RegEventDemander('AfterConnectedEvent', OnDBConnected);
+end;
+
 procedure TfraMeterList.actOpenDataBookExecute(Sender: TObject);
-var S:String;
+var
+    S: String;
 begin
     if tvwMeters.Selected = nil then
         Exit;
@@ -114,14 +123,14 @@ end;
 procedure TfraMeterList.edtSearchChange(Sender: TObject);
 var
     i: integer;
-    s: string;
+    S: string;
 begin
     if edtSearch.Text = '' then
         Exit;
     // 查找：
-    s := UpperCase(edtSearch.Text);
+    S := UpperCase(edtSearch.Text);
     for i := 0 to tvwMeters.Items.Count - 1 do
-        if Pos(s, UpperCase(tvwMeters.Items[i].Text)) > 0 then
+        if Pos(S, UpperCase(tvwMeters.Items[i].Text)) > 0 then
         begin
             tvwMeters.Items[i].Selected := True;
             tvwMeters.Items[i].MakeVisible;
@@ -244,6 +253,11 @@ begin
         if (NodeType = ntMeter) then
             if Assigned(FOnDblClickMeter) then
                 FOnDblClickMeter(Meter.DesignName);
+end;
+
+procedure TfraMeterList.OnDBConnected(Sender: TObject);
+begin
+    ShowMeters;
 end;
 
 end.

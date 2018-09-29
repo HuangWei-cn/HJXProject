@@ -16,7 +16,7 @@ uses
     Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MemTableDataEh, Data.DB, DBGridEhGrouping,
     ToolCtrlsEh, DBGridEhToolCtrls, DynVarsEh, EhLibVCL, GridsEh, DBAxisGridsEh, DBGridEh,
     DataDriverEh, MemTableEh, Datasnap.DBClient, MidasLib,
-    uHJX.Intf.Datas;
+    uHJX.Intf.AppServices,   uHJX.Intf.Datas;
 
 type
     TfraMeterListGrid = class(TFrame)
@@ -28,8 +28,10 @@ type
     private
         { Private declarations }
         procedure _CreateDataSet;
+        procedure OnDBConnected(Sender: TObject);
     public
         { Public declarations }
+        constructor Create(AOwner: TComponent); override;
         procedure ListMeters;
     end;
 
@@ -68,6 +70,12 @@ begin
     _CFD('Elevation', '高程', ftFloat);
     // SetupDate
     _CFD('SetupDate', '安装日期', ftDateTime);
+end;
+
+constructor TfraMeterListGrid.Create(AOwner: TComponent);
+begin
+  inherited;
+    IAppServices.RegEventDemander('AfterConnectedEvent', OnDBConnected);
 end;
 
 procedure TfraMeterListGrid.ListMeters;
@@ -123,6 +131,11 @@ begin
     dbgMeters.Columns[1].Visible := False;
     dbgMeters.DataGrouping.Active := True;
     dbgMeters.DataGrouping.GroupPanelVisible := True;
+end;
+
+procedure TfraMeterListGrid.OnDBConnected(Sender: TObject);
+begin
+    ListMeters;
 end;
 
 end.

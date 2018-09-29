@@ -34,6 +34,10 @@ type
     { 参数变化集合 }
     TMeterExcelParamchangedSet = set of TMeterExcelParamChanged;
 
+{ 打开加载工程文件对话框，若用户选择了工程文件，则加载之。本方法将注册到AppServices，作为
+  AppServices.OpenDatabaseManager方法实际执行者。本方法执行完毕后，根据加载情况产生系列事件 }
+procedure OpenProject;
+
 { 加载工程配置文件，该文件指明了参数文件和数据列表文件所在，程序根据这些逐一处理 }
 function LoadProjectConfig(prjBookName: string): Boolean;
 { 加载参数文件，包括仪器基本参数、工程参数、数据结构定义等 }
@@ -1616,10 +1620,38 @@ begin
     Result := SaveParams(AMeter);
 end;
 
+
+procedure OpenProject;
+var dlg: TOpenDialog;
+begin
+    dlg := TOpenDialog.Create(nil);
+    try
+        dlg.Title := '打开工程配置文件';
+        dlg.Filter := 'Excel文件|*.xls;*.xlsx';
+        dlg.Options := [ofOverwritePrompt, ofPathMustExist, ofFileMustExist];
+        if dlg.Execute then
+            if LoadProjectConfig(dlg.FileName) then
+            begin
+                //产生登录事件、数据库连接事件
+                IAppServices.OnLogin(nil);
+                IAppServices.OnRemoteConnect(nil);
+            end;
+    finally
+        dlg.FreeOnRelease;
+    end;
+end;
+
+procedure RegManager;
+begin
+    IAppServices.RegisterOpenDBManProc(OpenProject);
+end;
+
+
 initialization
 
 theCols := TParamCols.Create;
 IssueList := TStringList.Create;
+RegManager;
 
 finalization
 
