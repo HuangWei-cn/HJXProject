@@ -9391,23 +9391,20 @@ begin
                 begin
                     R.BottomRight := CursorPos;
                     // 2018-09-25------------
-                    ScrollBy(-MulDiv(R.Right - R.Left, Zoom, 100),
-                        -MulDiv(R.Bottom - R.Top, Zoom, 100));
+                    {ScrollBy(-MulDiv(R.Right - R.Left, Zoom, 100),
+                        -MulDiv(R.Bottom - R.Top, Zoom, 100));}
+					HorzScrollBar.DontScroll := True;
+					VertScrollBar.dontScroll := True;
                     // ----------------------
                     with HorzScrollBar do
                         if IsScrollBarVisible then
-                        begin
-                            DontScroll := True;
                             Position := Position - MulDiv(R.Right - R.Left, Zoom, 100);
-                            dontScroll := False;
-                        end;
                     with VertScrollBar do
                         if IsScrollBarVisible then
-                        begin
-                            dontscroll := true;
                             Position := Position - MulDiv(R.Bottom - R.Top, Zoom, 100);
-                            dontscroll := false;
-                        end;
+					// 2018-09-29
+					HorzScrollBar.DontScroll := False;
+					VertScrollBar.DontScroll := False;
                 end;
             zoCursorCenter:
                 ScrollCenter(R.TopLeft);

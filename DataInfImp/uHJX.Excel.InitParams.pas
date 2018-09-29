@@ -60,7 +60,7 @@ function SaveParams(AMeter: TMeterDefine; NewMeter: Boolean = False): Boolean; o
 { 保存参数，允许更改仪器设计编号 }
 function SaveParams(AMeter: TMeterDefine; OldName: string): Boolean; overload;
 { 更新单个参数 }
-//function UpdateParam(ADsnName: string; ParamName: string; Param:Variant):Boolean;
+// function UpdateParam(ADsnName: string; ParamName: string; Param:Variant):Boolean;
 
 var
     { 以下三个全局变量用于编辑参数文件时，快速访问这些工作簿文件，省的打开工程文件再去找 }
@@ -104,7 +104,7 @@ type
 { TParamCols用于访问Excel参数文件时，指明各个参数项所对应的工作表列号。这个定义已经在参数表
       中的“ParamSheetStructure”工作表中预先定义好了，加载参数之前首先读取这个表中的定义，设置
       本对象，以后读取参数时，通过本对象可获取各个对应参数所在的列 }
-    ///<summary>参数表结构定义，参数-列号 </summary>
+    /// <summary>参数表结构定义，参数-列号 </summary>
     TParamCols = class
     public
         PRJ: TParamColsList;
@@ -151,7 +151,7 @@ const
 
 var
     // PARAMCOLS: TParamStruColDefine;
-    //参数工作簿各个参数表结构定义，用于快速访问参数表
+    // 参数工作簿各个参数表结构定义，用于快速访问参数表
     theCols     : TParamCols;
     DataFilePath: string; // 数据文件夹路径，在文件列表工作表的C1单元格
 
@@ -1290,6 +1290,11 @@ var
 begin
     // 清空集合
     ts := IAppServices.Templates as TTemplates;
+    //如果没有加载Templates相关的单元，ts就等于nil。对于剪裁功能的程序来说，往往工程中没有包含
+    //templates相关的系列单元
+    if ts = nil then
+        Exit;
+
     ts.ClearAll;
     // 加载ChartTemplates
     Sht := ExcelIO.GetSheet(ParamBook, { '过程线模板' } SHTCHARTTEMPLS);

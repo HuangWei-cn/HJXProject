@@ -25,6 +25,8 @@ object fraDataLayout: TfraDataLayout
     OnContextPopup = sgDataLayoutContextPopup
     OnKeyDown = sgDataLayoutKeyDown
     OnKeyUp = sgDataLayoutKeyUp
+    OnMouseWheelDown = sgDataLayoutMouseWheelDown
+    OnMouseWheelUp = sgDataLayoutMouseWheelUp
     OnObjectSelect = sgDataLayoutObjectSelect
     OnObjectClick = sgDataLayoutObjectClick
     OnObjectDblClick = sgDataLayoutObjectDblClick
@@ -157,7 +159,7 @@ object fraDataLayout: TfraDataLayout
     Left = 158
     Top = 310
     Bitmap = {
-      494C0101330038004C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010133003800500010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB

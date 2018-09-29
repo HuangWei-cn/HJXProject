@@ -106,6 +106,10 @@ type
         procedure sgDataLayoutContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
         procedure sgDataLayoutKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
         procedure sgDataLayoutKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sgDataLayoutMouseWheelDown(Sender: TObject; Shift: TShiftState; MousePos: TPoint;
+      var Handled: Boolean);
+    procedure sgDataLayoutMouseWheelUp(Sender: TObject; Shift: TShiftState; MousePos: TPoint;
+      var Handled: Boolean);
     private
         { Private declarations }
         FOnNeedDataEvent     : TOnNeedDataEvent;
@@ -209,6 +213,30 @@ begin
             if FPreCmd <> cmPan then
                 sgDataLayout.Invalidate;
         end;
+    end;
+end;
+
+procedure TfraDataLayout.sgDataLayoutMouseWheelDown(Sender: TObject; Shift: TShiftState;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+    mousepos := sgDataLayout.ScreenToClient(mousepos);
+    if PtInRect(sgDataLayout.ClientRect, mousepos) then
+    begin
+        sgdatalayout.ChangeZoomBy(-1,zocursor) ;
+        sgdatalayout.Update;
+        handled := True;
+    end;
+end;
+
+procedure TfraDataLayout.sgDataLayoutMouseWheelUp(Sender: TObject; Shift: TShiftState;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+    mousepos := sgDataLayout.ScreenToClient(mousepos);
+    if PtInRect(sgDataLayout.ClientRect, mousepos) then
+    begin
+        sgdatalayout.ChangeZoomBy(1,zocursor) ;
+        sgdatalayout.Update;
+        handled := True;
     end;
 end;
 
