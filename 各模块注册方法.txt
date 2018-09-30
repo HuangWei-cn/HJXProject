@@ -1,0 +1,9 @@
+向FunctionDispatcher注册的方法：
+===============================
+PopupMeterSelector
+        注册者：        ufrmMeterSelecter
+        参数类型：      TStrings
+        返回值：        无
+        调用方法：      IFD.CallFunction('PopupMeterSelector', FIDList) {参见ufraEigenvalueWeb单元}
+                        其中IFD：IFunctionDispatcher; FIDList:是一个TStrings类型的对象
+        说明：          调用后，弹出窗口，列出当前所有仪器供用户勾选，选择结果在方法参数中返回。

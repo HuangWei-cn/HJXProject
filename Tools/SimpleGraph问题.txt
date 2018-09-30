@@ -1,0 +1,29 @@
+
+1、平移和缩放中的哆嗦
+-------------------------
+	在SimpleGraph中，但凡遇到整个画面移动的情况，画面的移动犹如上下台阶一般跳动，
+	丝毫没有其他图形软件平移时的平滑顺畅。其原因在于，SimpleGraph在移动整个画面
+	时，虽然也使用的是ScrollBy（DeltaX，DeltaY），但它调用了两次，如第一次移动
+	dX，第二次移动dY。why？它的画面移动是通过设置横竖两个滚动条的position属性实
+	现的，当设置横条的时候，画面横向移动一下，再设置竖条时，画面再竖向移动一下。
+	可笑的是，设置滚动条（GraphScrollBar）的position时，滚动条会调用SimpleGraph
+	的ScrollBy方法完成画面的移动，但会设置该方法两个坐标中的一个为0。
+	
+	解决办法当然是重新编写一个方法，在pan或Zoom时一次性处理两个方向的移动，再设置
+	滚动条的position属性和滑块位置就可以了。
+	
+	2018-9-29当前解决办法：
+	1) TGraphScrollBar	给这个组件添加了一个DontReallyScroll属性，当该属性为True
+	   时，设置其Position属性将不会调用Owner.ScrooBy()方法，仅设置滚动条的滑块
+	   位置；另，在SetPosition中若Owner.CommandMode=cmPan，则不调用Owner.Scrollby;
+	2) TSimpleGraph		a) 平移问题：在MouseMove方法中，若处于cmPan模式，则使用
+		ScrollBy滚动，原方法由分别设置ScrollBar完成的滚动因处于Pan模式而失效；
+		b) 缩放问题：当ZoomCursor方式时，设置滚动条的DontReallyScroll = True即可。
+	
+	
+2、GDI+图元移动很慢
+-------------------------
+	在对SimpleGraph的扩展中，引入了GDI+，用gdip绘制光栅图像和图元图像。图像的抗
+	锯齿有了，但是带来了图像移动时的低速度。已经在图元中设置了若遇到平移时使用传统
+	方式绘图（inherited），gdi够快。但是在滚轮缩放的时候，慢的要死，难以忍受。需要
+	想一个办法解决这个问题。

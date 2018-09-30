@@ -1,0 +1,11 @@
+主要事件
+=========================
+数据访问功能件产生的事件
+1) TNotifyEvent类型
+        LoginEvent
+        LogoutEvent
+        AfterConnectedEvent
+        AfterDisconnectEvent
+        ParamsUpdate
+        MetersUpdate
+2) TMeterNotify类型
