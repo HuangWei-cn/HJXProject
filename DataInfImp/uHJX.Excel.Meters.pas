@@ -451,7 +451,7 @@ begin
     for i := 0 to FList.Count - 1 do
     begin
         Result := Items[i];
-        if Result.DesignName = ADesignName then
+        if SameText(Result.DesignName , ADesignName) then
             Exit;
     end;
     Result := nil;

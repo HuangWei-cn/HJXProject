@@ -100,8 +100,14 @@ object fraEigenvalueGrid: TfraEigenvalueGrid
     DataSource = dsEV
     DynProps = <>
     Flat = True
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = #26032#23435#20307
+    Font.Style = []
     Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
     OptionsEh = [dghFixed3D, dghResizeWholeRightPart, dghHighlightFocus, dghClearSelection, dghAutoSortMarking, dghMultiSortMarking, dghTraceColSizing, dghIncSearch, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
+    ParentFont = False
     PopupMenu = popEV
     ReadOnly = True
     SearchPanel.Enabled = True
@@ -172,5 +178,10 @@ object fraEigenvalueGrid: TfraEigenvalueGrid
       Caption = #21478#23384#28858'XLS'#26684#24335
       OnClick = piSaveAsXLSClick
     end
+  end
+  object dlgSave: TSaveDialog
+    Title = #20445#23384#25968#25454#34920
+    Left = 288
+    Top = 164
   end
 end

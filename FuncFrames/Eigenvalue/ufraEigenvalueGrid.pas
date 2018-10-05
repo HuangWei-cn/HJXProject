@@ -43,6 +43,7 @@ type
     piSaveAsRTF: TMenuItem;
     piSaveAsXLS: TMenuItem;
     piCopyToClipBoard: TMenuItem;
+    dlgSave: TSaveDialog;
     procedure btnQueryClick(Sender: TObject);
     procedure piCopyAsHTMLClick(Sender: TObject);
     procedure piSaveAsHTMLClick(Sender: TObject);
@@ -94,18 +95,18 @@ var
     for i := 0 to ExcelMeters.Count - 1 do
     begin
       if S = '' then
-        S := ExcelMeters.Items[i].DesignName
+          S := ExcelMeters.Items[i].DesignName
       else
-        S := S + #13#10 + ExcelMeters.Items[i].DesignName;
+          S := S + #13#10 + ExcelMeters.Items[i].DesignName;
     end;
   end;
 
 begin
   if not Assigned(IAppServices) then
-    Exit;
+      Exit;
     // show why cannot query;
   if rdgMeterOption.ItemIndex = 0 then
-    SelAll
+      SelAll
   else if IAppServices.FuncDispatcher <> nil then
   begin
     IFD := IAppServices.FuncDispatcher as IFunctionDispatcher;
@@ -115,10 +116,10 @@ begin
       S := FIDList.Text;
     end
     else
-      SelAll;
+        SelAll;
   end
   else
-    SelAll;
+      SelAll;
 
   Screen.Cursor := crHourGlass;
   try
@@ -144,7 +145,7 @@ var
 
 begin
   if cdsEV.Active then
-    cdsEV.Close;
+      cdsEV.Close;
   cdsEV.FieldDefs.Clear;
   cdsEV.IndexDefs.Clear;
 
@@ -209,29 +210,53 @@ begin
     SetDisplayLabel('Value', '測值');
   end; }
   grdEV.UseMultiTitle := True;
-  grdEV.Columns[0].Title.Caption := '安裝部位';
-  grdEV.Columns[1].Title.Caption := '儀器類型';
-  grdEV.Columns[2].Title.Caption := '設計編號';
-  grdEV.Columns[3].Title.Caption := '觀測量';
-  grdEV.Columns[4].Title.Caption := '自安裝以來|最大值|日期';
-  grdEV.Columns[5].Title.Caption := '自安裝以來|最大值|測值';
-  grdEV.Columns[6].Title.Caption := '自安裝以來|最小值|日期';
-  grdEV.Columns[7].Title.Caption := '自安裝以來|最小值|測值';
-  grdEV.Columns[8].Title.Caption := '自安裝以來|增量';
-  grdEV.Columns[9].Title.Caption := '自安裝以來|振幅';
+  { grdEV.Columns[0].Title.Caption := '安装部位';
+  grdEV.Columns[1].Title.Caption := '仪器类型';
+  grdEV.Columns[2].Title.Caption := '设计编号';
+  grdEV.Columns[3].Title.Caption := '观测量　';
+  grdEV.Columns[4].Title.Caption := '历史特征| 最大测值 | 日期 ';
+  grdEV.Columns[5].Title.Caption := '历史特征| 最大测值 | 测值 ';
+  grdEV.Columns[6].Title.Caption := '历史特征| 最小值 | 日期 ';
+  grdEV.Columns[7].Title.Caption := '历史特征| 最小值 | 测值 ';
+  grdEV.Columns[8].Title.Caption := '历史特征| 增量 ';
+  grdEV.Columns[9].Title.Caption := '历史特征| 变幅 ';
 
-  grdEV.Columns[10].Title.Caption := '年度|最大值|日期';
-  grdEV.Columns[11].Title.Caption := '年度|最大值|測值';
-  grdEV.Columns[12].Title.Caption := '年度|最小值|日期';
-  grdEV.Columns[13].Title.Caption := '年度|最小值|測值';
-  grdEV.Columns[14].Title.Caption := '年度|增量';
-  grdEV.Columns[15].Title.Caption := '年度|振幅';
+  grdEV.Columns[10].Title.Caption := '年度特征|最大测值| 日期 ';
+  grdEV.Columns[11].Title.Caption := '年度特征|最大测值| 测值 ';
+  grdEV.Columns[12].Title.Caption := '年度特征|最小值| 日期 ';
+  grdEV.Columns[13].Title.Caption := '年度特征|最小值| 测值 ';
+  grdEV.Columns[14].Title.Caption := '年度特征|增量';
+  grdEV.Columns[15].Title.Caption := '年度特征|变幅';
 
-  grdEV.Columns[16].Title.Caption := '當前值|日期';
-  grdEV.Columns[17].Title.Caption := '當前值|測值';
-  // grdEV.
+  grdEV.Columns[16].Title.Caption := '当前测值|日期';
+  grdEV.Columns[17].Title.Caption := '当前测值|测值'; }
+
+  grdEV.Columns[0].Field.DisplayLabel := '安装部位';
+  grdEV.Columns[1].Field.DisplayLabel := '仪器类型';
+  grdEV.Columns[2].Field.DisplayLabel := '设计编号';
+  grdEV.Columns[3].Field.DisplayLabel := '观测量';
+  grdEV.Columns[4].Field.DisplayLabel := '历史特征值|最大值|日期';
+  grdEV.Columns[5].Field.DisplayLabel := '历史特征值|最大值|测值';
+  grdEV.Columns[6].Field.DisplayLabel := '历史特征值|最小值|日期';
+  grdEV.Columns[7].Field.DisplayLabel := '历史特征值|最小值|测值';
+  grdEV.Columns[8].Field.DisplayLabel := '历史特征值|增量';
+  grdEV.Columns[9].Field.DisplayLabel := '历史特征值|变幅';
+
+  grdEV.Columns[10].Field.DisplayLabel := '年度特征值|最大值|日期';
+  grdEV.Columns[11].Field.DisplayLabel := '年度特征值|最测值|测值';
+  grdEV.Columns[12].Field.DisplayLabel := '年度特征值|最小值|日期';
+  grdEV.Columns[13].Field.DisplayLabel := '年度特征值|最小值|测值';
+  grdEV.Columns[14].Field.DisplayLabel := '年度特征值|增量';
+  grdEV.Columns[15].Field.DisplayLabel := '年度特征值|变幅';
+
+  grdEV.Columns[16].Field.DisplayLabel := '当前值|日期';
+  grdEV.Columns[17].Field.DisplayLabel := '当前值|测值';
+
   for i := 0 to grdEV.Columns.Count - 1 do
+  begin
     grdEV.Columns[i].OptimizeWidth;
+    grdEV.Columns[i].Width := grdEV.Columns[i].Width + 10;
+  end;
 
   grdEV.DataGrouping.Active := False;
   // gl := grdEV.DataGrouping.GroupLevels.Add;
@@ -256,7 +281,7 @@ begin
   mtEV.Close;
   cdsEV.Close;
   if FIDList.Count = 0 then
-    Exit;
+      Exit;
 
   prgBar.Max := FIDList.Count;
   prgBar.Position := 0;
@@ -269,9 +294,9 @@ begin
     prgBar.Update;
 
     if optLast.Checked then
-      bGet := IAppServices.ClientDatas.GetEVDatas(FIDList.Strings[iMT], EVDatas)
+        bGet := IAppServices.ClientDatas.GetEVDatas(FIDList.Strings[iMT], EVDatas)
     else
-      bGet := IAppServices.ClientDatas.GetEVDataInPeriod(FIDList.Strings[iMT], dtpStart.Date,
+        bGet := IAppServices.ClientDatas.GetEVDataInPeriod(FIDList.Strings[iMT], dtpStart.Date,
         dtpEnd.Date, EVDatas);
 
     if bGet then
@@ -289,19 +314,19 @@ begin
               FieldByName('DesignName').Value := Meter.DesignName;
               FieldByName('PDName').Value := Meter.PDDefine[EVDatas[i].PDIndex].Name;
 
-              FieldByName('MaxDTInLife').Value := lifeev.MaxDate;
-              FieldByName('MaxInLife').Value := lifeev.MaxValue;
-              FieldByName('MinDTInLife').Value := lifeev.MinDate;
-              FieldByName('MinInLife').Value := lifeev.MinValue;
-              FieldByName('IncrementInLife').Value := lifeev.Increment;
-              FieldByName('AmplitudeInLife').Value := lifeev.Amplitude;
+              FieldByName('MaxDTInLife').Value := LifeEV.MaxDate;
+              FieldByName('MaxInLife').Value := LifeEV.MaxValue;
+              FieldByName('MinDTInLife').Value := LifeEV.MinDate;
+              FieldByName('MinInLife').Value := LifeEV.MinValue;
+              FieldByName('IncrementInLife').Value := LifeEV.Increment;
+              FieldByName('AmplitudeInLife').Value := LifeEV.Amplitude;
 
-              FieldByName('MaxDTInYear').Value := yearev.MaxDate;
-              FieldByName('MaxInYear').Value := yearev.MaxValue;
-              FieldByName('MinDTInYear').Value := yearev.MinDate;
-              FieldByName('MinInYear').Value := yearev.MinValue;
-              FieldByName('IncrementInYear').Value := yearev.Increment;
-              FieldByName('AmplitudeInYear').Value := yearev.Amplitude;
+              FieldByName('MaxDTInYear').Value := YearEV.MaxDate;
+              FieldByName('MaxInYear').Value := YearEV.MaxValue;
+              FieldByName('MinDTInYear').Value := YearEV.MinDate;
+              FieldByName('MinInYear').Value := YearEV.MinValue;
+              FieldByName('IncrementInYear').Value := YearEV.Increment;
+              FieldByName('AmplitudeInYear').Value := YearEV.Amplitude;
 
               FieldByName('DTScale').Value := CurDate;
               FieldByName('Value').Value := CurValue;
@@ -324,11 +349,11 @@ begin
   ms := TMemoryStream.Create;
   try
     WriteDBGridEhToExportStream(TDBGridEhExportAsHTML, grdEV, ms, True);
-    copyhtmltoclipboard(ms);
+    CopyHTMLToClipboard(ms);
   finally
     ms.Free;
   end;
-  //DBGridEh_DoCopyAction(grdEV, True);
+  // DBGridEh_DoCopyAction(grdEV, True);
 end;
 
 procedure TfraEigenvalueGrid.piCopyToClipBoardClick(Sender: TObject);
@@ -338,7 +363,10 @@ end;
 
 procedure TfraEigenvalueGrid.piSaveAsHTMLClick(Sender: TObject);
 begin
-  //
+  dlgSave.Filter := 'HTML文件|*.htm;*.html';
+  dlgSave.DefaultExt := 'htm';
+  if dlgSave.Execute then
+      SaveDBGridEhToExportFile(TDBGridEhExportAsHTML, grdEV, dlgSave.FileName, True);
 end;
 
 procedure TfraEigenvalueGrid.piSaveAsRTFClick(Sender: TObject);

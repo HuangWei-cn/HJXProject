@@ -2,13 +2,14 @@ object fraXLSParamEditor: TfraXLSParamEditor
   Left = 0
   Top = 0
   Width = 365
-  Height = 550
+  Height = 588
   TabOrder = 0
   object CategoryPanelGroup1: TCategoryPanelGroup
     Left = 0
     Top = 101
     Width = 365
-    Height = 449
+    Height = 487
+    VertScrollBar.Position = 219
     VertScrollBar.Tracking = True
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
@@ -23,12 +24,12 @@ object fraXLSParamEditor: TfraXLSParamEditor
     HeaderFont.Style = []
     ParentFont = False
     TabOrder = 0
+    ExplicitHeight = 449
     object CategoryPanel3: TCategoryPanel
-      Top = 479
+      Top = 260
       Height = 225
       Caption = #25968#25454#32467#26500
       TabOrder = 0
-      ExplicitWidth = 363
       object vleDataStru: TValueListEditor
         Left = 0
         Top = 0
@@ -58,15 +59,14 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vleDataStruStringsChange
         ColWidths = (
           133
-          205)
+          188)
       end
     end
     object CategoryPanel2: TCategoryPanel
-      Top = 285
+      Top = 66
       Height = 194
       Caption = #24037#31243#23646#24615
       TabOrder = 1
-      ExplicitWidth = 363
       object vlePrjParams: TValueListEditor
         Left = 0
         Top = 0
@@ -94,11 +94,11 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vlePrjParamsStringsChange
         ColWidths = (
           135
-          203)
+          186)
       end
     end
     object CategoryPanel1: TCategoryPanel
-      Top = 0
+      Top = -219
       Height = 285
       Caption = #20202#22120'/'#20256#24863#22120#23646#24615
       Font.Charset = DEFAULT_CHARSET
@@ -108,7 +108,6 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Font.Style = []
       ParentFont = False
       TabOrder = 2
-      ExplicitWidth = 185
       object vleMeterParams: TValueListEditor
         Left = 0
         Top = 0
@@ -144,7 +143,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vleMeterParamsStringsChange
         ColWidths = (
           134
-          204)
+          187)
       end
       object dtpDateEdit: TDateTimePicker
         Left = 136
