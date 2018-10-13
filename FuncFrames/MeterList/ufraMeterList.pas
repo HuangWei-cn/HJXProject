@@ -65,7 +65,10 @@ type
 
 implementation
 
-uses ShellAPI;
+uses
+  ShellAPI,
+  uHJX.Excel.IO; //这个引用需要去掉
+  {TODO -ohw -cMeterList : 需要设法去掉引用Excel.IO单元}
 
 {$R *.dfm}
 
@@ -96,7 +99,8 @@ begin
 
     with tvwMeters.Selected as TmeterNode do
         if Meter <> nil then
-            ShellExecute(0, PChar('open'), PChar(Meter.DataBook), nil, nil, SW_SHOWNORMAL);
+          TExcelIO.Excel_ShowSheet(Meter.DataBook,Meter.DataSheet);
+            //ShellExecute(0, PChar('open'), PChar(Meter.DataBook), nil, nil, SW_SHOWNORMAL);
 end;
 
 procedure TfraMeterList.actShowMeterDatasExecute(Sender: TObject);

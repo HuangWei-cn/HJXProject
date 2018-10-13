@@ -120,6 +120,7 @@ var
     mt    : TMeterDefine;
 begin
     Result := AStr;
+    RegEx := TRegEx.Create(RegExStr, [roIgnoreCase]);
     MyColl := RegEx.Matches(AStr); // 取回所有匹配项
     if MyColl.Count = 0 then       // 为零则原文输出
             Exit;

@@ -11,65 +11,76 @@ unit uHJX.Excel.IO;
 interface
 
 uses
-    System.Classes, System.SysUtils, System.Variants, System.Generics.Collections, System.Types,
-    System.StrUtils, Winapi.Windows, Vcl.Dialogs,
-    nExcel;
+  System.Classes, System.SysUtils, System.Variants, System.Generics.Collections, System.Types,
+  System.StrUtils, Winapi.Windows, Vcl.Dialogs,
+  nExcel;
 
 type
-    TmyWorkbook = class(TXLSWorkbook)
-        Opened: Boolean;
-        FullName: string;
-        function Open(FileName: WideString): Integer;
-        function SheetByName(AName: WideString): IXLSWorkSheet;
-    public
-        function Close: Integer; override;
-    end;
+  TmyWorkbook = class(TXLSWorkbook)
+    Opened: Boolean;
+    FullName: string;
+    function Open(FileName: WideString): Integer;
+    function SheetByName(AName: WideString): IXLSWorkSheet;
+  public
+    function Close: Integer; override;
+  end;
 
     { 本方法打开工作簿，若遇到工作簿被占用的情况，会提示用户关闭Excel，然后再试，除非用户不再尝试 }
 type
-    TExcelIO = class
-    public
-        function OpenWorkbook(var WBK: IXLSWorkBook; AName: String): Boolean;
+  TExcelIO = class
+  public
+    function OpenWorkbook(var WBK: IXLSWorkBook; AName: String): Boolean;
 
-        function HasSheet(ABook: IXLSWorkBook; AName: string): Boolean;
+    function HasSheet(ABook: IXLSWorkBook; AName: string): Boolean;
 
-        function GetSheet(ABook: IXLSWorkBook; AName: string): IXLSWorkSheet;
+    function GetSheet(ABook: IXLSWorkBook; AName: string): IXLSWorkSheet;
 
-        function GetStrValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): String;
-        function GetFloatValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Double;
-        function GetDateTimeValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): TDateTime;
-        function GetIntValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Integer;
+    function GetStrValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): String;
+    function GetFloatValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Double;
+    function GetDateTimeValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): TDateTime;
+    function GetIntValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Integer;
         // 判断工作簿是否打开，WBK必须是由本类创建的
-        function BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
-    end;
+    function BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
+
+        { ------ 下面是一组调用Excel程序的方法 ------- }
+        /// <summary>启动Excel或ET，打开工作簿，并设指定的sheet为ActiveSheet</summary>
+    class procedure Excel_ShowSheet(ABKName, AShtName: string);
+        /// <summary>启动Excel或ET，从SrcBook中拷贝工作表到DesBook中，如果DesBook=‘’或不存在，则创建新
+        /// 工作簿。SrcSheets为需要拷贝的源工作表列表，格式是"源表名:目的表名#13#10"。如果
+        /// 只有源表名，则目的表名=源表名，否则用目的表名重命名拷贝后的工作表</summary>
+    class function Excel_CopySheet(SrcBook, TagBook: String; SrcSheets: String): Boolean;
+  end;
 
 var
-    ExcelIO: TExcelIO;
+  ExcelIO: TExcelIO;
 
 implementation
 
+uses
+  ComObj;
+
 function TmyWorkbook.Open(FileName: WideString): Integer;
 begin
-    FullName := FileName;
-    Result := inherited Open(FileName);
-    Opened := Result = 1;
+  FullName := FileName;
+  Result := inherited Open(FileName);
+  Opened := Result = 1;
 end;
 
 function TmyWorkbook.SheetByName(AName: WideString): IXLSWorkSheet;
 var
-    i: Integer;
+  i: Integer;
 begin
-    Result := nil;
-    i := Self.Sheets.Index[AName];
-    if i <> -1 then
-        Result := Self.Sheets.Entries[Self.Sheets.Index[AName]];
+  Result := nil;
+  i := Self.Sheets.Index[AName];
+  if i <> -1 then
+      Result := Self.Sheets.Entries[Self.Sheets.Index[AName]];
 end;
 
 function TmyWorkbook.Close: Integer;
 begin
-    FullName := '';
-    Result := inherited Close;
-    Opened := False;
+  FullName := '';
+  Result := inherited Close;
+  Opened := False;
 end;
 
 { -----------------------------------------------------------------------------
@@ -79,102 +90,196 @@ end;
   ----------------------------------------------------------------------------- }
 function TExcelIO.OpenWorkbook(var WBK: IXLSWorkBook; AName: string): Boolean;
 var
-    bExit     : Boolean;
-    OpenResult: Integer;
+  bExit     : Boolean;
+  OpenResult: Integer;
 begin
-    Result := False;
-    if WBK = nil then
-        WBK := TmyWorkbook.Create;
-    bExit := False;
-    repeat
-        if WBK is TmyWorkbook then
-            OpenResult := TmyWorkbook(WBK).Open(AName)
-        else
-            OpenResult := WBK.Open(AName);
+  Result := False;
+  if WBK = nil then
+      WBK := TmyWorkbook.Create;
+  bExit := False;
+  repeat
+    if WBK is TmyWorkbook then
+        OpenResult := TmyWorkbook(WBK).Open(AName)
+    else
+        OpenResult := WBK.Open(AName);
 
-        case OpenResult of
-            1:
-                begin
-                    bExit := True;
-                    Result := True;
-                end;
-            -1:
-                begin
-                    if MessageBox(0, PWideChar('是否要关闭Excel后重试？'), '打开Excel工作簿',
-                        MB_ICONWARNING or MB_RETRYCANCEL) = IDCANCEL then
-                        bExit := True;
-                end;
-        else
-            begin
-                bExit := True;
-                showmessage('不支持的文件类型。');
-            end;
+    case OpenResult of
+      1:
+        begin
+          bExit := True;
+          Result := True;
         end;
-    until bExit;
+      -1:
+        begin
+          if MessageBox(0, PWideChar('是否要关闭Excel后重试？'), '打开Excel工作簿',
+            MB_ICONWARNING or MB_RETRYCANCEL) = IDCANCEL then
+              bExit := True;
+        end;
+    else
+      begin
+        bExit := True;
+        showmessage('不支持的文件类型。');
+      end;
+    end;
+  until bExit;
 end;
 
 function TExcelIO.HasSheet(ABook: IXLSWorkBook; AName: string): Boolean;
 var
-    i: Integer;
+  i: Integer;
 begin
-    Result := False;
-    for i := 1 to ABook.Sheets.Count do
-        if ABook.Sheets[i].Name = AName then
-        begin
-            Result := True;
-            Break;
-        end;
+  Result := False;
+  for i := 1 to ABook.Sheets.Count do
+    if ABook.Sheets[i].Name = AName then
+    begin
+      Result := True;
+      Break;
+    end;
 end;
 
 function TExcelIO.GetSheet(ABook: IXLSWorkBook; AName: string): IXLSWorkSheet;
 var
-    i: Integer;
+  i: Integer;
 begin
-    Result := nil;
-    for i := 1 to ABook.Sheets.Count do
-        if ABook.Sheets[i].Name = AName then
-        begin
-            Result := ABook.Sheets[i];
-            Break;
-        end;
+  Result := nil;
+  for i := 1 to ABook.Sheets.Count do
+    if ABook.Sheets[i].Name = AName then
+    begin
+      Result := ABook.Sheets[i];
+      Break;
+    end;
 end;
 
 function TExcelIO.GetStrValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): string;
 begin
-    Result := '';
-    Result := VarToStr(ASheet.Cells[ARow, ACol].value);
+  Result := '';
+  Result := VarToStr(ASheet.Cells[ARow, ACol].value);
 end;
 
 function TExcelIO.GetFloatValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): Double;
 var
-    S: String;
+  S: String;
 begin
-    Result := 0;
-    S := Trim(VarToStr(ASheet.Cells[ARow, ACol].value));
-    TryStrToFloat(S, Result);
+  Result := 0;
+  S := Trim(VarToStr(ASheet.Cells[ARow, ACol].value));
+  TryStrToFloat(S, Result);
 end;
 
 function TExcelIO.GetDateTimeValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): TDateTime;
 begin
-    Result := VarToDateTime(ASheet.Cells[ARow, ACol].value);
+  Result := VarToDateTime(ASheet.Cells[ARow, ACol].value);
 end;
 
 function TExcelIO.GetIntValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): Integer;
 var
-    S: string;
+  S: string;
 begin
-    Result := 0;
-    S := GetStrValue(ASheet, ARow, ACol);
-    TryStrToInt(S, Result);
+  Result := 0;
+  S := GetStrValue(ASheet, ARow, ACol);
+  TryStrToInt(S, Result);
 end;
 
 function TExcelIO.BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
 begin
-    Result := False;
-    if WBK is TmyWorkbook then
-        Result := SameText(TmyWorkbook(WBK).FullName, AName)
-    else
-        showmessage('只有用ExcelIO打开的工作簿才能判断工作簿FullName，请修改代码');
+  Result := False;
+  if WBK is TmyWorkbook then
+      Result := SameText(TmyWorkbook(WBK).FullName, AName)
+  else
+      showmessage('只有用ExcelIO打开的工作簿才能判断工作簿FullName，请修改代码');
+end;
+
+class procedure TExcelIO.Excel_ShowSheet(ABKName: string; AShtName: string);
+var
+  XLApp, BK, Sht: Variant;
+begin
+  if not FileExists(ABKName) then Exit;
+  try
+    XLApp := CreateOleObject('Excel.Application');
+    if VarIsNull(XLApp) then Exit;
+    XLApp.Visible := False;
+
+    BK := XLApp.WorkBooks.Open(ABKName);
+    if VarIsNull(BK) then Exit;
+    Sht := BK.WorkSheets.Item[AShtName];
+    if Not VarIsNull(Sht) then Sht.Activate;
+
+    XLApp.Visible := True;
+    XLApp.WindowState := -4143; // xlNormal
+  except
+  end;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : Excel_CopySheet
+  Description: 从SrcBook工作簿拷贝指定工作表到目标工作簿DesBook
+  指定的工作表在ScrSheets参数中，该参数形式为"SourcesheetName:targetsheetName#13#10"，
+  拷贝到新工作簿后，源表将命名为TargetSheetName。若TargetSheetName=''或没有
+  这一项，将沿用原表名
+----------------------------------------------------------------------------- }
+class function TExcelIO.Excel_CopySheet(SrcBook: string; TagBook: string;
+  SrcSheets: string): Boolean;
+var
+  XLApp, SrcBk, TagBk, 
+    SrcSheet, TagSheet: Variant;
+  ShtList             : TStrings;
+  i, j                : Integer;
+  S, S1, S2           : String; // s1:source sheet name;s2:taget sheet name
+begin
+  Result := False;
+  if Trim(SrcSheets) = '' then Exit;
+
+  try
+    XLApp := CreateOleObject('Excel.Application');
+  except
+    Exit;
+  end;
+
+  SrcBk := XLApp.WorkBooks.Open(SrcBook);
+  if VarIsNull(SrcBk) then Exit;
+  TagBk := XLApp.WorkBooks.Add;
+
+  ShtList := TStringList.Create;
+  ShtList.Text := SrcSheets;
+  try
+    for i := 0 to ShtList.Count - 1 do
+    begin
+      S := ShtList.Strings[i];
+      j := Pos(':', S);
+      if j = 0 then
+      begin
+        S1 := S;
+        S2 := '';
+      end
+      else
+      begin
+        S1 := Copy(S, 1, j - 1);
+        S2 := Trim(Copy(S, j + 1, length(S) - j));
+      end;
+      SrcSheet := SrcBk.WorkSheets.Item[S1];
+      if VarIsNull(SrcSheet) then Continue;
+
+      SrcSheet.Copy(Null, TagBk.WorkSheets.Item[TagBk.WorkSheets.Count]);
+      TagSheet := TagBk.WorkSheets.Item[TagBk.WorkSheets.Count];
+      if S2 <> '' then
+      begin
+        { TODO -ohw -cExcel.IO : 先判断SheetName是否已存在，若存在则需要重命名 }
+        try
+          TagSheet.Name := S2;
+        except
+        end;
+      end;
+    end;
+    // 执行到这里，算是拷贝完毕了
+    try
+      TagBk.SaveAs(TagBook,50);
+      Result := True;
+    finally
+      XLApp.WorkBooks.Close;
+      XLApp.Quit;
+    end;
+  finally
+    ShtList.Free;
+  end;
 end;
 
 initialization
