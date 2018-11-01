@@ -43,12 +43,14 @@ type
     function BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
 
         { ------ 下面是一组调用Excel程序的方法 ------- }
-        /// <summary>启动Excel或ET，打开工作簿，并设指定的sheet为ActiveSheet</summary>
+    class function GetExcelApp(CreateNew: Boolean = False): OleVariant;
+    /// <summary>启动Excel或ET，打开工作簿，并设指定的sheet为ActiveSheet</summary>
     class procedure Excel_ShowSheet(ABKName, AShtName: string);
-        /// <summary>启动Excel或ET，从SrcBook中拷贝工作表到DesBook中，如果DesBook=‘’或不存在，则创建新
-        /// 工作簿。SrcSheets为需要拷贝的源工作表列表，格式是"源表名:目的表名#13#10"。如果
-        /// 只有源表名，则目的表名=源表名，否则用目的表名重命名拷贝后的工作表</summary>
-    class function Excel_CopySheet(SrcBook, TagBook: String; SrcSheets: String): Boolean;
+    /// <summary>启动Excel或ET，从SrcBook中拷贝工作表到DesBook中，如果DesBook=‘’或不存在，则创建新
+    /// 工作簿。SrcSheets为需要拷贝的源工作表列表，格式是"源表名:目的表名#13#10"。如果
+    /// 只有源表名，则目的表名=源表名，否则用目的表名重命名拷贝后的工作表</summary>
+    class function Excel_CopySheet(XLApp: OleVariant; SrcBook, TagBook: String;
+      SrcSheets: String): Boolean;
   end;
 
 var
@@ -194,7 +196,7 @@ var
 begin
   if not FileExists(ABKName) then Exit;
   try
-    XLApp := CreateOleObject('Excel.Application');
+    XLApp := GetExcelApp; // CreateOleObject('Excel.Application');
     if VarIsNull(XLApp) then Exit;
     XLApp.Visible := False;
 
@@ -214,22 +216,36 @@ end;
   Description: 从SrcBook工作簿拷贝指定工作表到目标工作簿DesBook
   指定的工作表在ScrSheets参数中，该参数形式为"SourcesheetName:targetsheetName#13#10"，
   拷贝到新工作簿后，源表将命名为TargetSheetName。若TargetSheetName=''或没有
-  这一项，将沿用原表名
+  这一项，将沿用原表名。
+  参数XLApp是ExcelApplication，若为Null，则在本方法中获取或创建一个。若XLapp是
+  在本方法中获取或创建的，则本方法负责退出，否则不使用Quit方法。
 ----------------------------------------------------------------------------- }
-class function TExcelIO.Excel_CopySheet(SrcBook: string; TagBook: string;
+class function TExcelIO.Excel_CopySheet(XLApp: OleVariant; SrcBook: string; TagBook: string;
   SrcSheets: string): Boolean;
 var
-  XLApp, SrcBk, TagBk, 
+  SrcBk, TagBk,
     SrcSheet, TagSheet: Variant;
   ShtList             : TStrings;
   i, j                : Integer;
   S, S1, S2           : String; // s1:source sheet name;s2:taget sheet name
+  bDoQuit             : Boolean;
 begin
   Result := False;
   if Trim(SrcSheets) = '' then Exit;
 
   try
-    XLApp := CreateOleObject('Excel.Application');
+    bDoQuit := False; // 不退出application
+    // 如果传递进来的XLApp为空，则需要在本方法中获取或创建ExcelApplication，当方法结束时就要择机
+    // 退出；若传递进来XLApp参数，则不能退出，只是关闭在本方法中打开的工作簿。
+    if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
+    begin
+      bDoQuit := True;
+      // 用这个方法，当XLApp就要慎用Quit方法，因为有可能把已经打开的正在编辑工作簿的实例关闭掉。
+      // 先不创建，而是获取已经打开的ExcelApplication实例
+      XLApp := GetExcelApp;
+      // 没有，则创建一个
+      if VarIsNull(XLApp) or VarIsEmpty(XLApp) then XLApp := GetExcelApp(True);
+    end;
   except
     Exit;
   end;
@@ -256,6 +272,7 @@ begin
         S2 := Trim(Copy(S, j + 1, length(S) - j));
       end;
       SrcSheet := SrcBk.WorkSheets.Item[S1];
+
       if VarIsNull(SrcSheet) then Continue;
 
       SrcSheet.Copy(Null, TagBk.WorkSheets.Item[TagBk.WorkSheets.Count]);
@@ -271,14 +288,42 @@ begin
     end;
     // 执行到这里，算是拷贝完毕了
     try
-      TagBk.SaveAs(TagBook,50);
+      { todo:根据扩展名判断是保存为xlExcel9795还是xlExcel12 }
+      TagBk.SaveAs(TagBook, 56); // xlExcel8 = 56: Excel 97~2003
       Result := True;
     finally
-      XLApp.WorkBooks.Close;
-      XLApp.Quit;
+      SrcBk.Close;
+      TagBk.Close;
+      // 如果XLApp是在本方法中获取的，则需要择机退出
+      if bDoQuit then
+        // 如果没有打开的工作簿了，说明是刚才创建的，就退出。
+        if XLApp.WordBooks.Count = 0 then XLApp.Quit
     end;
+    Result := True;
   finally
     ShtList.Free;
+  end;
+end;
+
+class function TExcelIO.GetExcelApp(CreateNew: Boolean = False): OleVariant;
+begin
+  Result := Unassigned;
+  try
+    if CreateNew then
+        Result := CreateOleObject('Excel.Application')
+    else
+        Result := GetActiveOleObject('Excel.Application');
+
+    //若Excel Application没有Ready，等待
+    if not(VarIsNull(Result) or VarIsEmpty(Result)) then
+      while Result.Ready = False do;
+
+  except
+    { on EOleSysError do
+      try
+        Result := CreateOleObject('Excel.Application');
+      except
+      end; }
   end;
 end;
 

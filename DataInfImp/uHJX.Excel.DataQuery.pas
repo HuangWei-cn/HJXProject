@@ -613,52 +613,6 @@ begin
 
     SetData(iRow);
 
-// for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
-// begin
-// S := trim(VarToStr(sht.Cells[iRow, 1].value));
-// if S = '' then
-// Continue;
-//
-// if TryStrToDateTime(S, DT1) = False then
-// Continue; // 如果时间字符串无效，跳过本条记录
-//
-// if DT1 = DT then
-// begin
-// SetData(iRow);
-// Break;
-// end
-// else if DT1 > DT then
-// dThis := DaysBetween(DT1, DT)
-// else if DT1 < DT then
-// dThis := DaysBetween(DT, DT1)
-// else if iRow = Meter.DataSheetStru.DTStartRow then // 如果到第一行，就设置数据，之后就结束了
-// begin
-// SetData(iRow);
-// Break;
-// end;
-//
-// // 当dLast>0，说明已经查过一次了
-// if dLast >= 0 then
-// if dThis > dLast then // 说明走过了，上次最小
-// begin
-// if DTDelta = 0 then // 忽略超限
-// begin
-// SetData(iLRow);
-// Break;
-// end
-// else if dLast > DTDelta then // 超限，不返回数据
-// begin
-// Break;
-// end
-// else // 限内，且满足条件
-// begin
-// SetData(iLRow);
-// Break;
-// end;
-// end;
-// dLast := dThis;
-// iLRow := iRow;
-// end;
     Result := True;
 end;
 

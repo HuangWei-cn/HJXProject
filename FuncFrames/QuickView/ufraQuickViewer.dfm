@@ -13,7 +13,7 @@ object fraQuickViewer: TfraQuickViewer
     TabOrder = 0
     object btnCreateQuickView: TButton
       Left = 8
-      Top = 8
+      Top = 6
       Width = 113
       Height = 41
       Caption = #21019#24314#36895#35272
@@ -23,16 +23,16 @@ object fraQuickViewer: TfraQuickViewer
     end
     object btnShowIncrement: TButton
       Left = 127
-      Top = 8
-      Width = 146
+      Top = 6
+      Width = 174
       Height = 41
-      Caption = #26174#31034#25968#25454#22686#37327
+      Caption = #26174#31034#26368#26032#25968#25454#22686#37327
       Style = bsCommandLink
       TabOrder = 1
       OnClick = btnShowIncrementClick
     end
     object chkUseFilter: TCheckBox
-      Left = 308
+      Left = 460
       Top = 20
       Width = 97
       Height = 17

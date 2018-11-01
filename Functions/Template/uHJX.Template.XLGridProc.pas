@@ -1,4 +1,4 @@
-{-----------------------------------------------------------------------------
+{ -----------------------------------------------------------------------------
  Unit Name: uHJX.Template.XLGridProc
  Author:    黄伟
  Date:      13-十月-2018
@@ -9,7 +9,8 @@
             处理数据，则应当在本单元中一次性地处理所有需要导出数据的仪器，而不是
             逐只处理。
  History:   2018-10-13 增加了使用Excel进行预处理（模板工作表复制）的功能
------------------------------------------------------------------------------}
+----------------------------------------------------------------------------- }
+{ todo:用Excel或ET完成Excel工作簿和工作表操作 }
 unit uHJX.Template.XLGridProc;
 
 interface
@@ -17,13 +18,17 @@ interface
 uses
   System.Classes, System.Types, System.SysUtils, System.Variants, System.Generics.Collections,
   nExcel,
-  uHJX.Intf.AppServices, uHJX.Classes.Meters, uHJX.Template.XLGrid;
+  uHJX.Intf.AppServices, uHJX.Classes.Meters, uHJX.Classes.Templates, uHJX.Template.XLGrid,
+  uHJX.EnvironmentVariables;
 
 { 需要提供起止日期参数 }
 function GenXLGrid(grdTmp: TXLGridTemplate; ADsnName: string; TmpBookName, ResBookName: string)
   : string; overload;
 function GenXLGrid(grdTmp: TXLGridTemplate; ADsnName: string; TmpBook, ResBook: IXLSWorkBook;
   CopySheet: Boolean = True): string; overload;
+{ 使用Excel Application生成数据的方法，调用本方法之前，应已经创建了相应的空数据表 }
+function GenXLGrid(grdTmp: TXLGridTemplate; Meter: TMeterDefine; TagBook: OleVariant)
+  : string; overload;
 
 implementation
 
@@ -38,15 +43,50 @@ type
     Specifier: string;
     Field: TField;
     GridType: TXLGridType;
-        // Offset偏移数据单元格，如果是单行或单列，则偏移1行或1列，若是n行则偏移n行，这样可以实现
-        // 多行或多列的动态。
+    // Offset偏移数据单元格，如果是单行或单列，则偏移1行或1列，若是n行则偏移n行，这样可以实现
+    // 多行或多列的动态。
     procedure Offset;
     function GetValue: Variant;
-    procedure SetCellValue(Sht: IXLSWorkSheet);
+    procedure SetCellValue(Sht: IXLSWorkSheet); overload;
+    procedure SetCellValue(Sht: OleVariant); overload;
+  end;
+
+  // 操作Excel的辅助工具
+  TXLHelp = class
+  public
+    /// <summary>取得Excel Application对象，若CreateNew = True，则创建新的实例</summary>
+    class function GetExcelApp(CreateNew: Boolean = True): OleVariant;
+    /// <summary>为MeterList表中每只仪器创建空数据模板，并保存为BkName。</summary>
+    class function CreateEmptyWorkbook(var XLApp: OleVariant; BkName: string;
+      MeterList: TStrings): Boolean;
+    /// <summary>Excel版的_ProcTitleHeadRange函数</summary>
+    class procedure ProcTitleHeadRange(Tmpl: TXLGridTemplate; Sht: OleVariant; AMeter: TMeterDefine;
+      AsGroup: Boolean = False);
+    class procedure ProcDataRange(Tmpl: TXLGridTemplate; Sht: OleVariant; AMeter: TMeterDefine;
+      AsGroup: Boolean = False);
   end;
 
 var
   DataRangeCells: TArray<TXLDataCell>;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : __GetExcelApp
+  Description: 返回Excel的AutoApplication对象，若没有正在运行的Excel实例，则
+  启动一个实例，若启动不了，就算了。
+----------------------------------------------------------------------------- }
+function __GetExcelApp: OleVariant;
+begin
+  Result := Unassigned;
+  try
+    Result := GetActiveOleObject('Excel.Application');
+  except
+    on EOleSysError do
+      try
+        Result := CreateOleObject('Excel.Application');
+      except
+      end;
+  end;
+end;
 
 function __GetSheet(ABook: IXLSWorkBook; SheetName: string): IXLSWorkSheet;
 var
@@ -106,15 +146,6 @@ begin
     // nExcel无法设置冻结区，因此产生的结果将是没有冻结区的工作表。
 end;
 
-{ Use Excel or ET duplacation a worksheet to an other workbook. }
-function __CopyWorkSheet(SrcSheet: IXLSWorkSheet; DesBook: IXLSWorkBook; NewSheetName: string)
-  : IXLSWorkSheet;
-var
-  Obj: OleVariant;
-begin
-  Result := nil;
-end;
-
 { 这个方法需要考虑到多行或多列偏移的问题 }
 procedure TXLDataCell.Offset;
 begin
@@ -133,7 +164,7 @@ function TXLDataCell.GetValue: Variant;
 begin
     // Result := Null;
   if Field = nil then
-      Result := null
+      Result := Null
   else
       Result := Field.Value;
 end;
@@ -141,6 +172,18 @@ end;
 procedure TXLDataCell.SetCellValue(Sht: IXLSWorkSheet);
 begin
   Sht.Cells[Self.Row, Self.Col].Value := GetValue;
+end;
+
+procedure TXLDataCell.SetCellValue(Sht: OleVariant);
+var
+  Data: Variant;
+begin
+  Data := GetValue;
+  case VarType(Data) of
+    varString: Sht.Cells[Self.Row, Self.Col].Value := VarToStr(Data);
+  else
+    Sht.Cells[Self.Row, Self.Col].Value := Data;
+  end;
 end;
 
 { ================================================================================================ }
@@ -199,14 +242,14 @@ procedure _ProcDataRange(Tmpl: TXLGridTemplate; Sht: IXLSWorkSheet; AMeter: TMet
 var
     // iRow, iCol: Integer;
   i             : Integer;
-  Offrow, Offcol: Integer;
+  OffRow, OffCol: Integer;
   newRect       : TRect;
   SrcRange      : IXLSRange;
   DS            : TClientDataSet;
   GetData       : Boolean;
   procedure CopyNewRange;
   begin
-    newRect.Offset(Offcol, Offrow);
+    newRect.Offset(OffCol, OffRow);
         {
             newRect.Top := newRect.Top + Offrow;
             newRect.Left := newRect.Left + Offcol;
@@ -258,14 +301,14 @@ begin
      // 填入数据，直到完成任务
   SrcRange := Sht.RCRange[Tmpl.DataRect.Top, Tmpl.DataRect.Left, Tmpl.DataRect.Bottom,
     Tmpl.DataRect.Right];
-  Offrow := 0;
-  Offcol := 0;
+  OffRow := 0;
+  OffCol := 0;
   newRect := Tmpl.DataRect;
   case Tmpl.GridType of
     xlgDynRow:
-      Offrow := Tmpl.DataRect.Bottom - Tmpl.DataRect.Top + 1;
+      OffRow := Tmpl.DataRect.Bottom - Tmpl.DataRect.Top + 1;
     xlgDynCol:
-      Offcol := Tmpl.DataRect.Right - Tmpl.DataRect.Left + 1;
+      OffCol := Tmpl.DataRect.Right - Tmpl.DataRect.Left + 1;
   end;
 
   DS := TClientDataSet.Create(nil);
@@ -280,19 +323,22 @@ begin
     begin
       if DS.RecordCount > 0 then
       begin
+        // 解析模板数据区单元格内容，将占位符替换为数据字段或仪器属性
         SetDataCells;
+        // 准备数据集，马上就要填写数据……
         DS.First;
         repeat
+          // 复制模板数据区域格式及公式到新位置
           SrcRange.Copy(Sht.RCRange[newRect.Top, newRect.Left, newRect.Bottom,
             newRect.Right]);
-
+          // 填数据
           for i := 0 to high(DataRangeCells) do
           begin
             DataRangeCells[i].SetCellValue(Sht);
             DataRangeCells[i].Offset;
           end;
-
-          newRect.Offset(Offcol, Offrow);
+          // 设置新位置，下一循环中格式及公式将拷贝到这里
+          newRect.Offset(OffCol, OffRow);
 
           DS.Next;
         until DS.Eof;
@@ -307,6 +353,206 @@ begin
     DS.Free;
   end;
 
+end;
+
+class function TXLHelp.GetExcelApp(CreateNew: Boolean = True): OleVariant;
+begin
+  Result := Unassigned;
+  try
+    if CreateNew then
+        Result := CreateOleObject('Excel.Application')
+    else
+        Result := GetActiveOleObject('Excel.Application');
+  except
+    on EOleSysError do
+      try
+        // Result := CreateOleObject('Excel.Application');
+      except
+      end;
+  end;
+end;
+
+class function TXLHelp.CreateEmptyWorkbook(var XLApp: OleVariant; BkName: string;
+  MeterList: TStrings): Boolean;
+var
+  ShtLsts: String;
+  i, j   : Integer;
+  Meter  : TMeterDefine;
+  grpMts : TStrings;
+  grpItem: TMeterGroupItem;
+  tpl    : TXLGridTemplate;
+  Tpls   : TTemplates;
+  tplName: string;
+  tagName: string;
+  // -----------------
+  SrcBk, SrcSht: OleVariant;
+  TagBk, TagSht: OleVariant;
+begin
+  Result := False;
+  if ENV_XLTemplBook = '' then Exit; // 如果没有模板工作簿则不用干活了
+
+  if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
+  begin
+    XLApp := Self.GetExcelApp(False);
+    if VarIsNull(XLApp) or VarIsEmpty(XLApp) then Exit;
+  end;
+
+  SrcBk := XLApp.WorkBooks.Open(ENV_XLTemplBook);
+  if VarIsNull(SrcBk) then Exit;
+  TagBk := XLApp.WorkBooks.Add;
+
+  ShtLsts := '';
+  grpMts := TStringList.Create;
+
+  try
+    Tpls := IAppServices.Templates as TTemplates;
+    for i := 0 to MeterList.Count - 1 do
+    begin
+      if grpMts.IndexOf(MeterList.Strings[i]) <> -1 then
+          Continue;
+      Meter := ExcelMeters.Meter[MeterList.Strings[i]];
+      if Meter = nil then Continue;
+      if (Meter.DataBook = '') or (Meter.datasheet = '') then
+          Continue;
+
+      if Meter.PrjParams.GroupID <> '' then
+      begin
+        tagName := Meter.PrjParams.GroupID;
+        grpItem := MeterGroup.ItemByName[Meter.PrjParams.GroupID];
+        for j := 0 to grpItem.Count - 1 do grpMts.Add(grpItem.Items[j]);
+      end
+      else
+          tagName := Meter.DesignName;
+
+      tpl := Tpls.ItemByName[Meter.DataSheetStru.XLTemplate] as TXLGridTemplate;
+      tplName := tpl.TemplateSheet;
+      SrcSht := SrcBk.WorkSheets.Item[tplName];
+      { todo:判断一下 SrcSht是否为空 }
+      if VarIsNull(SrcSht) then Continue;
+      SrcSht.Copy(Null, TagBk.WorkSheets.Item[TagBk.WorkSheets.Count]);
+      TagSht := TagBk.WorkSheets.Item[TagBk.WorkSheets.Count];
+      { todo:判断表名是否有重复，若重复则重命名 }
+      TagSht.Name := tagName;
+
+      // ShtLsts := ShtLsts + tplName + ':' + tagName + #13#10;
+    end;
+    // 执行到这里，拷贝应该已经结束了
+    try
+      TagBk.SaveAs(BkName, 56);
+      Result := True;
+    finally
+      SrcBk.Close;
+      TagBk.Close;
+    end;
+  finally
+    grpMts.Free;
+  end;
+end;
+
+class procedure TXLHelp.ProcTitleHeadRange(Tmpl: TXLGridTemplate; Sht: OleVariant;
+  AMeter: TMeterDefine; AsGroup: Boolean = False);
+var
+  iRow, iCol: Integer;
+begin
+  for iCol := Tmpl.TitleRect.Left to Tmpl.TitleRect.Right do
+    for iRow := Tmpl.TitleRect.Top to Tmpl.TitleRect.Bottom do
+        Sht.Cells[iRow, iCol].Value := VarToStr(__ProcHeadCell(Sht.Cells[iRow, iCol].Value, AMeter,
+        AsGroup));
+
+  for iCol := Tmpl.HeadRect.Left to Tmpl.HeadRect.Right do
+    for iRow := Tmpl.HeadRect.Top to Tmpl.HeadRect.Bottom do
+        Sht.Cells[iRow, iCol].Value := VarToStr(__ProcHeadCell(Sht.Cells[iRow, iCol].Value, AMeter,
+        AsGroup));
+end;
+
+class procedure TXLHelp.ProcDataRange(Tmpl: TXLGridTemplate; Sht: OleVariant; AMeter: TMeterDefine;
+  AsGroup: Boolean = False);
+var
+  i             : Integer;
+  OffRow, OffCol: Integer;
+  newRect       : TRect;
+  SrcRange      : OleVariant;
+  DS            : TClientDataSet;
+  GetData       : Boolean;
+  procedure _CopyNewRange;
+  begin
+    newRect.Offset(OffCol, OffRow);
+    SrcRange.Copy(Sht.Range[Sht.Cells[newRect.Top, newRect.Left], Sht.Cells[newRect.Bottom,
+      newRect.Right]]);
+  end;
+  procedure _SetDataCells;
+  var
+    iRow, iCol: Integer;
+  begin
+    i := 0;
+    for iCol := Tmpl.DataRect.Left to Tmpl.DataRect.Right do
+      for iRow := Tmpl.DataRect.Top to Tmpl.DataRect.Bottom do
+      begin
+        DataRangeCells[i].Row := iRow;
+        DataRangeCells[i].Col := iCol;
+        DataRangeCells[i].TempStr := trim(VarToStr(Sht.Cells[iRow, iCol].Value));
+        DataRangeCells[i].Field := nil;
+        DataRangeCells[i].GridType := Tmpl.GridType;
+        case Tmpl.GridType of
+          xlgDynRow: DataRangeCells[i].OffsetStep := Tmpl.DataRect.Bottom - Tmpl.DataRect.Top + 1;
+          xlgStatic: DataRangeCells[i].OffsetStep := 0;
+          xlgDynCol: DataRangeCells[i].OffsetStep := Tmpl.DataRect.Right - Tmpl.DataRect.Left + 1;
+        end;
+        __ProcDataCell(Sht.Cells[iRow, iCol].Value, DataRangeCells[i], AMeter, DS, AsGroup);
+        inc(i);
+      end;
+  end;
+  procedure _ClearDataRange;
+  begin
+    SrcRange := Sht.Range[Sht.Cells[Tmpl.DataRect.Top, Tmpl.DataRect.Left],
+      Sht.Cells[Tmpl.DataRect.Bottom, Tmpl.DataRect.Right]];
+    SrcRange.Clear;
+  end;
+
+begin
+  SetLength(DataRangeCells, 0);
+  SetLength(DataRangeCells, (Tmpl.DataRect.Width + 1) * (Tmpl.DataRect.Height + 1));
+  with Tmpl.DataRect do
+      SrcRange := Sht.Range[Sht.Cells[Top, Left], Sht.Cells[Bottom, Right]];
+  OffRow := 0;
+  OffCol := 0;
+  newRect := Tmpl.DataRect;
+  case Tmpl.GridType of
+    xlgDynRow: OffRow := Tmpl.DataRect.Bottom - Tmpl.DataRect.Top + 1;
+    xlgStatic:;
+    xlgDynCol: OffCol := Tmpl.DataRect.Right - Tmpl.DataRect.Left + 1;
+  end;
+
+  DS := TClientDataSet.Create(nil);
+  try
+    if AsGroup then
+        GetData := IAppServices.ClientDatas.GetGroupAllPDDatas(AMeter.PrjParams.GroupID, DS)
+    else
+        GetData := IAppServices.ClientDatas.GetAllPDDatas(AMeter.DesignName, DS);
+    if GetData then
+    begin
+      if DS.RecordCount > 0 then
+      begin
+        _SetDataCells;
+        DS.First;
+        repeat
+          SrcRange.Copy(Sht.Range[Sht.Cells[newRect.Top, newRect.Left],
+            Sht.Cells[newRect.Bottom, newRect.Right]]);
+          for i := 0 to High(DataRangeCells) do
+          begin
+            DataRangeCells[i].SetCellValue(Sht);
+            DataRangeCells[i].Offset;
+          end;
+          newRect.Offset(OffCol, OffRow);
+          DS.Next;
+        until DS.Eof;
+      end;
+    end
+    else
+        _ClearDataRange;
+  finally
+    DS.Free;
+  end;
 end;
 
 function GenXLGrid(grdTmp: TXLGridTemplate; ADsnName: string; TmpBookName, ResBookName: string)
@@ -359,7 +605,7 @@ begin
     else
         desSht := __DupWorksheet(tmpSht, ResBook, ADsnName);
   end
-  else //如果不拷贝工作表，说明工作表已经在调用之前拷贝好了，这里只需要引用即可
+  else // 如果不拷贝工作表，说明工作表已经在调用之前拷贝好了，这里只需要引用即可
   begin
     if Meter.PrjParams.GroupID <> '' then
         desSht := __GetSheet(ResBook, Meter.PrjParams.GroupID)
@@ -374,6 +620,28 @@ begin
   _ProcDataRange(grdTmp, desSht, Meter, bGroup);
 
   ResBook.Save;
+end;
+
+function GenXLGrid(grdTmp: TXLGridTemplate; Meter: TMeterDefine; TagBook: OleVariant): string;
+var
+  bGroup  : Boolean;
+  TagSheet: OleVariant;
+begin
+  Result := '';
+  if (Meter.PrjParams.GroupID <> '') and grdTmp.ApplyGroup then bGroup := True
+  else bGroup := False;
+
+  TagSheet := Unassigned;
+  if bGroup then
+      TagSheet := TagBook.WorkSheets.Item[Meter.PrjParams.GroupID]
+  else
+      TagSheet := TagBook.WorkSheets.Item[Meter.DesignName];
+
+  if VarIsNull(TagSheet) or VarIsEmpty(TagSheet) then Exit;
+
+  TXLHelp.ProcTitleHeadRange(grdTmp, TagSheet, Meter, bGroup);
+  TXLHelp.ProcDataRange(grdTmp, TagSheet, Meter, bGroup);
+  TagBook.Save;
 end;
 
 initialization
