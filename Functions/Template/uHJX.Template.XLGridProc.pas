@@ -619,7 +619,7 @@ begin
   _ProcTitleHeadRange(grdTmp, desSht, Meter, bGroup);
   _ProcDataRange(grdTmp, desSht, Meter, bGroup);
 
-  ResBook.Save;
+  //ResBook.Save;
 end;
 
 function GenXLGrid(grdTmp: TXLGridTemplate; Meter: TMeterDefine; TagBook: OleVariant): string;
@@ -631,17 +631,21 @@ begin
   if (Meter.PrjParams.GroupID <> '') and grdTmp.ApplyGroup then bGroup := True
   else bGroup := False;
 
-  TagSheet := Unassigned;
-  if bGroup then
-      TagSheet := TagBook.WorkSheets.Item[Meter.PrjParams.GroupID]
-  else
-      TagSheet := TagBook.WorkSheets.Item[Meter.DesignName];
+  try
+    TagSheet := Unassigned;
+    if bGroup then
+        TagSheet := TagBook.WorkSheets.Item[Meter.PrjParams.GroupID]
+    else
+        TagSheet := TagBook.WorkSheets.Item[Meter.DesignName];
 
-  if VarIsNull(TagSheet) or VarIsEmpty(TagSheet) then Exit;
+    if VarIsNull(TagSheet) or VarIsEmpty(TagSheet) then Exit;
 
-  TXLHelp.ProcTitleHeadRange(grdTmp, TagSheet, Meter, bGroup);
-  TXLHelp.ProcDataRange(grdTmp, TagSheet, Meter, bGroup);
-  TagBook.Save;
+    TXLHelp.ProcTitleHeadRange(grdTmp, TagSheet, Meter, bGroup);
+    TXLHelp.ProcDataRange(grdTmp, TagSheet, Meter, bGroup);
+  finally
+    TagBook.CheckCompatibility := False;
+    TagBook.Save;
+  end;
 end;
 
 initialization

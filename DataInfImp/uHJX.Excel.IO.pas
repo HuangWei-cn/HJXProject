@@ -257,6 +257,7 @@ begin
   ShtList := TStringList.Create;
   ShtList.Text := SrcSheets;
   try
+    XLApp.ScreenUpdating := False;
     for i := 0 to ShtList.Count - 1 do
     begin
       S := ShtList.Strings[i];
@@ -288,12 +289,16 @@ begin
     end;
     // 执行到这里，算是拷贝完毕了
     try
+      //删除第一个表
+      tagbk.WorkSheets[1].Delete;
       { todo:根据扩展名判断是保存为xlExcel9795还是xlExcel12 }
       TagBk.SaveAs(TagBook, 56); // xlExcel8 = 56: Excel 97~2003
+      //TagBk.SaveAs(TagBook);
+      Sleep(1000);
       Result := True;
     finally
-      SrcBk.Close;
-      TagBk.Close;
+      SrcBk.Close(False);
+      TagBk.Close(False);
       // 如果XLApp是在本方法中获取的，则需要择机退出
       if bDoQuit then
         // 如果没有打开的工作簿了，说明是刚才创建的，就退出。
@@ -302,6 +307,7 @@ begin
     Result := True;
   finally
     ShtList.Free;
+    XLApp.ScreenUpdating := True;
   end;
 end;
 

@@ -207,7 +207,7 @@ begin
     if Sheet = nil then
         Exit;
     iStart := DTStartRow;
-    iEnd := Sheet.UsedRange.LastRow;
+    iEnd := Sheet.UsedRange.LastRow+2;
 
     // 判断5种特殊情况:没数据，起始行为结果，截止行为结果, 早于起始行，晚于截止行
     // 1. 没数据
