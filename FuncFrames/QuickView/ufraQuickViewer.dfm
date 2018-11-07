@@ -4,12 +4,35 @@ object fraQuickViewer: TfraQuickViewer
   Width = 571
   Height = 511
   TabOrder = 0
+  object wbViewer: TWebBrowser
+    Left = 0
+    Top = 69
+    Width = 571
+    Height = 442
+    Align = alClient
+    TabOrder = 3
+    OnBeforeNavigate2 = wbViewerBeforeNavigate2
+    ExplicitLeft = 72
+    ExplicitTop = 248
+    ExplicitWidth = 300
+    ExplicitHeight = 150
+    ControlData = {
+      4C000000043B0000AF2D00000000000000000000000000000000000000000000
+      000000004C000000000000000000000001000000E0D057007335CF11AE690800
+      2B2E126208000000000000004C0000000114020000000000C000000000000046
+      8000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000100000000000000000000000000000000000000}
+  end
   object Panel1: TPanel
     Left = 0
     Top = 0
     Width = 571
-    Height = 53
+    Height = 69
     Align = alTop
+    Padding.Left = 2
+    Padding.Top = 2
+    Padding.Right = 5
+    Padding.Bottom = 2
     TabOrder = 0
     object btnCreateQuickView: TButton
       Left = 8
@@ -31,20 +54,55 @@ object fraQuickViewer: TfraQuickViewer
       TabOrder = 1
       OnClick = btnShowIncrementClick
     end
-    object chkUseFilter: TCheckBox
-      Left = 460
-      Top = 20
-      Width = 97
-      Height = 17
-      Caption = #24573#30053#24494#23567#21464#21270
+    object GroupBox1: TGroupBox
+      Left = 332
+      Top = 3
+      Width = 233
+      Height = 63
+      Align = alRight
+      Caption = #36873#39033
       TabOrder = 2
+      object chkTableByType: TCheckBox
+        Left = 12
+        Top = 17
+        Width = 109
+        Height = 17
+        Caption = #25353#20202#22120#31867#22411#20998#34920
+        TabOrder = 0
+      end
+      object chkUseIE: TCheckBox
+        Left = 12
+        Top = 36
+        Width = 97
+        Height = 17
+        Caption = #20351#29992'IE'#32452#20214
+        TabOrder = 1
+      end
+      object chkUseFilter: TCheckBox
+        Left = 127
+        Top = 17
+        Width = 97
+        Height = 17
+        Caption = #24573#30053#24494#23567#21464#21270
+        TabOrder = 2
+      end
+      object chkAllMeters: TCheckBox
+        Left = 127
+        Top = 36
+        Width = 97
+        Height = 17
+        Caption = #20840#37096#20202#22120
+        Checked = True
+        State = cbChecked
+        TabOrder = 3
+      end
     end
   end
   object HtmlViewer: THtmlViewer
     Left = 0
-    Top = 53
+    Top = 69
     Width = 571
-    Height = 458
+    Height = 442
     BorderStyle = htFocused
     CharSet = GB2312_CHARSET
     DefFontName = 'Verdana'
