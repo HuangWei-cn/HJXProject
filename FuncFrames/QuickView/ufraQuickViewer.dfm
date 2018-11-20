@@ -37,19 +37,19 @@ object fraQuickViewer: TfraQuickViewer
     object btnCreateQuickView: TButton
       Left = 8
       Top = 6
-      Width = 113
+      Width = 77
       Height = 41
-      Caption = #21019#24314#36895#35272
+      Caption = #36895#35272
       Style = bsCommandLink
       TabOrder = 0
       OnClick = btnCreateQuickViewClick
     end
     object btnShowIncrement: TButton
-      Left = 127
+      Left = 91
       Top = 6
-      Width = 174
+      Width = 110
       Height = 41
-      Caption = #26174#31034#26368#26032#25968#25454#22686#37327
+      Caption = #26368#26032#22686#37327
       Style = bsCommandLink
       TabOrder = 1
       OnClick = btnShowIncrementClick
@@ -97,6 +97,16 @@ object fraQuickViewer: TfraQuickViewer
         TabOrder = 3
       end
     end
+    object btnSpecificDates: TButton
+      Left = 200
+      Top = 6
+      Width = 106
+      Height = 41
+      Caption = #25351#23450#26085#26399
+      Style = bsCommandLink
+      TabOrder = 3
+      OnClick = btnSpecificDatesClick
+    end
   end
   object HtmlViewer: THtmlViewer
     Left = 0
@@ -120,10 +130,11 @@ object fraQuickViewer: TfraQuickViewer
     TabOrder = 1
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
+    ExplicitTop = 72
   end
   object pnlProgress: TPanel
-    Left = 72
-    Top = 196
+    Left = 80
+    Top = 84
     Width = 405
     Height = 89
     Font.Charset = DEFAULT_CHARSET
@@ -164,9 +175,112 @@ object fraQuickViewer: TfraQuickViewer
       TabOrder = 0
     end
   end
+  object pnlDateSelector: TPanel
+    Left = 80
+    Top = 196
+    Width = 461
+    Height = 141
+    TabOrder = 4
+    Visible = False
+    object GroupBox2: TGroupBox
+      Left = 16
+      Top = 12
+      Width = 350
+      Height = 53
+      Caption = #26085#26399'1'
+      TabOrder = 0
+      object dtp1: TDateTimePicker
+        Left = 5
+        Top = 20
+        Width = 96
+        Height = 21
+        Date = 43418.000000000000000000
+        Time = 43418.000000000000000000
+        ImeMode = imDisable
+        TabOrder = 0
+      end
+      object cmbDate1Opt: TComboBox
+        Left = 188
+        Top = 20
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        ItemIndex = 1
+        TabOrder = 1
+        Text = #19981#26202#20110#25351#23450#26085#26399
+        Items.Strings = (
+          #26368#25509#36817#25351#23450#26085#26399
+          #19981#26202#20110#25351#23450#26085#26399
+          #19981#26089#20110#25351#23450#26085#26399
+          #31561#20110#25351#23450#26085#26399)
+      end
+      object DateTimePicker1: TDateTimePicker
+        Left = 107
+        Top = 20
+        Width = 71
+        Height = 21
+        Date = 43419.000000000000000000
+        Time = 43419.000000000000000000
+        Kind = dtkTime
+        TabOrder = 2
+      end
+    end
+    object GroupBox3: TGroupBox
+      Left = 11
+      Top = 71
+      Width = 355
+      Height = 54
+      Caption = #26085#26399'2'
+      TabOrder = 1
+      object dtp2: TDateTimePicker
+        Left = 10
+        Top = 20
+        Width = 96
+        Height = 21
+        Date = 43419.000000000000000000
+        Time = 43419.000000000000000000
+        ImeMode = imDisable
+        TabOrder = 0
+      end
+      object cmbDate2Opt: TComboBox
+        Left = 193
+        Top = 20
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 1
+        Text = #26368#25509#36817#25351#23450#26085#26399
+        Items.Strings = (
+          #26368#25509#36817#25351#23450#26085#26399
+          #19981#26202#20110#25351#23450#26085#26399
+          #19981#26089#20110#25351#23450#26085#26399
+          #31561#20110#25351#23450#26085#26399)
+      end
+      object DateTimePicker2: TDateTimePicker
+        Left = 112
+        Top = 20
+        Width = 71
+        Height = 21
+        Date = 43419.000000000000000000
+        Time = 43419.000000000000000000
+        Kind = dtkTime
+        TabOrder = 2
+      end
+    end
+    object btnDateSelected: TButton
+      Left = 372
+      Top = 16
+      Width = 75
+      Height = 25
+      Caption = #30830#23450
+      TabOrder = 2
+      OnClick = btnDateSelectedClick
+    end
+  end
   object PopupMenu1: TPopupMenu
     Left = 328
-    Top = 372
+    Top = 452
     object miCopy: TMenuItem
       Caption = #25335#36125
       OnClick = miCopyClick
@@ -187,7 +301,7 @@ object fraQuickViewer: TfraQuickViewer
     MaxPage = 1
     Options = [poPrintToFile, poPageNums, poSelection]
     Left = 244
-    Top = 372
+    Top = 452
   end
   object dlgSave: TSaveDialog
     DefaultExt = 'htm'
@@ -195,6 +309,6 @@ object fraQuickViewer: TfraQuickViewer
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Title = #20445#23384#32467#26524
     Left = 164
-    Top = 372
+    Top = 452
   end
 end

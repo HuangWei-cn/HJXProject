@@ -227,6 +227,8 @@ begin
     for i := 0 to ExcelMeters.count - 1 do
     begin
         AMeter := ExcelMeters.Items[i];
+        if ameter.DataSheet = '' then Continue;
+
         if AMeter.PrjParams.Position <> sPos then
         begin
             sPos := AMeter.PrjParams.Position;

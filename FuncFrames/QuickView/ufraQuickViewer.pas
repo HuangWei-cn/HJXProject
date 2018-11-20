@@ -43,6 +43,17 @@ type
     chkUseIE: TCheckBox;
     chkAllMeters: TCheckBox;
     wbViewer: TWebBrowser;
+    btnSpecificDates: TButton;
+    pnlDateSelector: TPanel;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    dtp1: TDateTimePicker;
+    dtp2: TDateTimePicker;
+    cmbDate1Opt: TComboBox;
+    cmbDate2Opt: TComboBox;
+    btnDateSelected: TButton;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -51,14 +62,20 @@ type
     procedure miSaveClick(Sender: TObject);
     procedure wbViewerBeforeNavigate2(ASender: TObject; const pDisp: IDispatch; const URL, Flags,
       TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
+    procedure btnSpecificDatesClick(Sender: TObject);
+    procedure btnDateSelectedClick(Sender: TObject);
   private
-        { Private declarations }
+    { Private declarations }
+    FMeterList: TStrings;
+    { 显示两个指定日期的数据，及其增量 }
+    procedure ShowSpecificDatesData;
   public
-        { Public declarations }
+    { Public declarations }
     constructor Create(AOwner: TComponent); override;
-        { 显示观测情况速览 }
+    destructor Destroy; override;
+    { 显示观测情况速览 }
     procedure ShowQuickView;
-        { 显示观测数据增量，若UseFilter = False则显示全部仪器的数据增量，否则只显示超限的 }
+    { 显示观测数据增量，若UseFilter = False则显示全部仪器的数据增量，否则只显示超限的 }
     procedure ShowDataIncrement(UseFilter: Boolean = False);
   end;
 
@@ -100,6 +117,17 @@ var
 
 constructor TfraQuickViewer.Create(AOwner: TComponent);
 begin
+  inherited;
+  dtp2.Date := Now;
+  dtp1.Date := Now - 1;
+  dtp1.Time := 0;
+  dtp2.Time := 0;
+  FMeterList := TStringList.Create;
+end;
+
+destructor TfraQuickViewer.Destroy;
+begin
+  FMeterList.Free;
   inherited;
 end;
 
@@ -332,9 +360,26 @@ end;
   Description: 本方法查询全部仪器在指定时间的观测数据增量及月增量，并在HTMLViewer
   中显示出来。如果UseFilter=True，则过滤掉变化较小的数据，只保留变化大的。
 ----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.btnDateSelectedClick(Sender: TObject);
+begin
+  pnlDateSelector.Visible := False;
+  ShowSpecificDatesData;
+end;
+
 procedure TfraQuickViewer.btnShowIncrementClick(Sender: TObject);
 begin
   ShowDataIncrement(chkUseFilter.Checked);
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : btnSpecificDatesClick
+  Description: 显示指定日期的两次观测数据，及其增量
+----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.btnSpecificDatesClick(Sender: TObject);
+begin
+  pnlDateSelector.Visible := True;
+  pnlDateSelector.Left := (Self.Width - pnlDateSelector.Width) div 2;
+  pnlDateSelector.Top := (Self.Height - pnlDateSelector.Height) div 2;
 end;
 
 { -----------------------------------------------------------------------------
@@ -505,7 +550,8 @@ begin
     iCount := MTList.Count; // ExcelMeters.Count;
     pnlProgress.Visible := True;
 
-    sPos := ExcelMeters.Items[0].PrjParams.Position;
+    // sPos := ExcelMeters.Items[0].PrjParams.Position;
+    sPos := ExcelMeters.Meter[MTList.Strings[0]].PrjParams.Position;
     Body := Body + '<h3>' + sPos + '</h3>';
     for iMeter := 0 to { ExcelMeters.Count - 1 } MTList.Count - 1 do
     begin
@@ -552,7 +598,7 @@ begin
       end;
 
             { 查询仪器数据增量 }
-      if IHJXClientFuncs.GetDataIncrement(Meter.DesignName, now, V) then
+      if IHJXClientFuncs.GetDataIncrement(Meter.DesignName, Now, V) then
       begin
         if (sType = '锚索测力计') or (sType = '锚杆应力计') then
         begin
@@ -618,6 +664,201 @@ begin
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
   end;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : ShowSpecificDatesData
+  Description: 显示两个指定日期的观测数据，及其增量
+----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.ShowSpecificDatesData;
+var
+  WCV  : TWebCrossView;
+  Meter: TMeterDefine;
+  i, j : Integer;
+  V, V1: TDoubleDynArray;
+  vH   : array of variant;
+
+  dt1, dt2, d1, d2         : Double;
+  sPage, sBody, sType, sPos: string;
+
+  procedure _ClearValues;
+  var
+    ii: Integer;
+  begin
+    for ii := Low(vH) to High(vH) do VarClear(vH[ii]);
+  end;
+
+  procedure _SetGrid;
+  var
+    ii: Integer;
+  begin
+    WCV.TitleRows := 2;
+    WCV.ColCount := 9;
+    WCV.ColHeader[6].AllowRowSpan := True;
+    WCV.ColHeader[0].AllowColSpan := True;
+    WCV.ColHeader[2].AllowColSpan := True;
+    WCV.ColHeader[4].AllowColSpan := True;
+    WCV.ColHeader[3].Align := taRightJustify;
+    for ii in [3, 5, 6, 7, 8] do WCV.ColHeader[ii].Align := taRightJustify;
+
+    SetLength(vH, 9);
+    vH[0] := '设计编号';
+    vH[1] := '物理量';
+    for ii := 2 to 5 do vH[ii] := '观测数据';
+    vH[6] := '增量';
+    vH[7] := '日期间隔';
+    vH[8] := '变化速率';
+    WCV.AddRow(vH);
+    vH[2] := '日期1';
+    vH[3] := '测值';
+    vH[4] := '日期2';
+    vH[5] := '测值';
+    WCV.AddRow(vH);
+  end;
+
+begin
+  if ExcelMeters.Count = 0 then Exit;
+  if chkUseIE.Checked then
+  begin
+    HtmlViewer.Visible := False;
+    wbViewer.Visible := True;
+    wbViewer.Align := alClient;
+  end
+  else
+  begin
+    HtmlViewer.Visible := True;
+    wbViewer.Visible := False;
+  end;
+  // 选择仪器
+  if chkAllMeters.Checked then
+  begin
+    FMeterList.Clear;
+    for i := 0 to ExcelMeters.Count - 1 do
+        FMeterList.Add(ExcelMeters.Items[i].DesignName);
+  end
+  else
+    with IAppServices.FuncDispatcher as IFunctionDispatcher do
+      if HasProc('PopupMeterSelector') then
+          CallFunction('PopupMeterSelector', FMeterList);
+
+  if FMeterList.Count = 0 then
+  begin
+    ShowMessage('没有选择监测仪器');
+    Exit;
+  end;
+
+  // 准备表格对象
+  IAppServices.ClientDatas.SessionBegin;
+  SetLength(vH, 9);
+  WCV := TWebCrossView.Create;
+  _SetGrid;
+  sType := '';
+  sPos := ExcelMeters.Meter[FMeterList[0]].PrjParams.Position;
+  sBody := '<h3>' + sPos + '</h3>';
+  try
+    // 准备仪器数据，及填写内容
+    for i := 0 to FMeterList.Count - 1 do
+    begin
+      Meter := ExcelMeters.Meter[FMeterList[i]];
+      if Meter.DataSheet = '' then Continue;
+
+      // 部位处理
+      if Meter.PrjParams.Position <> sPos then
+      begin
+        sPos := Meter.PrjParams.Position;
+        sBody := sBody + WCV.CrossGrid + #13#10'<h3>' + sPos + '</h3>'#13#10;
+        WCV.Reset;
+        _SetGrid;
+      end;
+
+      if Meter.Params.MeterType = '测斜孔' then Continue;
+      // 类型检查、处理
+      if Meter.Params.MeterType <> sType then
+      begin
+        sType := Meter.Params.MeterType;
+        WCV.AddCaptionRow([sType]);
+      end;
+
+      // 准备数据
+      if Meter.Params.MeterType = '多点位移计' then
+      begin
+        _ClearValues;
+        vH[0] := Meter.DesignName;
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V);
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V1);
+        if V[0] = 0 then Continue;
+
+        dt1 := V[0];
+        dt2 := V1[0];
+        vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
+        vH[4] := FormatDateTime('yyyy-mm-dd', dt2);
+        vH[7] := dt2 - dt1;
+        // 第一点
+        // vH[1] := Meter.PDName(0);
+        // vH[3] := V[1];
+        // vH[5] := V1[1];
+        // vH[6] := V1[1] - V[1];
+        // if dt2 - dt1 <> 0 then vH[8] := (V1[1] - V[1]) / (dt2 - dt1);
+        // WCV.AddRow(vH);
+        for j := 0 to 3 do
+        begin
+          vH[1] := Meter.PDName(j);
+          vH[3] := V[j + 1];
+          vH[5] := V1[j + 1];
+          vH[6] := V1[j + 1] - V[j + 1];
+          if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+          WCV.AddRow(vH);
+        end;
+      end
+      else
+      begin
+        _ClearValues;
+      // 读第一次数据
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V);
+        if V[0] = 0 then Continue;
+
+        vH[2] := FormatDateTime('yyyy-mm-dd', V[0]);
+        vH[3] := V[1];
+        dt1 := V[0];
+        d1 := V[1];
+      // 读第二次数据
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V);
+        vH[4] := FormatDateTime('yyyy-mm-dd', V[0]);
+        vH[5] := V[1];
+        dt2 := V[0];
+        d2 := V[1];
+      // 填入
+        vH[0] := Meter.DesignName;
+        vH[1] := Meter.PDName(0);
+      // vH[2] := dtp1.DateTime;
+      // vH[4] := dtp2.DateTime;
+        vH[6] := d2 - d1;
+        vH[7] := dt2 - dt1;
+        if d2 - d1 <> 0 then
+            vH[8] := (d2 - d1) / (dt2 - dt1)
+        else
+            vH[8] := '';
+        WCV.AddRow(vH);
+      end;
+    end;
+
+    // 显示结果
+    sBody := sBody + WCV.CrossGrid;
+    sPage := StringReplace(htmPageCode2, '@PageContent@', sBody, []);
+
+    if chkUseIE.Checked then
+        WB_LoadHTML(wbViewer, sPage)
+    else
+        HtmlViewer.LoadFromString(sPage);
+
+  finally
+    SetLength(vH, 0);
+    WCV.Free;
+    Screen.Cursor := crDefault;
+    pnlProgress.Visible := False;
+    IAppServices.ClientDatas.SessionEnd;
+  end;
+
 end;
 
 end.

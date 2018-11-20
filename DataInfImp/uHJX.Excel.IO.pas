@@ -59,7 +59,7 @@ var
 implementation
 
 uses
-  ComObj;
+  ComObj, ShellAPI;
 
 function TmyWorkbook.Open(FileName: WideString): Integer;
 begin
@@ -196,8 +196,16 @@ var
 begin
   if not FileExists(ABKName) then Exit;
   try
+    xlapp := null;
     XLApp := GetExcelApp; // CreateOleObject('Excel.Application');
-    if VarIsNull(XLApp) then Exit;
+    if VarIsNull(xlapp) or VarIsEmpty(XLApp) then xlapp := GetExcelApp(True);
+
+    if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
+    begin
+      ShellExecute(0, PChar('open'), PChar(ABKName), nil, nil, SW_SHOWNORMAL);
+      Exit;
+    end;
+
     XLApp.Visible := False;
 
     BK := XLApp.WorkBooks.Open(ABKName);

@@ -78,6 +78,7 @@ type
         Edit2: TEdit;
         udChartWidth: TUpDown;
         udChartHeight: TUpDown;
+    wbReport: TWebBrowser;
         procedure btnCreateReportClick(Sender: TObject);
         procedure FrameResize(Sender: TObject);
         procedure lblBreakClick(Sender: TObject);
@@ -348,7 +349,9 @@ begin
     IHJXClientFuncs.SessionEnd;
     sPage := StringReplace(sPage, '@PageContent@', sContent, [rfReplaceAll]);
     hvReport.Clear;
-    hvReport.LoadFromString(sPage);
+    { 用WebBrowser替代了HTMLViewer，因为前者在靠背方面更易于使用 }
+    //hvReport.LoadFromString(sPage);
+    wb_loadhtml(wbreport, spage);
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
 end;

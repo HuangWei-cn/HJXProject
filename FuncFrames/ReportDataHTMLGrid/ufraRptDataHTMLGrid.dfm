@@ -9,6 +9,24 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
   Padding.Bottom = 2
   TabOrder = 0
   OnResize = FrameResize
+  object wbReport: TWebBrowser
+    Left = 2
+    Top = 181
+    Width = 803
+    Height = 426
+    Align = alClient
+    TabOrder = 4
+    ExplicitLeft = 316
+    ExplicitTop = 340
+    ExplicitWidth = 300
+    ExplicitHeight = 150
+    ControlData = {
+      4C000000FE520000072C00000000000000000000000000000000000000000000
+      000000004C000000000000000000000001000000E0D057007335CF11AE690800
+      2B2E126208000000000000004C0000000114020000000000C000000000000046
+      8000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000100000000000000000000000000000000000000}
+  end
   object hvReport: THtmlViewer
     Left = 2
     Top = 181
@@ -32,6 +50,7 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     Align = alClient
     PopupMenu = PopupMenu1
     TabOrder = 2
+    Visible = False
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
   end
