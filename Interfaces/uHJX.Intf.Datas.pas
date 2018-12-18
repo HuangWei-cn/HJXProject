@@ -12,13 +12,18 @@ type
         procedure SessionBegin;
         procedure SessionEnd;
         { 取回指定监测仪器的最后一次监测数据 }
-        function GetLastPDDatas(ADsnName: string; var Values: TDoubleDynArray): Boolean;
+        function GetLastPDDatas(ADsnName: string; var Values: TDoubleDynArray): Boolean; overload;
+        function GetLastPDDatas(ADsnName: string; var Values: TVariantDynArray):Boolean; overload;
         { 取回指定时段内监测仪器的最后一次数据 }
         function GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
-            var Values: TDoubleDynArray): Boolean;
+            var Values: TDoubleDynArray): Boolean; overload;
+        function GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
+            var Values: TVariantDynArray): Boolean; overload;
         { 取回最接近指定日期的观测数据 }
         function GetNearestPDDatas(ADsnName: String; DT: TDateTime; var Values: TDoubleDynArray;
-            DTDelta: Integer = 0): Boolean;
+            DTDelta: Integer = 0): Boolean; overload;
+        function GetNearestPDDatas(ADsnName: String; DT: TDateTime; var Values: TVariantDynArray;
+            DTDelta: Integer = 0): Boolean; overload;
         { 取回指定时段内监测仪器所有观测数据 }
         function GetPDDatasInPeriod(ADsnName: string; DT1, DT2: TDateTime; DS: TDataSet): Boolean;
         { 取回全部观测数据 }
@@ -29,7 +34,7 @@ type
         function GetGroupPDDatasInPeriod(AGrpName: string; DT1, DT2: TDateTime;
             DS: TDataSet): Boolean;
         { 取回当前特征值，弃用，被GetEVDatas方法取代。 }
-            function GetEVData(ADsnName: string; EVData: PEVDataStru): Boolean; overload;
+        function GetEVData(ADsnName: string; EVData: PEVDataStru): Boolean; overload;
         function GetEVData(ADsnName: string; var EVDatas: TDoubleDynArray): Boolean; overload;
         { 取回指定仪器所有具有特征值的物理量的特征值 }
         function GetEVDatas(ADsnName: String; var EVDatas: PEVDataArray): Boolean;

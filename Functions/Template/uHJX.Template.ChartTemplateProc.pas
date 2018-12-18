@@ -269,7 +269,9 @@ var
                             // 下面填写数据
                             DS.First;
                             repeat
-                                NewLine.AddXY(DS.Fields[0].AsDateTime, Fld.AsFloat);
+                                //newline.add
+                                if not fld.IsNull then
+                                  NewLine.AddXY(DS.Fields[0].AsDateTime, Fld.AsFloat);
                                 DS.next;
                             until DS.Eof;
 

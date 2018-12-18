@@ -207,6 +207,7 @@ begin
                     // for i := 1 to DS.FieldCount - 1 do
                     // FfraTL.DrawLine(i - 1, DS.Fields[0].AsDateTime, DS.Fields[i].AsFloat);
                     for i := 0 to Flds.Count - 1 do
+                        if not TField(Flds.Items[i]).IsNull then
                         FfraTL.AddData(i, DS.Fields[0].AsDateTime, TField(Flds.Items[i]).AsFloat);
                     DS.Next;
                 until DS.Eof;
@@ -260,7 +261,8 @@ begin
                 NewL := FfraTL.NewLine(mt.DesignName + mt.PDName(0));
                 DS.First;
                 repeat
-                    FfraTL.AddData(NewL, DS.Fields[0].AsDateTime, DS.Fields[1].AsFloat);
+                    if not ds.Fields[1].IsNull then
+                        FfraTL.AddData(NewL, DS.Fields[0].AsDateTime, DS.Fields[1].AsFloat);
                     DS.Next;
                 until DS.Eof;
             end;

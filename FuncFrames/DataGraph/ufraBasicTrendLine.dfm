@@ -73,7 +73,6 @@ object fraBasicTrendLine: TfraBasicTrendLine
     OnClick = chtLineClick
     OnDblClick = chtLineDblClick
     OnMouseMove = chtLineMouseMove
-    ExplicitHeight = 300
     DefaultCanvas = 'TGDIPlusCanvas'
     PrintMargins = (
       2
