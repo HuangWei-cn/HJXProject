@@ -12,15 +12,21 @@ interface
 uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
     uHJX.Intf.AppServices, uHJX.Classes.Meters,
-    Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Winapi.CommCtrl;
+    Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Winapi.CommCtrl, Vcl.Menus;
 
 type
     TfraMeterSelector = class(TFrame)
         tvwMeters: TTreeView;
+    PopupMenu1: TPopupMenu;
+    piUnSelectAll: TMenuItem;
+    N1: TMenuItem;
+    piSelectAll: TMenuItem;
         procedure tvwMetersCreateNodeClass(Sender: TCustomTreeView; var NodeClass: TTreeNodeClass);
         procedure tvwMetersClick(Sender: TObject);
         procedure tvwMetersCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
             State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure piSelectAllClick(Sender: TObject);
+    procedure piUnSelectAllClick(Sender: TObject);
     private
         { Private declarations }
         function IsChecked(Node: TTreeNode): Boolean;
@@ -119,6 +125,22 @@ begin
     TvItem.hItem := Node.ItemId;
     TreeView_GetItem(Node.TreeView.Handle, TvItem);
     Result := (TvItem.State and TVIS_CHECKED) = TVIS_CHECKED;
+end;
+
+procedure TfraMeterSelector.piSelectAllClick(Sender: TObject);
+var
+  tn:ttreenode;
+begin
+  for tn in tvwmeters.Items do
+    setchecked(tn,true);
+end;
+
+procedure TfraMeterSelector.piUnSelectAllClick(Sender: TObject);
+var
+  tn:ttreenode;
+begin
+  for tn in tvwMeters.Items do
+    SetChecked(tn,False);
 end;
 
 procedure TfraMeterSelector.SetChecked(Node: TTreeNode; Checked: Boolean);

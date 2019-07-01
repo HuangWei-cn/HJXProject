@@ -369,14 +369,20 @@ begin
                 IGD.RegistDrawFuncs('锚杆应力计', DrawTrendLine);
                 IGD.RegistDrawFuncs('应变计', DrawTrendLine);
                 IGD.RegistDrawFuncs('无应力计', DrawTrendLine);
+                IGD.RegistDrawFuncs('基岩变形计',DrawTrendLine);
+                IGD.RegistDrawFuncs('渗压计',DrawTrendLine);
                 IGD.RegistExportFunc('多点位移计', ExportGraphToFile);
                 IGD.RegistExportFunc('锚索测力计', ExportGraphToFile);
                 IGD.RegistExportFunc('锚杆应力计', ExportGraphToFile);
                 IGD.RegistExportFunc('应变计', ExportGraphToFile);
                 IGD.RegistExportFunc('无应力计', ExportGraphToFile);
+                IGD.RegistExportFunc('基岩变形',ExportGraphToFile);
+                igd.RegistExportFunc('渗压计',exportgraphtofile);
                 IGD.RegistSaveStreamFunc('多点位移计', ExportGraphToStream);
                 IGD.RegistSaveStreamFunc('锚索测力计', ExportGraphToStream);
                 IGD.RegistSaveStreamFunc('锚杆应力计', ExportGraphToStream);
+                igd.RegistSaveStreamFunc('基岩变形计',exportgraphtostream);
+                igd.RegistSaveStreamFunc('渗压计', ExportGraphToStream);
             end;
 
 // uFuncDataGraph.RegistDrawFuncs('多点位移计', DrawTrendLine);

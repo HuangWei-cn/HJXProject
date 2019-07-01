@@ -114,6 +114,7 @@ var
   MaxDeltaDDWY: Double = 0.1;
   MaxDeltaMS  : Double = 5;
   MaxDeltaMG  : Double = 5;
+  MaxDeltaSY  : Double = 1;
 
 constructor TfraQuickViewer.Create(AOwner: TComponent);
 begin
@@ -196,6 +197,20 @@ var
       CountDelta;
       if abs(Delta) < MaxDeltaMG then
           Result := False;
+    end
+    else if metertype='渗压计' then
+    begin
+      delta := v2[1]-v1[1];
+      countdelta;
+      if abs(Delta)<MaxDeltaSY then
+        result := false;
+    end
+    else if metertype='基岩变形计' then
+    begin
+      delta := v2[1]-v1[1];
+      countdelta;
+      if abs(Delta)<MaxDeltaddwy then
+        result := false;
     end;
   end;
     // 只显示一次数据
@@ -437,7 +452,7 @@ end;
 
 procedure TfraQuickViewer.ShowDataIncrement(UseFilter: Boolean = False);
 var
-  MTList: TStrings;
+  { MTList: TStrings; }
   Meter : TMeterDefine;
   iMeter: Integer;
   i     : Integer;
@@ -508,7 +523,7 @@ begin
     wbViewer.Visible := False;
   end;
 
-  MTList := TStringList.Create;
+  { MTList := TStringList.Create; }
   if ExcelMeters.Count = 0 then
       Exit;
 
@@ -524,19 +539,22 @@ begin
   IHJXClientFuncs.SessionBegin;
   // 准备仪器列表
   if chkAllMeters.Checked then
+  begin
+    FMeterList.Clear;
     for i := 0 to ExcelMeters.Count - 1 do
-        MTList.Add(ExcelMeters.Items[i].DesignName)
+        { MTList } FMeterList.Add(ExcelMeters.Items[i].DesignName)
+  end
   else
   begin
     with IAppServices.FuncDispatcher as IFunctionDispatcher do
     begin
       // 如果能选择部分仪器则
       if HasProc('PopupMeterSelector') then
-          CallFunction('PopupMeterSelector', MTList)
+          CallFunction('PopupMeterSelector', { MTList } FMeterList)
       else // 否则选择全部仪器
       begin
         for i := 0 to ExcelMeters.Count - 1 do
-            MTList.Add(ExcelMeters.Items[i].DesignName)
+            { MTList } FMeterList.Add(ExcelMeters.Items[i].DesignName)
       end;
     end;
   end;
@@ -544,19 +562,19 @@ begin
   try
     Screen.Cursor := crHourGlass;
     ProgressBar.Position := 1;
-    ProgressBar.Max := MTList.Count; // ExcelMeters.Count;
+    ProgressBar.Max := { MTList } FMeterList.Count; // ExcelMeters.Count;
     lblProgress.Caption := '';
     lblDesignName.Caption := '';
-    iCount := MTList.Count; // ExcelMeters.Count;
+    iCount := { MTList } FMeterList.Count; // ExcelMeters.Count;
     pnlProgress.Visible := True;
 
     // sPos := ExcelMeters.Items[0].PrjParams.Position;
-    sPos := ExcelMeters.Meter[MTList.Strings[0]].PrjParams.Position;
+    sPos := ExcelMeters.Meter[ { MTList } FMeterList.Strings[0]].PrjParams.Position;
     Body := Body + '<h3>' + sPos + '</h3>';
-    for iMeter := 0 to { ExcelMeters.Count - 1 } MTList.Count - 1 do
+    for iMeter := 0 to { ExcelMeters.Count - 1 } { MTList } FMeterList.Count - 1 do
     begin
       // Meter := ExcelMeters.Items[iMeter];
-      Meter := ExcelMeters.Meter[MTList.Strings[iMeter]];
+      Meter := ExcelMeters.Meter[ { MTList } FMeterList.Strings[iMeter]];
 
       lblDesignName.Caption := Meter.DesignName;
       lblProgress.Caption := Format('正在处理第%d支，共%d支', [iMeter, iCount]);
@@ -600,7 +618,7 @@ begin
             { 查询仪器数据增量 }
       if IHJXClientFuncs.GetDataIncrement(Meter.DesignName, Now, V) then
       begin
-        if (sType = '锚索测力计') or (sType = '锚杆应力计') then
+        if (sType = '锚索测力计') or (sType = '锚杆应力计') or (sType = '渗压计') or (sType = '基岩变形计') then
         begin
           if UseFilter then
             if sType = '锚索测力计' then
@@ -610,9 +628,21 @@ begin
                   Continue
             end
             else if sType = '锚杆应力计' then
+            begin
               if IgnoreData(V[0][4], MaxDeltaMG) and IgnoreData(V[0][5], MaxDeltaMG)
               then
                   Continue;
+            end
+            else if sType = '渗压计' then
+            begin
+              if IgnoreData(V[0][4], MaxDeltaSY) and IgnoreData(V[0][5], MaxDeltaSY) then
+                  Continue;
+            end
+            else if sType = '基岩变形计' then
+            begin
+              if IgnoreData(V[0][4], MaxDeltaDDWY) and IgnoreData(V[0][5], MaxDeltaDDWY) then
+                  Continue;
+            end;
 
           vH[0] := sType;
           vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
@@ -657,7 +687,7 @@ begin
     else
         HtmlViewer.LoadFromString(Page);
   finally
-    MTList.Free;
+    { MTList.Free; }
     WCV.Free;
     ClearValues;
     IHJXClientFuncs.SessionEnd;

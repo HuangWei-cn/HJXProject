@@ -23,6 +23,8 @@
   History:
       2017-04-19  不知为何，当年既然已经重写了TGraphNode，而TGPPolygonalNode不从这个
       对象TGPGraphNode继承，反而又重写了TPolygonalNode？
+
+      2019-06-19  修正了GraphLink中用GDI绘制线端圆圈的错误。
   ----------------------------------------------------------------------------- }
 { todo:增加边框、连接线的线型，允许断续线、点线等 }
 { todo:增加边框线的宽度，原图形貌似没有设置边框线宽的 }
@@ -762,10 +764,13 @@ var
                     end;
                 lsCircle:
                     begin
-                        GdipF.DrawEllipse(gpGraphic, gpPen, Pt.X - SIZE, Pt.Y - SIZE, Pt.X + SIZE,
-                            Pt.Y + SIZE);
-                        // Canvas.Ellipse(Pt.X - Size, Pt.Y - Size, Pt.X + Size, Pt.Y + Size);
-                        result := NextPointOfLine(Angle, Pt, SIZE);
+                        //GDI绘制方法
+                        GdipF.DrawEllipse(gpGraphic, gpPen, Pt.X-size div 2 , Pt.Y-size div 2,SIZE, SIZE);
+                        result := NextPointOfLine(Angle, Pt, SIZE div 2);
+
+                        //原版绘制方法
+                        //Canvas.Ellipse(Pt.X - Size, Pt.Y - Size, Pt.X + Size, Pt.Y + Size);
+                        //result := NextPointOfLine(Angle, Pt, SIZE);
                     end;
                 lsDiamond:
                     begin

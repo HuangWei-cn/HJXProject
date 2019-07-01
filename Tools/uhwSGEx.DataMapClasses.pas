@@ -81,6 +81,12 @@ type
         property MeterType : string read FMeterType write FMeterType;
     end;
 
+    { 2019-06-19 增加表示仪器数据大小和方向的箭头，首要目标是实现平面变形数据的方向和大小 }
+    TdmcDataArrow = class(TGPGraphicLink)
+    private
+    published
+    end;
+
 implementation
 
 constructor TdmcMap.Create(AOwner: TSimpleGraph);

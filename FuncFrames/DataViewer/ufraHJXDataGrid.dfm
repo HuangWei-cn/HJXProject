@@ -24,8 +24,9 @@ object fraHJXDataGrid: TfraHJXDataGrid
     Font.Style = []
     FooterRowCount = 2
     FooterParams.FillStyle = cfstGradientEh
+    MinAutoFitWidth = 50
     Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
-    OptionsEh = [dghFixed3D, dghHighlightFocus, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
+    OptionsEh = [dghFixed3D, dghHighlightFocus, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghHotTrack, dghExtendVertLines]
     ParentFont = False
     PopupMenu = popDataGrid
     ReadOnly = True

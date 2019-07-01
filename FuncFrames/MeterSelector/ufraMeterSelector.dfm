@@ -24,10 +24,26 @@ object fraMeterSelector: TfraMeterSelector
     MultiSelect = True
     MultiSelectStyle = []
     ParentFont = False
+    PopupMenu = PopupMenu1
     ReadOnly = True
     TabOrder = 0
     OnClick = tvwMetersClick
     OnCreateNodeClass = tvwMetersCreateNodeClass
     OnCustomDrawItem = tvwMetersCustomDrawItem
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 144
+    Top = 96
+    object piUnSelectAll: TMenuItem
+      Caption = #20840#37096#21462#28040
+      OnClick = piUnSelectAllClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object piSelectAll: TMenuItem
+      Caption = #20840#36873
+      OnClick = piSelectAllClick
+    end
   end
 end

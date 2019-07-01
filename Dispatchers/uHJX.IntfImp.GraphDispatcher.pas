@@ -13,7 +13,7 @@ unit uHJX.IntfImp.GraphDispatcher;
 interface
 
 uses
-    System.Classes, uHJX.Intf.AppServices, uHJX.Core.FuncCompTypes, uHJX.Intf.FuncCompManager,
+    System.Classes,System.SysUtils, uHJX.Intf.AppServices, uHJX.Core.FuncCompTypes, uHJX.Intf.FuncCompManager,
     uHJX.Intf.GraphDispatcher, Vcl.Controls, Vcl.Forms;
 
 type
@@ -220,8 +220,13 @@ begin
     else
     begin
         fra := DrawDataGraph(ADesignName, AContainer);
+        if fra<>nil then
+        begin
         fra.Align := alClient;
         fra.Parent := AContainer as TWinControl;
+        end
+        else
+          raise Exception.Create('未知的仪器类型，无法绘制过程线。');
     end;
 end;
 

@@ -130,7 +130,6 @@ object fraQuickViewer: TfraQuickViewer
     TabOrder = 1
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
-    ExplicitTop = 72
   end
   object pnlProgress: TPanel
     Left = 80

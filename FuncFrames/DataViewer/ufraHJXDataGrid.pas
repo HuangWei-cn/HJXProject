@@ -154,10 +154,29 @@ begin
         if Meter.Params.MeterType = '平面位移测点' then
             with DBGridEh1.Columns[i] do
             begin
+              if pos('1',Field.DisplayLabel)<>0 then
+              begin
                 if Pos('Sd', Field.DisplayLabel) = 1 then
-                    Field.DisplayLabel := '累积变形|' + Field.DisplayLabel
+                    Field.DisplayLabel := '本地坐标(X-临空面,Y-右侧)|累积变形|' + Field.DisplayLabel
                 else if Pos('d', Field.DisplayLabel) = 1 then
-                    Field.DisplayLabel := '变形量|' + Field.DisplayLabel;
+                    Field.DisplayLabel := '本地坐标(X-临空面,Y-右侧)|变形量|' + Field.DisplayLabel;
+
+              end
+              else if pos('2',field.DisplayLabel)<>0 then
+              begin
+                if Pos('Sd', Field.DisplayLabel) = 1 then
+                    Field.DisplayLabel := '施工坐标(X-对岸,Y-下游)|累积变形|' + Field.DisplayLabel
+                else if Pos('d', Field.DisplayLabel) = 1 then
+                    Field.DisplayLabel := '施工坐标(X-对岸,Y-下游)|变形量|' + Field.DisplayLabel;
+
+              end
+              else
+              begin
+                if Pos('Sd', Field.DisplayLabel) = 1 then
+                    Field.DisplayLabel := '大地坐标(X-正北,Y-正东)|累积变形|' + Field.DisplayLabel
+                else if Pos('d', Field.DisplayLabel) = 1 then
+                    Field.DisplayLabel := '大地坐标(X-正北,Y-正东)|变形量|' + Field.DisplayLabel;
+              end;
             end
         else if Meter.Params.MeterType = '多点位移计' then
             with DBGridEh1.Columns[i] do
