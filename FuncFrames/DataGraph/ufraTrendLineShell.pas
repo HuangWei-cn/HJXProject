@@ -371,18 +371,53 @@ begin
                 IGD.RegistDrawFuncs('无应力计', DrawTrendLine);
                 IGD.RegistDrawFuncs('基岩变形计',DrawTrendLine);
                 IGD.RegistDrawFuncs('渗压计',DrawTrendLine);
+                IGD.RegistDrawFuncs('测压管',DrawTrendLine);
+                IGD.RegistDrawFuncs('水位计',DrawTrendLine);
+                IGD.RegistDrawFuncs('测缝计',DrawTrendLine);
+                IGD.RegistDrawFuncs('裂缝计',DrawTrendLine);
+                IGD.RegistDrawFuncs('位错计',DrawTrendLine);
+                IGD.RegistDrawFuncs('钢筋计',DrawTrendLine);
+                IGD.RegistDrawFuncs('钢板计',DrawTrendLine);
+                IGD.RegistDrawFuncs('温度计',DrawTrendLine);
+                IGD.RegistDrawFuncs('水位',DrawTrendLine);
+                IGD.RegistDrawFuncs('量水堰',DrawTrendLine);
+
                 IGD.RegistExportFunc('多点位移计', ExportGraphToFile);
                 IGD.RegistExportFunc('锚索测力计', ExportGraphToFile);
                 IGD.RegistExportFunc('锚杆应力计', ExportGraphToFile);
                 IGD.RegistExportFunc('应变计', ExportGraphToFile);
                 IGD.RegistExportFunc('无应力计', ExportGraphToFile);
-                IGD.RegistExportFunc('基岩变形',ExportGraphToFile);
-                igd.RegistExportFunc('渗压计',exportgraphtofile);
+                IGD.RegistExportFunc('基岩变形计',ExportGraphToFile);
+                igd.RegistExportFunc('渗压计',ExportGraphToFile);
+                IGD.RegistExportFunc('测压管',ExportGraphToFile);
+                IGD.RegistExportFunc('水位计',ExportGraphToFile);
+                IGD.RegistExportFunc('测缝计',ExportGraphToFile);
+                IGD.RegistExportFunc('裂缝计',ExportGraphToFile);
+                IGD.RegistExportFunc('位错计',ExportGraphToFile);
+                IGD.RegistExportFunc('钢筋计',ExportGraphToFile);
+                IGD.RegistExportFunc('钢板计',ExportGraphToFile);
+                IGD.RegistExportFunc('温度计',ExportGraphToFile);
+                IGD.RegistExportFunc('水位',ExportGraphToFile);
+                IGD.RegistExportFunc('量水堰',ExportGraphToFile);
+
+
                 IGD.RegistSaveStreamFunc('多点位移计', ExportGraphToStream);
                 IGD.RegistSaveStreamFunc('锚索测力计', ExportGraphToStream);
                 IGD.RegistSaveStreamFunc('锚杆应力计', ExportGraphToStream);
                 igd.RegistSaveStreamFunc('基岩变形计',exportgraphtostream);
                 igd.RegistSaveStreamFunc('渗压计', ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('测压管',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('水位计',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('测缝计',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('裂缝计',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('位错计',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('钢筋计',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('钢板计',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('温度计',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('应变计', ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('无应力计', ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('水位',ExportGraphToStream);
+                IGD.RegistSaveStreamFunc('量水堰',ExportGraphToStream);
             end;
 
 // uFuncDataGraph.RegistDrawFuncs('多点位移计', DrawTrendLine);

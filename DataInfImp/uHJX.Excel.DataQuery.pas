@@ -1741,7 +1741,11 @@ begin
   iMonRow := _LocateDTRow(sht, IncDay(DT, -30), iDTStart, dloClosest); // 一个月前数据所在行
 
     // 下面开始取数据了
-  if (sType = '锚索测力计') or (sType = '锚杆应力计') or (stype='渗压计') or (stype='基岩变形计') then
+  {todo:修改这个愚蠢方法，将这一堆写到配置文件中去}
+  if (sType = '锚索测力计') or (sType = '锚杆应力计') or (stype='渗压计') or (stype='基岩变形计')
+    or (stype = '测缝计') or (stype='裂缝计') or (stype='位错计') or (stype='钢筋计')
+    or (stype='钢板计') or (stype='水位计') or (stype='水位') or (stype='量水堰')
+    or (stype='应变计') or (stype='无应力计') then
   begin
     SetLength(Values, 1);
     Values[0] := VarArrayCreate([0, 5], varVariant);

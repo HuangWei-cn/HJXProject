@@ -618,7 +618,11 @@ begin
             { 查询仪器数据增量 }
       if IHJXClientFuncs.GetDataIncrement(Meter.DesignName, Now, V) then
       begin
-        if (sType = '锚索测力计') or (sType = '锚杆应力计') or (sType = '渗压计') or (sType = '基岩变形计') then
+        {todo:改变这个愚蠢的方法，将定义写到配置文件中去}
+        if (sType = '锚索测力计') or (sType = '锚杆应力计') or (sType = '渗压计') or (sType = '基岩变形计')
+          or (stype = '测缝计') or (stype='裂缝计') or (stype='位错计') or (stype='钢筋计')
+          or (stype='钢板计') or (stype='水位计') or (stype='水位') or (stype='量水堰')
+          or (stype='应变计') or (stype='无应力计') then
         begin
           if UseFilter then
             if sType = '锚索测力计' then
