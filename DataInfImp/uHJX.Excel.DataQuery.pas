@@ -1701,6 +1701,8 @@ end;
   参数Values是Variant类型动态数组，当仪器为锚索等单物理量仪器时，Values为1个
   元素，当仪器为多点或平面位移点时，Values是4或更多个元素。每个元素是一个
   VariantArray类型，6元素，格式为上述定义的数据格式。
+  每行数组各个元素：0-物理量名；1-当前值观测日期；2-两次观测间隔天数；3-当前值；
+  4-与上次观测的差值；5-30天差值
 ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetDataIncrement(ADsnName: string; DT: TDateTime;
   var Values: TVariantDynArray): Boolean;
@@ -1711,10 +1713,12 @@ var
   i, iDTStart: Integer;
   iRow, iDays: Integer; // 行号，间隔日期
   iMonRow    : Integer; // 上个月数据所在行
+  k          : Integer; // 用于平面变形测点物理量序号
 // S, pdName  : String;
-  sType     : string;    // 仪器类型
-  d, d2, d30: double;    // 当前值，增量，月增量
-  procedure ClearValues; // 清理并初始化传入的Values参数
+  sType     : string;      // 仪器类型
+  d, d2, d30: double;      // 当前值，增量，月增量
+  kIdx      : set of byte; // 特征值列的序号集合，假设监测仪器的特征值数量不会多于127
+  procedure ClearValues;   // 清理并初始化传入的Values参数
   var
     ii: Integer;
   begin
@@ -1741,12 +1745,14 @@ begin
   iMonRow := _LocateDTRow(sht, IncDay(DT, -30), iDTStart, dloClosest); // 一个月前数据所在行
 
     // 下面开始取数据了
-  {todo:修改这个愚蠢方法，将这一堆写到配置文件中去}
-  if (sType = '锚索测力计') or (sType = '锚杆应力计') or (stype='渗压计') or (stype='基岩变形计')
-    or (stype = '测缝计') or (stype='裂缝计') or (stype='位错计') or (stype='钢筋计')
-    or (stype='钢板计') or (stype='水位计') or (stype='水位') or (stype='量水堰')
-    or (stype='应变计') or (stype='无应力计') then
+  { todo:修改这个愚蠢方法，将这一堆写到配置文件中去 }
+(*
+  if (sType = '锚索测力计') or (sType = '锚杆应力计') or (sType = '渗压计') or (sType = '基岩变形计')
+    or (sType = '测缝计') or (sType = '裂缝计') or (sType = '位错计') or (sType = '钢筋计')
+    or (sType = '钢板计') or (sType = '水位计') or (sType = '水位') or (sType = '量水堰')
+    or (sType = '应变计') or (sType = '无应力计') then
   begin
+    { 这些仪器数据是单行，且取第一个物理量 }
     SetLength(Values, 1);
     Values[0] := VarArrayCreate([0, 5], varVariant);
     Values[0][0] := Meter.pdName(0); // 物理量名
@@ -1774,6 +1780,7 @@ begin
   end
   else if (sType = '多点位移计') then // 目前只考虑4点式多点位移计
   begin
+    { 多点位移计设置4行，取4个数据 }
     SetLength(Values, 4);
     for i := 0 to 3 do
     begin
@@ -1799,6 +1806,86 @@ begin
         Values[i][4] := Null;
         Values[i][5] := Null;
       end;
+    end;
+  end
+  else if (sType = '平面位移测点') then
+  begin
+    { 平面位移测点暂时只计算本地坐标差值，取SdX',SdY',SdH }
+    SetLength(Values, 3);
+    for i := 0 to 2 do
+    begin
+      Values[i] := VarArrayCreate([0, 5], varVariant);
+      // Values[i][0] := Meter.pdName(i);
+      Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
+      { todo:此处及以下应当判断数据合法性 }
+      case i of
+        0: k := 11; // SdX'=PD12, k=12-1=11
+        1: k := 12; // SdY'=PD13
+        2: k := 8;  // SdH =PD9
+      end;
+      Values[i][0] := Meter.pdName(k);
+      Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(k)); // 当前值
+      if iRow > iDTStart then
+      begin
+        iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
+          ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
+        d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(k));
+        d2 := Values[i][3] - d;
+        d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
+        Values[i][2] := iDays;
+        Values[i][4] := d2;
+        Values[i][5] := d30;
+      end
+      else
+      begin
+        Values[i][2] := 0;
+        Values[i][4] := Null;
+        Values[i][5] := Null;
+      end;
+    end;
+  end;
+*)
+  { 下面根据仪器数据结构中定义的特征值量查询观测数据变化值，即凡有特征值定义的物理量均进行查询，
+    多数仪器仅有一个特征值，但是多点、水平位移等则有多个特征值。 }
+  kIdx := [];
+  k := 0;
+  { 统计有多少特征值项 }
+  for i := 0 to Meter.PDDefines.Count - 1 do
+    if Meter.PDDefine[i].HasEV then
+    begin
+      include(kIdx, i);
+      inc(k);
+    end;
+  if k > 0 then
+  begin
+    SetLength(Values, k);
+    i := 0;
+    { 下面对每一个特征值进行处理，每个特征值占一行 }
+    for k in kIdx do
+    begin
+      Values[i] := VarArrayCreate([0, 5], varVariant);
+      Values[i][0] := Meter.pdName(k);
+      Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // 观测日期
+      Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(k));
+      if iRow > iDTStart then
+      begin
+        iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
+          ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
+        d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(k));
+        d2 := Values[i][3] - d;
+        d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
+        Values[i][2] := iDays;
+        Values[i][4] := d2;
+        Values[i][5] := d30;
+      end
+      else
+      begin
+        Values[i][2] := 0;
+        Values[i][4] := Null;
+        Values[i][5] := Null;
+      end;
+
+      inc(i);
     end;
   end;
 

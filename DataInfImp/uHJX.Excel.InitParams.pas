@@ -565,6 +565,7 @@ begin
   DSS.ChartTemplate := StrValue('ChartTemplate');
   DSS.WGTemplate := StrValue('WebGridTemplate');
   DSS.XLTemplate := StrValue('XLSGridTemplate');
+  DSS.MeterType := StrValue('MeterType');
 
   S1 := StrValue('MDDefine');
   S2 := StrValue('MDCols');

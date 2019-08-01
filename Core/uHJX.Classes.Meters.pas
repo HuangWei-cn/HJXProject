@@ -56,6 +56,7 @@ type
     end;
 
     TDataSheetStructure = record
+        MeterType: String;
         DTStartRow: Integer;
         DTStartCol: Integer;
         AnnoCol: Integer;

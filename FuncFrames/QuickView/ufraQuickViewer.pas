@@ -198,19 +198,19 @@ var
       if abs(Delta) < MaxDeltaMG then
           Result := False;
     end
-    else if metertype='渗压计' then
+    else if MeterType = '渗压计' then
     begin
-      delta := v2[1]-v1[1];
-      countdelta;
-      if abs(Delta)<MaxDeltaSY then
-        result := false;
+      Delta := V2[1] - V1[1];
+      CountDelta;
+      if abs(Delta) < MaxDeltaSY then
+          Result := False;
     end
-    else if metertype='基岩变形计' then
+    else if MeterType = '基岩变形计' then
     begin
-      delta := v2[1]-v1[1];
-      countdelta;
-      if abs(Delta)<MaxDeltaddwy then
-        result := false;
+      Delta := V2[1] - V1[1];
+      CountDelta;
+      if abs(Delta) < MaxDeltaDDWY then
+          Result := False;
     end;
   end;
     // 只显示一次数据
@@ -464,6 +464,8 @@ var
   Page  : String;
   sType : string;
   sPos  : String;
+  k     : Integer;     // 特征值项的序号；
+  kIdx  : set of Byte; // 特征值序号集合，假设特征值项不超过127个。
   procedure ClearValues;
   var
     ii: Integer;
@@ -615,14 +617,16 @@ begin
         sType := Meter.Params.MeterType;
       end;
 
-            { 查询仪器数据增量 }
+      { 查询仪器数据增量 }
+      { 2019-07-31 查询增量的方法已经改为查询仪器带有特征值标记的物理量项目 }
       if IHJXClientFuncs.GetDataIncrement(Meter.DesignName, Now, V) then
       begin
-        {todo:改变这个愚蠢的方法，将定义写到配置文件中去}
+        { todo:改变这个愚蠢的方法，将定义写到配置文件中去 }
+        (*
         if (sType = '锚索测力计') or (sType = '锚杆应力计') or (sType = '渗压计') or (sType = '基岩变形计')
-          or (stype = '测缝计') or (stype='裂缝计') or (stype='位错计') or (stype='钢筋计')
-          or (stype='钢板计') or (stype='水位计') or (stype='水位') or (stype='量水堰')
-          or (stype='应变计') or (stype='无应力计') then
+          or (sType = '测缝计') or (sType = '裂缝计') or (sType = '位错计') or (sType = '钢筋计')
+          or (sType = '钢板计') or (sType = '水位计') or (sType = '水位') or (sType = '量水堰')
+          or (sType = '应变计') or (sType = '无应力计') then
         begin
           if UseFilter then
             if sType = '锚索测力计' then
@@ -680,6 +684,53 @@ begin
             vH[7] := V[i][5];
             WCV.AddRow(vH);
           end;
+        end
+        else if sType = '平面位移测点' then
+        begin
+          for i := Low(V) to High(V) do
+          begin
+            vH[0] := sType;
+            vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
+              Meter.DesignName + '</a>';
+            vH[2] := V[i][0]; // Meter.PDName(i);
+            vH[3] := FormatDateTime('yyyy-mm-dd', V[i][1]);
+            vH[4] := V[i][2];
+            vH[5] := V[i][3];
+            vH[6] := V[i][4];
+            vH[7] := V[i][5];
+            WCV.AddRow(vH);
+          end;
+        end;
+ *)
+      { 2019-07-31 因增量查询方法已经改为查询具有特征值标记的物理量，因此这里也修改为列出具备特征值
+      标记的物理量，暂时不考虑过滤小变化量的情况。关于查询的结果V，参见uHJX.Excel.DataQuery单元中的
+      GetDataIncrement方法中的定义 }
+        k := 0;
+        kIdx := [];
+        for i := 0 to Meter.PDDefines.Count - 1 do
+          if Meter.PDDefine[i].HasEV then
+          begin
+            Inc(k);
+            include(kIdx, i);
+          end;
+        if k > 0 then
+        begin
+          i := 0;
+          for k in kIdx do
+          begin
+            vH[0] := sType;
+            vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
+              Meter.DesignName + '</a>';
+            vH[2] := V[i][0]; // 物理量名
+            vH[3] := FormatDateTime('yyyy-mm-dd', V[i][1]);
+            vH[4] := V[i][2]; // 间隔日期
+            vH[5] := V[i][3]; // 最后测值
+            vH[6] := V[i][4]; // 与上次测值的增量
+            vH[7] := V[i][5]; // 30日增量
+            WCV.AddRow(vH);
+
+            Inc(i);
+          end;
         end;
       end;
 
@@ -709,6 +760,8 @@ var
   WCV  : TWebCrossView;
   Meter: TMeterDefine;
   i, j : Integer;
+  k    : Integer;
+  kIdx : Set of Byte;
   V, V1: TDoubleDynArray;
   vH   : array of variant;
 
@@ -813,11 +866,12 @@ begin
         WCV.AddCaptionRow([sType]);
       end;
 
+      (*
       // 准备数据
       if Meter.Params.MeterType = '多点位移计' then
       begin
         _ClearValues;
-        vH[0] := Meter.DesignName;
+        vH[0] := '<a href="PopGraph:' + Meter.DesignName + '">' + Meter.DesignName + '</a>';
         IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V);
         IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V1);
         if V[0] = 0 then Continue;
@@ -844,6 +898,31 @@ begin
           WCV.AddRow(vH);
         end;
       end
+      else if Meter.Params.MeterType = '平面位移测点' then
+      begin
+        _ClearValues;
+        vH[0] := '<a href="PopGraph:' + Meter.DesignName + '">' + Meter.DesignName + '</a>';
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V);
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V1);
+        if V[0] = 0 then Continue;
+
+        dt1 := V[0];
+        dt2 := V1[0];
+        vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
+        vH[4] := FormatDateTime('yyyy-mm-dd', dt2);
+        vH[7] := dt2 - dt1; // 日期间隔
+        { 平面位移测点只比较本地坐标和高程的差值 }
+        for j in [11, 12, 8] do
+        begin
+          vH[1] := Meter.PDName(j);
+          vH[3] := V[j + 1];
+          vH[5] := V1[j + 1];
+          vH[6] := V1[j + 1] - V[j + 1];
+          if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+          WCV.AddRow(vH);
+        end;
+
+      end
       else
       begin
         _ClearValues;
@@ -862,7 +941,8 @@ begin
         dt2 := V[0];
         d2 := V[1];
       // 填入
-        vH[0] := Meter.DesignName;
+        vH[0] := '<a href="PopGraph:' + Meter.DesignName + '">' + Meter.DesignName + '</a>';
+        // Meter.DesignName;
         vH[1] := Meter.PDName(0);
       // vH[2] := dtp1.DateTime;
       // vH[4] := dtp2.DateTime;
@@ -873,6 +953,44 @@ begin
         else
             vH[8] := '';
         WCV.AddRow(vH);
+      end;
+ *)
+
+      { 2019-07-31采用列出特征值项的方式创建表格，即仪器的特征值量都列入数据查询之中 }
+      _ClearValues;
+      //下面的代码查询和统计仪器的特征值项数量，并将PD序号填入kIdx集合
+      j := 0;
+      kIdx := [];
+      for k := 0 to Meter.PDDefines.Count - 1 do
+        if Meter.PDDefine[k].HasEV then
+        begin
+          Inc(j);
+          include(kIdx, k);
+        end;
+
+      { 当仪器的特征值项不为零，则创建表格 }
+      if j > 0 then
+      begin
+        vH[0] := '<a href="PopGraph:' + Meter.DesignName + '">' + Meter.DesignName + '</a>';
+        // 查询数据
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V);
+        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V1);
+        if V[0] = 0 then Continue;
+        dt1 := V[0];
+        dt2 := V1[0];
+        vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
+        vH[4] := FormatDateTime('yyyy-mm-dd', dt2);
+        vH[7] := dt2 - dt1; // 日期间隔
+
+        for j in kIdx do // 逐个添加特征值数据行
+        begin
+          vH[1] := Meter.PDName(j);
+          vH[3] := V[j + 1];
+          vH[5] := V1[j + 1];
+          vH[6] := V1[j + 1] - V[j + 1];
+          if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+          WCV.AddRow(vH);
+        end;
       end;
     end;
 
