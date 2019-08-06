@@ -88,6 +88,9 @@ begin
         Exit;
 
     fraPDChart.SetChartTitle(mt.PrjParams.Position + '平面位移测点' + mt.DesignName + '位移图');
+    { 2019-08-06 将坐标轴标题改为本地坐标 }
+    fraPDChart.chtDisplacement.LeftAxis.Title.Caption := 'X方向-临空面(mm)';
+    fraPDChart.chtDisplacement.BottomAxis.Title.Caption := 'Y方向-右侧(mm)';
     DS := TClientDataSet.Create(Self);
     try
         if IHJXClientFuncs.GetAllPDDatas(ADsnName, DS) then
@@ -97,8 +100,13 @@ begin
                 X0 := 0;
                 Y0 := 0;
                 repeat
+                    { 2019-08-06 物理量增加了本地坐标、施工坐标 }
+                    (*
                     X1 := DS.Fields[5].AsFloat; // SdY;
                     Y1 := DS.Fields[4].AsFloat; // SdX;
+                    *)
+                    X1 := DS.Fields[13].AsFloat; // SdY' 本地坐标Y方向
+                    Y1 := DS.Fields[12].AsFloat; // SdX' 本地坐标X方向
                     // 重合点不绘图，否则那箭头很难看
                     if (X1 <> X0) and (Y1 <> Y0) then
                         fraPDChart.AddData(X0, Y0, X1, Y1);

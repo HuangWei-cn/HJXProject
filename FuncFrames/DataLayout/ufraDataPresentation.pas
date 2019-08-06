@@ -225,10 +225,28 @@ begin
     IHJXClientFuncs.SessionBegin;
     if IHJXClientFuncs.GetDataIncrement(AID, DT, Datas) then
     begin
-        i := ExcelMeters.Meter[AID].PDDefines.IndexOfDataName(ADataName);
+      { 2019-08-06 查询增量方法改为查询具有特征值属性的量，因此返回的数组中按照特征值的顺序排列记录 }
+        (*i := ExcelMeters.Meter[AID].PDDefines.IndexOfDataName(ADataName);*)
+        for i := 0 to High(Datas) do
+        begin
+          if ADataName = Datas[i][0] then
+          begin
+            sType := ExcelMeters.Meter[AID].Params.MeterType;
+            DT := Datas[i][1];
+            Data := FormatData(Datas[i][3]);
+            if Datas[i][4] > 0 then
+                Data := Data + '；↑' + FormatData(Datas[i][4])
+            else if Datas[i][4] < 0 then
+                Data := Data + '；↓' + FormatData(Datas[i][4])
+            else
+                Data := Data + '；△' + FormatData(Datas[i][4]);
+          end;
+        end;
+        (*
         sType := ExcelMeters.Meter[AID].Params.MeterType;
         if i <> -1 then
         begin
+
             if (sType = '锚索测力计') or (sType = '锚杆应力计') then
             begin
                 DT := Datas[0][1];
@@ -251,7 +269,17 @@ begin
                 else
                     Data := Data + '；△' + FormatData(Datas[i][4]);
             end;
+
+          DT := Datas[i][1];
+          Data := FormatData(Datas[i][3]);
+          if Datas[i][4] > 0 then
+              Data := Data + '；↑' + FormatData(Datas[i][4])
+          else if Datas[i][4] < 0 then
+              Data := Data + '；↓' + FormatData(Datas[i][4])
+          else
+              Data := Data + '；△' + FormatData(Datas[i][4]);
         end;
+        *)
     end;
     IHJXClientFuncs.SessionEnd;
 
