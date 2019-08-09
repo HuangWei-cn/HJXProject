@@ -24,8 +24,10 @@ type
     { DONE:加载图形后，只默认锁定比例，不按原图缩放。由用户决定是否按1:1显示图纸 }
   TdmcMap = class(TGPRectangularNode)
   private
-    FRatio    : Double; // 原始图片长宽比
-    FLockRatio: Boolean;
+    FRatio         : Double; // 原始图片长宽比
+    FLockRatio     : Boolean;
+    FAngleFromNorth: Double;  // 底图与正北的夹角
+    FOneMMLength   : Integer; // 1mm相当于多少绘图长度单位，用于指示数据大小
     procedure SetLockRatio(b: Boolean);
     procedure SetMovable(b: Boolean);
     procedure SetSelectable(b: Boolean);
@@ -41,6 +43,10 @@ type
     property Moveable  : Boolean write SetMovable;
     property Selectable: Boolean write SetSelectable;
     property Resizeable: Boolean write SetResizable;
+    // 底图Y正方向和正北的夹角，这个属性主要用于绘出平面变形的方向。绘图平面的Y
+    // 正方向向下。
+    property AngleFromNorth: Double read FAngleFromNorth write FAngleFromNorth;
+    property OneMMLength   : Integer read FOneMMLength write FOneMMLength;
   end;
 
     { 数据项类 }
@@ -93,35 +99,75 @@ type
  }
   TdmcDeformationDirection = class(TGPGraphicLink)
   private
-    FDesignName         : String;
-    FMeterType          : String;
-    FXDirect            : Integer; // X方向系数，即在图中是否需要将实际值乘以-1。当采用大地坐标时，不需要
-    FYDirect            : Integer; // Y方向系数
-    FOneMilliMeterLength: Integer; // 1mm相当于多少图像单位。
-    FAngleFromNorth     : Double;  // Y正方向与正北方向夹角。大地坐标中，X为正北方向，Y为正东方向；在图像中，Y
+    FDesignName: String;
+    FMeterType : String;
+    FXName     : string;  // X数据名
+    FYName     : string;  // Y数据名
+    FXDirect   : Integer; // X方向系数，即在图中是否需要将实际值乘以-1。当采用大地坐标时，不需要
+    FYDirect   : Integer; // Y方向系数
+    // FOneMilliMeterLength: Integer; // 1mm相当于多少图像单位。
+    FAngleFromNorth: Double; // Y正方向与正北方向夹角。大地坐标中，X为正北方向，Y为正东方向；在图像中，Y
       // 为竖直向下，X为横向向右，需要进行旋转变换才能得到正确的数值。
-    FX      : Variant;
-    FY      : Variant;
-    FNorth  : Variant;
-    FEast   : Variant;
-    FDTScale: TDateTime;
+    FX             : Variant;
+    FY             : Variant;
+    FNorth         : Variant;
+    FEast          : Variant;
+    FDTScale       : TDateTime;
+    FUseGlobalAngle: Boolean;
   public
     constructor Create(AOwner: TSimpleGraph); override;
     procedure SetData(ANorth, AEast: Variant);
     procedure ShowData(AData: String; dt: TDateTime);
     procedure ClearData;
   published
-    property DesignName         : string read FDesignName write FDesignName;
-    property MeterType          : string read FMeterType write FMeterType;
-    property OneMilliMeterLength: Integer read FOneMilliMeterLength write FOneMilliMeterLength;
-    property AngleFromNorth     : Double read FAngleFromNorth write FAngleFromNorth;
-    property XDirect            : Integer read FXDirect write FXDirect;
-    property YDirect            : Integer read FYDirect write FYDirect;
-    property North              : Variant read FNorth write FNorth;
-    property East               : Variant read FEast write FEast;
+    property DesignName: string read FDesignName write FDesignName;
+    property MeterType : string read FMeterType write FMeterType;
+    property XDataName : string read FXName write FXName;
+    property YDataName : string read FYName write FYName;
+    // property OneMilliMeterLength: Integer read FOneMilliMeterLength write FOneMilliMeterLength;
+    property AngleFromNorth: Double read FAngleFromNorth write FAngleFromNorth;
+    property XDirect       : Integer read FXDirect write FXDirect;
+    property YDirect       : Integer read FYDirect write FYDirect;
+    property North         : Variant read FNorth write FNorth;
+    property East          : Variant read FEast write FEast;
+    // 是否采用全局角度，指是否采用底图和正北夹角作为全局角度使用。若不用采用全，
+    // 局角度，则需要设置每一个变形点屏幕正方向和正北夹角（采用大地坐标），或设置
+    // 每一个变形点的临空面与正北夹角（采用本地坐标）
+    property UseGlobalAngle: Boolean read FUseGlobalAngle write FUseGlobalAngle;
   end;
 
+procedure SetBackgroundMap(AMap: TdmcMap);
+
 implementation
+
+var
+  GlobalAngleFromNorth: Double;
+  GlobalOneMMLength   : Integer;
+  SinValue            : Double;
+  CosValue            : Double;
+  BackMap             : TdmcMap;
+
+{ 设置公共变量 }
+procedure SetBackgroundMap(AMap: TdmcMap);
+begin
+  BackMap := AMap;
+  GlobalAngleFromNorth := BackMap.AngleFromNorth;
+  GlobalOneMMLength := BackMap.OneMMLength;
+  SinValue := sin(GlobalAngleFromNorth / 180 * pi);
+  CosValue := Cos(GlobalAngleFromNorth / 180 * pi);
+end;
+
+{ X坐标旋转 }
+function GlobalTransX(X, Y: Double): Double;
+begin
+  Result := X * CosValue - Y * SinValue;
+end;
+
+{ Y坐标旋转 }
+function GlobalTransY(X, Y: Double): Double;
+begin
+  Result := X * SinValue + Y * CosValue;
+end;
 
 constructor TdmcMap.Create(AOwner: TSimpleGraph);
 begin
@@ -129,6 +175,8 @@ begin
   Options := [goSelectable, goShowCaption];
   LockRatio := True;
   FRatio := 1.33;
+  FAngleFromNorth := 0;
+  FOneMMLength := 5; // 每毫米=5个绘图长度单位
 end;
 
 procedure TdmcMap.BackgroundChanged(Sender: TObject);
@@ -266,14 +314,43 @@ end;
 constructor TdmcDeformationDirection.Create(AOwner: TSimpleGraph);
 begin
   inherited;
-  FOneMilliMeterLength := 1;
+  // FOneMilliMeterLength := 5; // 1mm相当于5个长度单位
   FAngleFromNorth := 0;
   FXDirect := 1;
   FYDirect := 1;
 end;
 
+{ 将大地坐标测量结果赋值 }
 procedure TdmcDeformationDirection.SetData(ANorth: Variant; AEast: Variant);
+var
+  SinV, CosV: Double;
 begin
+  if not(VarIsClear(AEast) or VarIsNull(AEast) or VarIsClear(ANorth) or VarIsNull(ANorth)) then
+  begin
+    FNorth := ANorth;
+    FEast := AEast;
+    // 下面进行换算
+    if Self.UseGlobalAngle then
+    begin
+      FY := GlobalTransX(fnorth, feast);
+      FX := GlobalTransY(fnorth, feast) * -1;
+    end
+    else
+    begin
+      SinV := sin(AngleFromNorth / 180 * pi);
+      CosV := Cos(AngleFromNorth / 180 * pi);
+      FY := (FNorth * CosV - feast * SinV);
+      FX := (fnorth * SinV + feast * CosV) * -1;
+    end;
+  end
+  else
+  begin
+    // 未测，清空
+    VarClear(FNorth);
+    VarClear(FEast);
+    VarClear(FX);
+    VarClear(FY);
+  end;
 
 end;
 
@@ -285,14 +362,15 @@ begin
   { 这里AData参数没什么用，这个对象使用SetData设置数据 }
   pt0 := Points[0];
   { 暂时既不考虑旋转，也不考虑比例 }
-  if not(VarIsClear(FEast) or VarIsNull(FEast)) then
-      pt1.X := pt0.X + FEast;
-  if not(VarIsClear(FNorth) or VarIsNull(FNorth)) then
-      pt1.Y := pt0.Y + FNorth;
+  if not(VarIsClear(FEast) or VarIsNull(FEast) or VarIsClear(FNorth) or VarIsNull(FNorth)) then
+  begin
+    pt1.X := pt0.X + FX * 10; // FOneMilliMeterLength;
+    pt1.Y := pt0.Y + FY * 10; // FOneMilliMeterLength;
+    Points[1] := pt1;
 
-  Points[1] := pt1;
-  Hint := Format('X:%d; Y:%d', [pt1.Y, pt1.X]);
-  Text := Hint;
+    Hint := Format('X:%s; Y:%s', [formatfloat('0.00', FY), formatfloat('0.00', FX)]);
+    Text := Hint;
+  end;
 end;
 
 procedure TdmcDeformationDirection.ClearData;
@@ -310,10 +388,12 @@ initialization
 
 TSimpleGraph.Register(TdmcMap);
 TSimpleGraph.Register(TdmcDataItem);
+TSimpleGraph.Register(TdmcDeformationDirection);
 
 finalization
 
 TSimpleGraph.Unregister(TdmcMap);
 TSimpleGraph.Unregister(TdmcDataItem);
+TSimpleGraph.Unregister(TdmcDeformationDirection);
 
 end.
