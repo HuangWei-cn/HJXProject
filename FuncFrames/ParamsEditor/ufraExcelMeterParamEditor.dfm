@@ -2,14 +2,14 @@ object fraXLSParamEditor: TfraXLSParamEditor
   Left = 0
   Top = 0
   Width = 365
-  Height = 588
+  Height = 753
   TabOrder = 0
   object CategoryPanelGroup1: TCategoryPanelGroup
     Left = 0
     Top = 101
     Width = 365
-    Height = 487
-    VertScrollBar.Position = 219
+    Height = 652
+    VertScrollBar.Position = 382
     VertScrollBar.Tracking = True
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
@@ -24,17 +24,69 @@ object fraXLSParamEditor: TfraXLSParamEditor
     HeaderFont.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitHeight = 449
-    object CategoryPanel3: TCategoryPanel
-      Top = 260
-      Height = 225
-      Caption = #25968#25454#32467#26500
+    ExplicitHeight = 487
+    object CategoryPanel5: TCategoryPanel
+      Top = 450
+      Caption = #22270#34920#39044#23450#20041
       TabOrder = 0
+      object Label1: TLabel
+        Left = 4
+        Top = 12
+        Width = 72
+        Height = 14
+        Caption = #36807#31243#32447#39044#23450#20041
+      end
+      object Label2: TLabel
+        Left = 4
+        Top = 60
+        Width = 60
+        Height = 14
+        Caption = #25968#25454#34920#23450#20041
+      end
+      object Label3: TLabel
+        Left = 4
+        Top = 112
+        Width = 136
+        Height = 14
+        Caption = 'Excel'#23548#20986#24037#20316#34920#26684#24335#23450#20041
+      end
+      object cmbGraphDefine: TComboBox
+        Left = 4
+        Top = 32
+        Width = 329
+        Height = 22
+        Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 0
+      end
+      object cmbGridFormat: TComboBox
+        Left = 4
+        Top = 80
+        Width = 329
+        Height = 22
+        Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 1
+      end
+      object cmbXLSFormat: TComboBox
+        Left = 4
+        Top = 132
+        Width = 329
+        Height = 22
+        Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 2
+      end
+    end
+    object CategoryPanel4: TCategoryPanel
+      Top = 250
+      Caption = #33258#23450#20041#32467#26500
+      TabOrder = 1
       object vleDataStru: TValueListEditor
         Left = 0
         Top = 0
         Width = 344
-        Height = 199
+        Height = 174
         Align = alClient
         Font.Charset = GB2312_CHARSET
         Font.Color = clWindowText
@@ -62,11 +114,38 @@ object fraXLSParamEditor: TfraXLSParamEditor
           188)
       end
     end
+    object CategoryPanel3: TCategoryPanel
+      Top = 97
+      Height = 153
+      Caption = #39044#23450#20041#25968#25454#32467#26500
+      TabOrder = 2
+      object cmbPreDefineDataStruc: TComboBox
+        Left = 10
+        Top = 12
+        Width = 323
+        Height = 22
+        Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 0
+      end
+      object memPreDDSContent: TMemo
+        Left = 10
+        Top = 40
+        Width = 323
+        Height = 77
+        Anchors = [akLeft, akTop, akRight]
+        Lines.Strings = (
+          #39044#23450#20041#25968#25454#32467#26500#22914#19979#65306)
+        ReadOnly = True
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
     object CategoryPanel2: TCategoryPanel
-      Top = 66
+      Top = -97
       Height = 194
       Caption = #24037#31243#23646#24615
-      TabOrder = 1
+      TabOrder = 3
       object vlePrjParams: TValueListEditor
         Left = 0
         Top = 0
@@ -94,11 +173,11 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vlePrjParamsStringsChange
         ColWidths = (
           135
-          186)
+          203)
       end
     end
     object CategoryPanel1: TCategoryPanel
-      Top = -219
+      Top = -382
       Height = 285
       Caption = #20202#22120'/'#20256#24863#22120#23646#24615
       Font.Charset = DEFAULT_CHARSET
@@ -107,7 +186,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 4
       object vleMeterParams: TValueListEditor
         Left = 0
         Top = 0
@@ -143,7 +222,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vleMeterParamsStringsChange
         ColWidths = (
           134
-          187)
+          204)
       end
       object dtpDateEdit: TDateTimePicker
         Left = 136

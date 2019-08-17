@@ -439,8 +439,11 @@ begin
     for i := 0 to FEvtReqOnNotify.Count - 1 do
         if SameText(AEvent, FEvtReqOnNotify.Strings[i]) then
         begin
+          try
             Evt := PNotifyEventReg(FEvtReqOnNotify.Objects[i]);
             Evt.EventPort(Sender);
+          finally
+          end;
         end;
 end;
 

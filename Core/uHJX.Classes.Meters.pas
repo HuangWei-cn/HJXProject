@@ -245,6 +245,10 @@ var
     { 2018-09-13 定制仪器组。用于用户对仪器进行自行分组，比如将近期关注的仪器分组到一起，绘图和产生
     报表的时候按组处理，免得从全部仪器中逐个挑选。 }
     CustomMeterGroup: TMeterGroup;
+    { 2019-08-16 过程线、表格、Excel格式定义工作表中的所有定义 }
+    GraphDefines: TStrings; //绘图定义，包括过程线、平面位移等模板名称列表
+    GridFormatDefines: TStrings; //数据表格式定义模板名称列表
+    XLSExpFormatDefines:TStrings; //导出为Excel工作表的表格格式定义模板名称列表
 implementation
 
 end.
