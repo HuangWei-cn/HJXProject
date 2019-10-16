@@ -801,11 +801,6 @@ DSDefines := TPreDefineDSList.Create;
 { 2018-09-13 }
 CustomMeterGroup := TMeterGroupList.Create;
 
-{ 2019-08-16 }
-GraphDefines := TStringList.Create;
-GridFormatDefines := TStringList.Create;
-XLSExpFormatDefines := TStringList.Create;
-
 IAppServices.SetMeters(ExcelMeters);
 IAppServices.SetMeterGroups(MeterGroup);
 IAppServices.SetDSNames(DSNames);
@@ -820,9 +815,6 @@ try
   FreeAndNil(Layouts);
   FreeAndNil(DSDefines);
   FreeAndNil(CustomMeterGroup);
-  FreeAndNil(GraphDefines);
-  FreeAndNil(GridFormatDefines);
-  FreeAndNil(XLSExpFormatDefines);
 finally
 end;
 

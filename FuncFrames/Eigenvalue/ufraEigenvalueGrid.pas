@@ -44,12 +44,14 @@ type
     piSaveAsXLS: TMenuItem;
     piCopyToClipBoard: TMenuItem;
     dlgSave: TSaveDialog;
+    btnDrawEVGraph: TButton;
     procedure btnQueryClick(Sender: TObject);
     procedure piCopyAsHTMLClick(Sender: TObject);
     procedure piSaveAsHTMLClick(Sender: TObject);
     procedure piSaveAsRTFClick(Sender: TObject);
     procedure piSaveAsXLSClick(Sender: TObject);
     procedure piCopyToClipBoardClick(Sender: TObject);
+    procedure btnDrawEVGraphClick(Sender: TObject);
   private
     { Private declarations }
     FIDList: TStrings;
@@ -65,7 +67,7 @@ type
 implementation
 
 uses
-  uHJX.Intf.FunctionDispatcher, DBGridEhImpExp, uMyUtils.CopyHTML2Clipbrd;
+  uHJX.Intf.FunctionDispatcher, DBGridEhImpExp, uMyUtils.CopyHTML2Clipbrd, ufrmEVGraph;
 {$R *.dfm}
 
 
@@ -79,6 +81,29 @@ destructor TfraEigenvalueGrid.Destroy;
 begin
   FIDList.Free;
   inherited;
+end;
+
+procedure TfraEigenvalueGrid.btnDrawEVGraphClick(Sender: TObject);
+var
+  frm: TfrmEVGraph;
+begin
+  if cdsEV.RecordCount = 0 then
+  begin
+    ShowMessage('你先得查东西来，才能绘图~~');
+    Exit;
+  end;
+
+  if (mtEV.FieldByName('Position').IsNull or mtEV.FieldByName('MeterType').IsNull) then
+  begin
+    ShowMessage('你得选中某条记录，有工程部位和仪器类型的记录~~~');
+    Exit;
+  end;
+
+  frm := TfrmEVGraph.Create(self);
+  frm.DrawEVGraph(mtEV.FieldByName('Position').AsString,
+    mtEV.FieldByName('MeterType').AsString, mtEV.FieldByName('PDName').AsString, mtEV);
+  frm.ShowModal;
+  frm.Release;
 end;
 
 procedure TfraEigenvalueGrid.btnQueryClick(Sender: TObject);
@@ -151,8 +176,8 @@ begin
 
   // 安裝部位
   AddFieldDef('Position', '安裝部位', ftstring);
-  AddFieldDef('MeterType', '儀器類型', ftstring);
-  AddFieldDef('DesignName', '設計編號', ftstring);
+  AddFieldDef('MeterType', '仪器类型', ftstring);
+  AddFieldDef('DesignName', '设计编号', ftstring);
   AddFieldDef('PDName', '物理量', ftstring);
   // 自古以來系列----------------------------
   AddFieldDef('MaxDTInLife', '日期', ftDateTime);
@@ -160,14 +185,14 @@ begin
   AddFieldDef('MinDTInLife', '日期', ftDateTime);
   AddFieldDef('MinInLife', '最小值', ftFloat);
   AddFieldDef('IncrementInLife', '增量', ftFloat);
-  AddFieldDef('AmplitudeInLife', '振幅', ftFloat);
+  AddFieldDef('AmplitudeInLife', '变幅', ftFloat);
   // 年特征系列-----------------------------
   AddFieldDef('MaxDTInYear', '日期', ftDateTime);
   AddFieldDef('MaxInYear', '最大值', ftFloat);
   AddFieldDef('MinDTInYear', '日期', ftDateTime);
   AddFieldDef('MinInYear', '最小值', ftFloat);
   AddFieldDef('IncrementInYear', '增量', ftFloat);
-  AddFieldDef('AmplitudeInYear', '振幅', ftFloat);
+  AddFieldDef('AmplitudeInYear', '变幅', ftFloat);
   // 當前值系列-----------------------------
   AddFieldDef('DTScale', '日期', ftDateTime);
   AddFieldDef('Value', '測值', ftFloat);
@@ -234,7 +259,7 @@ begin
   grdEV.Columns[0].Field.DisplayLabel := '安装部位';
   grdEV.Columns[1].Field.DisplayLabel := '仪器类型';
   grdEV.Columns[2].Field.DisplayLabel := '设计编号';
-  grdEV.Columns[3].Field.DisplayLabel := '观测量';
+  grdEV.Columns[3].Field.DisplayLabel := '观测项';
   grdEV.Columns[4].Field.DisplayLabel := '历史特征值|最大值|日期';
   grdEV.Columns[5].Field.DisplayLabel := '历史特征值|最大值|测值';
   grdEV.Columns[6].Field.DisplayLabel := '历史特征值|最小值|日期';
@@ -280,8 +305,7 @@ begin
   FIDList.Text := IDList;
   mtEV.Close;
   cdsEV.Close;
-  if FIDList.Count = 0 then
-      Exit;
+  if FIDList.Count = 0 then Exit;
 
   prgBar.Max := FIDList.Count;
   prgBar.Position := 0;

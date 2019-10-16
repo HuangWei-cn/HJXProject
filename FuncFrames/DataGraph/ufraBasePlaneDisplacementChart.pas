@@ -27,15 +27,19 @@ type
     piCopyAsMetafile: TMenuItem;
     N1: TMenuItem;
     piSaveAs: TMenuItem;
+    chtCumulativeDeform: TChart;
+    ssCumulative: TArrowSeries;
     procedure piCopyAsBitmapClick(Sender: TObject);
     procedure piCopyAsMetafileClick(Sender: TObject);
     procedure piSaveAsClick(Sender: TObject);
+    procedure FrameResize(Sender: TObject);
   private
         { Private declarations }
   public
         { Public declarations }
     procedure ClearDatas;
     procedure ShowSampleDatas;
+    // show diaplacement trace
     procedure AddData(X0, Y0, X1, Y1: Double; ALabel: string = '');
     procedure SetChartTitle(ATitle: string);
   end;
@@ -50,16 +54,25 @@ uses
 procedure TfraBasePlaneDisplacementChart.ClearDatas;
 begin
   ssDisplacement.Clear;
+  ssCumulative.Clear;
+end;
+
+procedure TfraBasePlaneDisplacementChart.FrameResize(Sender: TObject);
+begin
+  chtDisplacement.Width := chtDisplacement.Height;
+  chtCumulativeDeform.Width := chtCumulativeDeform.Height;
 end;
 
 procedure TfraBasePlaneDisplacementChart.piCopyAsBitmapClick(Sender: TObject);
 begin
-  chtDisplacement.CopyToClipboardBitmap;
+  // chtDisplacement.CopyToClipboardBitmap;
+  (popChart.PopupComponent as TChart).CopyToClipboardBitmap;
 end;
 
 procedure TfraBasePlaneDisplacementChart.piCopyAsMetafileClick(Sender: TObject);
 begin
-  chtDisplacement.CopyToClipboardMetafile(True);
+  // chtDisplacement.CopyToClipboardMetafile(True);
+  (popChart.PopupComponent as TChart).CopyToClipboardBitmap;
 end;
 
 procedure TfraBasePlaneDisplacementChart.piSaveAsClick(Sender: TObject);
@@ -142,11 +155,28 @@ begin
   chtDisplacement.LeftAxis.Maximum := MaxX;
   chtDisplacement.BottomAxis.Minimum := -MaxX;
   chtDisplacement.BottomAxis.Maximum := MaxX;
+
+  // 下面显示累积位移，为了减少修改其他代码，这里将就一下
+  ssCumulative.Clear;
+  ssCumulative.AddArrow(0, 0, X1, Y1);
+
+  MaxX := Abs(X1);
+  MaxY := Abs(Y1);
+  if MaxX < MaxY then MaxX := MaxY;
+  with chtCumulativeDeform do
+  begin
+    LeftAxis.Maximum := MaxX;
+    LeftAxis.Minimum := -MaxX;
+    BottomAxis.Maximum := MaxX;
+    BottomAxis.Minimum := -MaxX;
+  end;
+
 end;
 
 procedure TfraBasePlaneDisplacementChart.SetChartTitle(ATitle: string);
 begin
   chtDisplacement.Title.Caption := ATitle;
+  chtCumulativeDeform.Title.Caption := ATitle + '(累积位移)';
 end;
 
 end.

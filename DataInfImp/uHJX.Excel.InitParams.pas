@@ -70,9 +70,6 @@ function LoadMeterGroup(ParamBook: IXLSWorkBook): Boolean;
 function LoadTrendLinePreDefines(ParamBook: IXLSWorkBook): Boolean;
 { 加载模板：ChartTemplates、WebGridTemplates、XLSGridTemplates等 }
 function LoadTemplates(ParamBook: IXLSWorkBook): Boolean;
-{ 加载模板名称列表过程，本方法不加载模板内容，仅仅将模板的名称加载进来，当需要定制仪器的模板时，
-  只需要选择模板名称即可。2019-08-16 }
-function LoadTemplateNames(ParamBook: IXLSWorkBook): Boolean;
 { 保存参数，对已存在的仪器不改变其设计编号，允许创建新的仪器参数 }
 function SaveParams(AMeter: TMeterDefine; NewMeter: Boolean = False): Boolean; overload;
 { 保存参数，允许更改仪器设计编号 }
@@ -800,7 +797,6 @@ begin
     // 加载过程线预定义表
   LoadTrendLinePreDefines(ParamBook);
   LoadTemplates(ParamBook);
-  LoadTemplateNames(ParamBook); // 2019-08-16
     // 加载基本参数表
   LoadMeterParams(ParamBook);
     // 加载数据结构定义表
@@ -1400,44 +1396,6 @@ begin
             // annotation
       S := Trim(VarToStr(Sht.Cells[iRow, 10].Value));
       xl.Annotation := S;
-    end;
-end;
-
-function LoadTemplateNames(ParamBook: IXLSWorkBook): Boolean;
-var
-  Sht     : IXLSWorksheet;
-  S, sName: string;
-  iRow    : Integer;
-begin
-  GraphDefines.Clear;
-  GridFormatDefines.Clear;
-  XLSExpFormatDefines.Clear;
-
-  Sht := ExcelIO.GetSheet(ParamBook, { '过程线模板' } SHTCHARTTEMPLS);
-  if Sht <> nil then
-    for iRow := 2 to 1000 do
-    begin
-      sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
-      if sName = '' then Break;
-      GraphDefines.Add(sName);
-    end;
-
-  Sht := ExcelIO.GetSheet(ParamBook, { 'WebGrid基本表模板' } SHTWGTEMPLS);
-  if Sht <> nil then
-    for iRow := 2 to 1000 do
-    begin
-      sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
-      if sName = '' then Break;
-      GridFormatDefines.Add(sName);
-    end;
-
-  Sht := ExcelIO.GetSheet(ParamBook, { 'Excel基本表模板' } SHTXLTEMPLS);
-  if Sht <> nil then
-    for iRow := 2 to 1000 do
-    begin
-      sName := Trim(VarToStr(Sht.Cells[iRow, 2].Value));
-      if sName = '' then Break;
-      XLSExpFormatDefines.Add(sName);
     end;
 end;
 

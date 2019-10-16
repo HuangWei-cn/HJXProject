@@ -413,22 +413,14 @@ begin
   cmbXLSFormat.Clear;
 
   // 填写预定义数据结构
-  for i := 0 to DSDefines.Count - 1 do
-      cmbPreDefineDataStruc.Items.Add(DSDefines.Item[i].DefineName);
 
   // 通常，仪器选定预定义数据结构后，绘图、表格、Excel模板就都定了。但是，总是有但是，
   // 程序允许用户选择不一样的绘图、表格和Excel导出格式作为定制设置
   // 填写过程线定义
-  for i := 0 to GraphDefines.Count -1 do
-      cmbGraphDefine.Items.Add(GraphDefines.Strings[i]);
 
   // 填入数据表格式定义
-  for i := 0 to GridFormatDefines.Count -1 do
-      cmbGridFormat.Items.Add(GridFormatDefines.Strings[i]);
 
   // 填写Excel工作表格式定义
-  for i := 0 to XLSExpFormatDefines.Count -1 do
-      cmbXLSFormat.Items.Add(XLSExpFormatDefines.Strings[i]);
 
 end;
 

@@ -9,7 +9,6 @@ object fraXLSParamEditor: TfraXLSParamEditor
     Top = 101
     Width = 365
     Height = 652
-    VertScrollBar.Position = 382
     VertScrollBar.Tracking = True
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
@@ -24,11 +23,11 @@ object fraXLSParamEditor: TfraXLSParamEditor
     HeaderFont.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitHeight = 487
     object CategoryPanel5: TCategoryPanel
-      Top = 450
+      Top = 832
       Caption = #22270#34920#39044#23450#20041
       TabOrder = 0
+      ExplicitWidth = 363
       object Label1: TLabel
         Left = 4
         Top = 12
@@ -79,9 +78,10 @@ object fraXLSParamEditor: TfraXLSParamEditor
       end
     end
     object CategoryPanel4: TCategoryPanel
-      Top = 250
+      Top = 632
       Caption = #33258#23450#20041#32467#26500
       TabOrder = 1
+      ExplicitWidth = 363
       object vleDataStru: TValueListEditor
         Left = 0
         Top = 0
@@ -115,14 +115,15 @@ object fraXLSParamEditor: TfraXLSParamEditor
       end
     end
     object CategoryPanel3: TCategoryPanel
-      Top = 97
+      Top = 479
       Height = 153
       Caption = #39044#23450#20041#25968#25454#32467#26500
       TabOrder = 2
+      ExplicitWidth = 363
       object cmbPreDefineDataStruc: TComboBox
         Left = 10
         Top = 12
-        Width = 323
+        Width = 306
         Height = 22
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -131,7 +132,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
       object memPreDDSContent: TMemo
         Left = 10
         Top = 40
-        Width = 323
+        Width = 306
         Height = 77
         Anchors = [akLeft, akTop, akRight]
         Lines.Strings = (
@@ -142,10 +143,11 @@ object fraXLSParamEditor: TfraXLSParamEditor
       end
     end
     object CategoryPanel2: TCategoryPanel
-      Top = -97
+      Top = 285
       Height = 194
       Caption = #24037#31243#23646#24615
       TabOrder = 3
+      ExplicitWidth = 363
       object vlePrjParams: TValueListEditor
         Left = 0
         Top = 0
@@ -177,7 +179,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
       end
     end
     object CategoryPanel1: TCategoryPanel
-      Top = -382
+      Top = 0
       Height = 285
       Caption = #20202#22120'/'#20256#24863#22120#23646#24615
       Font.Charset = DEFAULT_CHARSET
@@ -187,6 +189,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Font.Style = []
       ParentFont = False
       TabOrder = 4
+      ExplicitWidth = 363
       object vleMeterParams: TValueListEditor
         Left = 0
         Top = 0

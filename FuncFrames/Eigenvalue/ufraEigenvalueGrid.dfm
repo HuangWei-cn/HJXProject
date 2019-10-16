@@ -86,6 +86,15 @@ object fraEigenvalueGrid: TfraEigenvalueGrid
         TabOrder = 3
       end
     end
+    object btnDrawEVGraph: TButton
+      Left = 6
+      Top = 243
+      Width = 119
+      Height = 34
+      Caption = #29305#24449#26354#32447
+      TabOrder = 3
+      OnClick = btnDrawEVGraphClick
+    end
   end
   object grdEV: TDBGridEh
     Left = 0
