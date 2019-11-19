@@ -98,6 +98,7 @@ type
         procedure OnRemoteConnect(Sender: TObject);
         procedure OnRemoteDisconnect(Sender: TObject);
         procedure OnNotifyEvent(AEvent: string; Sender: TObject);
+        procedure OnIdle;
         /// <summary>插件通过调用IAppServices.ProcessMessage暂时将控制权交给主程序的Application，
         /// 以免界面停止响应。</summary>
         procedure ProcessMessages;

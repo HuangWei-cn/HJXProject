@@ -934,6 +934,8 @@ type
         SaveBounds        : array [TGraphBoundsKind] of TRect;
         SuspendQueryEvents: Integer;
         UndoStorage       : TMemoryStream;
+        //表示当前执行状态，如果是pan和zoom，则为1，否则为0。图元根据此状态决定是否采用GDI+绘图
+        FPZState:Integer;
         procedure SetGridSize(Value: TGridSize);
         procedure SetGridColor(Value: TColor);
         procedure SetShowGrid(Value: Boolean);
@@ -1270,6 +1272,9 @@ type
         property OnAfterDraw : TGraphDrawEvent read fOnAfterDraw write fOnAfterDraw;
         property OnInfoTip   : TGraphInfoTipEvent read fOnInfoTip write fOnInfoTip;
         property OnZoomChange: TNotifyEvent read fOnZoomChange write fOnZoomChange;
+        /////// 2019-11-19 PZState是平移或缩放标志，0为无平移或缩放，1为处于平移缩放状态。
+        ///  当1时，采用GDI+绘图的图元将改为传统GDI方式绘图，为0时采用GDI+。用这个方法提高速度
+        property PZState:Integer read Fpzstate write fpzstate;
     end;
 
 function WrapText(Canvas: TCanvas; const Text: String; MaxWidth: Integer): String;
@@ -7852,6 +7857,7 @@ var
     X, Y: Integer;
     dx,dy: integer;
 begin
+    fpzstate := 1;
     X := MulDiv(Pt.X, Zoom, 100);
     Y := MulDiv(Pt.Y, Zoom, 100);
 
@@ -7897,19 +7903,34 @@ end;
 procedure TSimpleGraph.ScrollCenter(const Pt: TPoint);
 var
     X, Y: Integer;
+    dx,dy:Integer; //2019-11-19
 begin
+    FPZState := 1;
     X := MulDiv(Pt.X, Zoom, 100);
     Y := MulDiv(Pt.Y, Zoom, 100);
+
+    { 避免分别Scroll
     with HorzScrollBar do
         if IsScrollBarVisible then
             Position := X - Self.ClientWidth div 2;
     with VertScrollBar do
         if IsScrollBarVisible then
             Position := Y - Self.ClientHeight div 2;
+    }
+    //2019-11-19--------------------
+    with HorzScrollBar do
+        if IsScrollBarVisible then
+            dx := X - Self.ClientWidth div 2;
+    with VertScrollBar do
+        if IsScrollBarVisible then
+            dy := Y - Self.ClientHeight div 2;
+    ScrollBy(dx,dy);
+    //fpzstate := 0;
 end;
 
 procedure TSimpleGraph.ScrollBy(DeltaX, DeltaY: Integer);
 begin
+    fpzstate := 1;
     if WindowHandle <> 0 then
     begin
         SendMessage(WindowHandle, WM_SETREDRAW, 0, 0);
@@ -9118,6 +9139,8 @@ procedure TSimpleGraph.DoCommandModeChange;
 begin
     if not(csDestroying in ComponentState) and Assigned(fOnCommandModeChange) then
         fOnCommandModeChange(Self);
+    if Self.CommandMode = cmPan then
+      fpzstate := 1 else fpzstate := 0;
 end;
 
 procedure TSimpleGraph.DoGraphChange;
@@ -9324,6 +9347,7 @@ var
     HZoom, VZoom: Integer;
     CRect       : TRect;
 begin
+    fpzstate := 1;
     CRect := ClientRect;
     if VertScrollBar.IsScrollBarVisible then
         Dec(CRect.Right, GetSystemMetrics(SM_CXVSCROLL));
@@ -9337,6 +9361,7 @@ begin
         Zoom := VZoom;
     ScrollCenter(Rect);
     Result := (Zoom = HZoom) or (Zoom = VZoom);
+    fpzstate := 0;
 end;
 
 function TSimpleGraph.ZoomObject(GraphObject: TGraphObject): Boolean;
@@ -9367,6 +9392,7 @@ function TSimpleGraph.ChangeZoom(NewZoom: Integer; Origin: TGraphZoomOrigin): Bo
 var
     R: TRect;
 begin
+    fpzstate := 1;
     Result := False;
     if NewZoom < Low(TZoom) then
         NewZoom := Low(TZoom)
@@ -9413,6 +9439,7 @@ begin
         DoZoomChange;
         Result := True;
     end;
+    //fpzstate := 0;
 end;
 
 function TSimpleGraph.ChangeZoomBy(Delta: Integer; Origin: TGraphZoomOrigin): Boolean;

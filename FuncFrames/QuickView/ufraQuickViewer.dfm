@@ -1,13 +1,13 @@
 object fraQuickViewer: TfraQuickViewer
   Left = 0
   Top = 0
-  Width = 571
+  Width = 723
   Height = 511
   TabOrder = 0
   object wbViewer: TWebBrowser
     Left = 0
     Top = 69
-    Width = 571
+    Width = 723
     Height = 442
     Align = alClient
     TabOrder = 3
@@ -17,7 +17,7 @@ object fraQuickViewer: TfraQuickViewer
     ExplicitWidth = 300
     ExplicitHeight = 150
     ControlData = {
-      4C000000043B0000AF2D00000000000000000000000000000000000000000000
+      4C000000B94A0000AF2D00000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
       2B2E126208000000000000004C0000000114020000000000C000000000000046
       8000000000000000000000000000000000000000000000000000000000000000
@@ -26,7 +26,7 @@ object fraQuickViewer: TfraQuickViewer
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 571
+    Width = 723
     Height = 69
     Align = alTop
     Padding.Left = 2
@@ -34,6 +34,7 @@ object fraQuickViewer: TfraQuickViewer
     Padding.Right = 5
     Padding.Bottom = 2
     TabOrder = 0
+    ExplicitWidth = 571
     object btnCreateQuickView: TButton
       Left = 8
       Top = 6
@@ -55,13 +56,14 @@ object fraQuickViewer: TfraQuickViewer
       OnClick = btnShowIncrementClick
     end
     object GroupBox1: TGroupBox
-      Left = 332
+      Left = 484
       Top = 3
       Width = 233
       Height = 63
       Align = alRight
       Caption = #36873#39033
       TabOrder = 2
+      ExplicitLeft = 332
       object chkTableByType: TCheckBox
         Left = 12
         Top = 17
@@ -98,7 +100,7 @@ object fraQuickViewer: TfraQuickViewer
       end
     end
     object btnSpecificDates: TButton
-      Left = 200
+      Left = 204
       Top = 6
       Width = 106
       Height = 41
@@ -111,7 +113,7 @@ object fraQuickViewer: TfraQuickViewer
   object HtmlViewer: THtmlViewer
     Left = 0
     Top = 69
-    Width = 571
+    Width = 723
     Height = 442
     BorderStyle = htFocused
     CharSet = GB2312_CHARSET
@@ -130,6 +132,7 @@ object fraQuickViewer: TfraQuickViewer
     TabOrder = 1
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
+    ExplicitWidth = 571
   end
   object pnlProgress: TPanel
     Left = 80

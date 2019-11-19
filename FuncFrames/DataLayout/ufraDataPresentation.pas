@@ -56,6 +56,8 @@ type
     procedure OnLayoutItemClick(Sender: TObject);
     procedure OnPlayBeginning(Sender: TObject);
     procedure OnPlayFinished(Sender: TObject);
+    //2019-11-19
+    procedure OnAppIdle(Sender:TObject);
 
     procedure DatabaseOpened(Sender: TObject);
   public
@@ -86,6 +88,7 @@ begin
     // 注册请求发送数据库登录事件
     { todo:不应在此处使用IAppServices，且使用前需要判断该接口是否有效 }
   IAppServices.RegEventDemander('LoginEvent', Self.DatabaseOpened);
+  iappservices.RegEventDemander('OnIdleEvent', Self.OnAppIdle);
 end;
 
 procedure TfraDataPresentation.btnClearDatasClick(Sender: TObject);
@@ -331,6 +334,15 @@ begin
   end;
   IHJXClientFuncs.SessionEnd;
   SetLength(Datas, 0);
+end;
+
+procedure TfraDataPresentation.OnAppIdle(Sender: TObject);
+begin
+  if fraDataLayout.sgDataLayout.PZState = 1 then
+  begin
+    fraDataLayout.sgDataLayout.PZState := 0;
+    fradatalayout.sgDataLayout.Invalidate;
+  end;
 end;
 
 end.

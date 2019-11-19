@@ -44,6 +44,7 @@ type
         FEvtReqOnLogout    : TList;    // 需要注销事件的
         FEvtReqOnConnect   : TList;    // 需要连接事件的
         FEvtReqOnDisconnect: TList;    // 需要断开事件的
+        FEvtReqOnIdle      : TList;     //需要Idle事件的
         FEvtReqOnNotify    : TStrings; // 需要其他通知事件的
         FProcessMessages   : TProMsgs; // 用来令插件调用Application.ProcessMessage方法
 
@@ -112,6 +113,7 @@ type
         procedure OnRemoteConnect(Sender: TObject);
         procedure OnRemoteDisconnect(Sender: TObject);
         procedure OnNotifyEvent(AEvent: string; Sender: TObject);
+        procedure OnIdle;
 
         { 注册事件需求者 }
         procedure RegEventDemander(DemandEvent: string; OnEvent: TNotifyEvent);
@@ -147,6 +149,7 @@ begin
     FEvtReqOnConnect := TList.Create;
     FEvtReqOnDisconnect := TList.Create;
     FEvtReqOnNotify := TStringList.Create;
+    FEvtReqOnIdle := TList.Create;
 end;
 
 { ----------------------------------------------------------------------------- }
@@ -167,6 +170,7 @@ begin
         FEvtReqOnConnect.Free;
         FEvtReqOnDisconnect.Free;
         FEvtReqOnNotify.Free;
+        FEvtReqOnIdle.Free; //2019-11-19
     finally
         inherited;
     end;
@@ -188,6 +192,8 @@ begin
             Dispose(FEvtReqOnDisconnect[i]);
         for i := 0 to FEvtReqOnNotify.Count - 1 do
             Dispose(Pointer(FEvtReqOnNotify.Objects[i]));
+        for i := 0 to FEvtReqOnIdle.Count -1 do //2019-11-19
+            Dispose(FEvtReqOnIdle[i]);
     finally
     end;
 end;
@@ -447,6 +453,11 @@ begin
         end;
 end;
 
+procedure THJXAppService.OnIdle;
+begin
+    _CallEventDemander(FEvtReqOnIdle,nil);
+end;
+
 { ----------------------------------------------------------------------------- }
 procedure THJXAppService.RegEventDemander(DemandEvent: string; OnEvent: TNotifyEvent);
 var
@@ -465,6 +476,8 @@ begin
         FEvtReqOnConnect.Add(NewER)
     else if DemandEvent = 'AfterDisconnectEvent' then
         FEvtReqOnDisconnect.Add(NewER)
+    else if DemandEvent = 'OnIdleEvent' then
+        FEvtReqOnIdle.Add(NewER)
     else
         FEvtReqOnNotify.AddObject(DemandEvent, TObject(NewER));
 end;

@@ -406,7 +406,7 @@ var
     // ClipRgn: HRGN;
     ImageRect: TRect;
 begin
-    if Self.Owner.CommandMode = cmPan then
+    if {(Self.Owner.CommandMode = cmPan) or} (Owner.PZState = 1) then  //2019-11-19
         inherited
     else
         if Background.graphic <> nil then
@@ -424,6 +424,9 @@ var
     graphic, Pen, brush: THandle;
 begin
     // inherited;
+    if Owner.PZState = 1 then
+      inherited
+    else
     try
         GdipF.CreateFromHDC(Canvas.Handle, graphic);
         GdipF.SetSmoothingMode(graphic, smAntiAlias);
@@ -451,6 +454,9 @@ var
     gpRect                                  : TGdipRectF;
     Wstr                                    : WideString; // 这个可以取消
 begin
+    if owner.PZState =1 then
+      inherited
+    else
     if FDrawTextGdip then
     begin
         { 这里仅简单地使用GDI+绘出文字，要完善之，须参考原DrawText的内容。这里没有考虑
@@ -520,6 +526,9 @@ var
 begin
     // inherited;
     // GdipF.DrawEllipse(Canvas.Handle, Canvas.Pen.Handle, Left, Top, Left + Width, Top + Height);
+    if owner.PZState = 1 then
+      inherited
+    else
     try
         GdipF.CreateFromHDC(Canvas.Handle, graphic);
         // 这里的颜色是ARGB，不是TColor类型
@@ -794,7 +803,9 @@ var
 begin
 
     // inherited;
-
+    if owner.PZState = 1 then
+      result := inherited
+    else
     result := GDIPDrawPointStyle;
 end;
 
@@ -853,6 +864,9 @@ begin
     { 原版绘高亮（被选中时的样子） }
     // inherited;
     { GDI+ }
+    if owner.PZState =1 then
+      inherited
+    else
     GDIPDrawHighlight;
 end;
 
@@ -944,6 +958,9 @@ begin
     { 如果使用原来的，就inherited }
     // inherited;
     { 要使用GDI+，就用下面的 }
+    if owner.PZState = 1 then
+      inherited
+    else
     GDIPDrawBody;
 end;
 
@@ -978,7 +995,6 @@ begin
     // end;
     //
     // end;
-
     inherited;
 end;
 
