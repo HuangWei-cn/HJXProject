@@ -34,7 +34,6 @@ object fraQuickViewer: TfraQuickViewer
     Padding.Right = 5
     Padding.Bottom = 2
     TabOrder = 0
-    ExplicitWidth = 571
     object btnCreateQuickView: TButton
       Left = 8
       Top = 6
@@ -63,7 +62,6 @@ object fraQuickViewer: TfraQuickViewer
       Align = alRight
       Caption = #36873#39033
       TabOrder = 2
-      ExplicitLeft = 332
       object chkTableByType: TCheckBox
         Left = 12
         Top = 17
@@ -132,7 +130,6 @@ object fraQuickViewer: TfraQuickViewer
     TabOrder = 1
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
-    ExplicitWidth = 571
   end
   object pnlProgress: TPanel
     Left = 80
@@ -278,6 +275,17 @@ object fraQuickViewer: TfraQuickViewer
       Caption = #30830#23450
       TabOrder = 2
       OnClick = btnDateSelectedClick
+    end
+    object chkSimpleSDGrid: TCheckBox
+      Left = 372
+      Top = 60
+      Width = 65
+      Height = 17
+      Hint = #31616#21333#27169#24335#30340#34920#26684#65292#21462#28040#20102#26085#26399#21015#12289#38388#38548#22825#25968#12289#21464#21270#36895#29575#21015
+      Caption = #31616#21333#34920
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
     end
   end
   object PopupMenu1: TPopupMenu

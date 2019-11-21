@@ -54,6 +54,7 @@ type
     btnDateSelected: TButton;
     DateTimePicker1: TDateTimePicker;
     DateTimePicker2: TDateTimePicker;
+    chkSimpleSDGrid: TCheckBox;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -780,27 +781,47 @@ var
     ii: Integer;
   begin
     WCV.TitleRows := 2;
-    WCV.ColCount := 9;
-    WCV.ColHeader[6].AllowRowSpan := True;
-    WCV.ColHeader[0].AllowColSpan := True;
-    WCV.ColHeader[2].AllowColSpan := True;
-    WCV.ColHeader[4].AllowColSpan := True;
-    WCV.ColHeader[3].Align := taRightJustify;
-    for ii in [3, 5, 6, 7, 8] do WCV.ColHeader[ii].Align := taRightJustify;
+    if chkSimpleSDGrid.Checked then
+    begin
+      WCV.ColCount := 5;
+      WCV.ColHeader[4].AllowRowSpan := True;
+      WCV.ColHeader[0].AllowColSpan := True;
+      for ii in [2, 3, 4] do WCV.ColHeader[ii].Align := taRightJustify;
+      SetLength(vH, 5);
+      vH[0] := '设计编号';
+      vH[1] := '物理量';
+      for ii := 2 to 3 do vH[ii] := '观测数据';
+      vH[4] := '增量';
+      WCV.AddRow(vH);
+      vH[2] := '%dt1%'; // 第一个日期
+      vH[3] := '%dt2%'; // 第二个日期
+      WCV.AddRow(vH);
+    end
+    else
+    begin
+      WCV.ColCount := 9;
+      WCV.ColHeader[6].AllowRowSpan := True;
+      WCV.ColHeader[0].AllowColSpan := True;
+      WCV.ColHeader[2].AllowColSpan := True;
+      WCV.ColHeader[4].AllowColSpan := True;
+      WCV.ColHeader[3].Align := taRightJustify;
+      for ii in [3, 5, 6, 7, 8] do WCV.ColHeader[ii].Align := taRightJustify;
 
-    SetLength(vH, 9);
-    vH[0] := '设计编号';
-    vH[1] := '物理量';
-    for ii := 2 to 5 do vH[ii] := '观测数据';
-    vH[6] := '增量';
-    vH[7] := '日期间隔';
-    vH[8] := '变化速率';
-    WCV.AddRow(vH);
-    vH[2] := '日期1';
-    vH[3] := '测值';
-    vH[4] := '日期2';
-    vH[5] := '测值';
-    WCV.AddRow(vH);
+      SetLength(vH, 9);
+      vH[0] := '设计编号';
+      vH[1] := '物理量';
+      for ii := 2 to 5 do vH[ii] := '观测数据';
+      vH[6] := '增量';
+      vH[7] := '日期间隔';
+      vH[8] := '变化速率';
+      WCV.AddRow(vH);
+      vH[2] := '日期1';
+      vH[3] := '测值';
+      vH[4] := '日期2';
+      vH[5] := '测值';
+      WCV.AddRow(vH);
+    end;
+
   end;
 
 begin
@@ -836,7 +857,10 @@ begin
 
   // 准备表格对象
   IAppServices.ClientDatas.SessionBegin;
-  SetLength(vH, 9);
+
+  if chkSimpleSDGrid.Checked then SetLength(vH, 5)
+  else SetLength(vH, 9);
+
   WCV := TWebCrossView.Create;
   _SetGrid;
   sType := '';
@@ -958,7 +982,7 @@ begin
 
       { 2019-07-31采用列出特征值项的方式创建表格，即仪器的特征值量都列入数据查询之中 }
       _ClearValues;
-      //下面的代码查询和统计仪器的特征值项数量，并将PD序号填入kIdx集合
+      // 下面的代码查询和统计仪器的特征值项数量，并将PD序号填入kIdx集合
       j := 0;
       kIdx := [];
       for k := 0 to Meter.PDDefines.Count - 1 do
@@ -978,17 +1002,29 @@ begin
         if V[0] = 0 then Continue;
         dt1 := V[0];
         dt2 := V1[0];
-        vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
-        vH[4] := FormatDateTime('yyyy-mm-dd', dt2);
-        vH[7] := dt2 - dt1; // 日期间隔
+        if not chkSimpleSDGrid.Checked then
+        begin
+          vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
+          vH[4] := FormatDateTime('yyyy-mm-dd', dt2);
+          vH[7] := dt2 - dt1; // 日期间隔
+        end;
 
         for j in kIdx do // 逐个添加特征值数据行
         begin
           vH[1] := Meter.PDName(j);
-          vH[3] := V[j + 1];
-          vH[5] := V1[j + 1];
-          vH[6] := V1[j + 1] - V[j + 1];
-          if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+          if chkSimpleSDGrid.Checked then
+          begin
+            vH[2] := V[j + 1];
+            vH[3] := V1[j + 1];
+            vH[4] := V1[j + 1] - V[j + 1];
+          end
+          else
+          begin
+            vH[3] := V[j + 1];
+            vH[5] := V1[j + 1];
+            vH[6] := V1[j + 1] - V[j + 1];
+            if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+          end;
           WCV.AddRow(vH);
         end;
       end;
@@ -996,6 +1032,11 @@ begin
 
     // 显示结果
     sBody := sBody + WCV.CrossGrid;
+    if chkSimpleSDGrid.Checked then
+    begin
+      sBody := StringReplace(sBody, '%dt1%', FormatDateTime('yyyy-mm-dd', dt1), []);
+      sBody := StringReplace(sBody, '%dt2%', FormatDateTime('yyyy-mm-dd', dt2), []);
+    end;
     sPage := StringReplace(htmPageCode2, '@PageContent@', sBody, []);
 
     if chkUseIE.Checked then

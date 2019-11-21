@@ -137,6 +137,7 @@ type
   end;
 
 procedure SetBackgroundMap(AMap: TdmcMap);
+procedure SetOneMMLength(ALength: Integer);
 
 implementation
 
@@ -155,6 +156,11 @@ begin
   GlobalOneMMLength := BackMap.OneMMLength;
   SinValue := sin(GlobalAngleFromNorth / 180 * pi);
   CosValue := Cos(GlobalAngleFromNorth / 180 * pi);
+end;
+
+procedure SetOneMMLength(ALength: Integer);
+begin
+  GlobalOneMMLength := ALength;
 end;
 
 { X坐标旋转 }
@@ -327,20 +333,21 @@ var
 begin
   if not(VarIsClear(AEast) or VarIsNull(AEast) or VarIsClear(ANorth) or VarIsNull(ANorth)) then
   begin
+    Self.Visible := True;
     FNorth := ANorth;
     FEast := AEast;
     // 下面进行换算
     if Self.UseGlobalAngle then
     begin
-      FY := GlobalTransX(fnorth, feast);
-      FX := GlobalTransY(fnorth, feast) * -1;
+      FY := GlobalTransX(FNorth, FEast);
+      FX := GlobalTransY(FNorth, FEast) * -1;
     end
     else
     begin
       SinV := sin(AngleFromNorth / 180 * pi);
       CosV := Cos(AngleFromNorth / 180 * pi);
-      FY := (FNorth * CosV - feast * SinV);
-      FX := (fnorth * SinV + feast * CosV) * -1;
+      FY := (FNorth * CosV - FEast * SinV);
+      FX := (FNorth * SinV + FEast * CosV) * -1;
     end;
   end
   else
@@ -350,6 +357,7 @@ begin
     VarClear(FEast);
     VarClear(FX);
     VarClear(FY);
+    Self.Visible := False;
   end;
 
 end;
@@ -358,14 +366,24 @@ procedure TdmcDeformationDirection.ShowData(AData: string; dt: TDateTime);
 var
   pt0, pt1: TPoint;
 begin
+  if not Visible then Exit;
+
   FDTScale := dt;
   { 这里AData参数没什么用，这个对象使用SetData设置数据 }
   pt0 := Points[0];
   { 暂时既不考虑旋转，也不考虑比例 }
   if not(VarIsClear(FEast) or VarIsNull(FEast) or VarIsClear(FNorth) or VarIsNull(FNorth)) then
   begin
-    pt1.X := pt0.X + FX * 10; // FOneMilliMeterLength;
-    pt1.Y := pt0.Y + FY * 10; // FOneMilliMeterLength;
+    if GlobalOneMMLength = 0 then
+    begin
+      pt1.X := pt0.X + FX * 20; // FOneMilliMeterLength;
+      pt1.Y := pt0.Y + FY * 20; // FOneMilliMeterLength;
+    end
+    else
+    begin
+      pt1.X := pt0.X + FX * GlobalOneMMLength; // FOneMilliMeterLength;
+      pt1.Y := pt0.Y + FY * GlobalOneMMLength; // FOneMilliMeterLength;
+    end;
     Points[1] := pt1;
 
     Hint := Format('X:%s; Y:%s', [formatfloat('0.00', FY), formatfloat('0.00', FX)]);
