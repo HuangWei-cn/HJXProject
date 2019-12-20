@@ -87,6 +87,10 @@ type
           函数的注释 }
     function GetDataIncrement(ADsnName: string; DT: TDateTime;
       var Values: TVariantDynArray): Boolean;
+    { 返回指定仪器在指定日期间隔期间的增量，返回值为：pdName, DTScale, 日期间隔、测值、增量。
+      本函数与GetDataIncrement有差别，本函数没有30天增量，因此只有5列数据； }
+    function GetDataIncrement2(ADsnName: String; DT: TDateTime; InteralDays: Integer;
+      var Values: TVariantDynArray): Boolean;
   end;
 
 procedure RegistClientDatas;
@@ -1890,6 +1894,95 @@ begin
   end;
 
   Result := True;
+end;
+
+function ThjxDataQuery.GetDataIncrement2(ADsnName: string; DT: TDateTime; InteralDays: Integer;
+  var Values: TVariantDynArray): Boolean;
+var
+  wbk        : IXLSWorkBook;
+  sht        : IXLSWorksheet;
+  Meter      : TMeterDefine;
+  i, iDTStart: Integer;
+  iRow, iDays: Integer; // 行号，间隔日期
+  iEarlierRow: Integer; // 上个月数据所在行
+  k          : Integer; // 用于平面变形测点物理量序号
+// S, pdName  : String;
+  sType     : string;      // 仪器类型
+  d, d2, d30: double;      // 当前值，增量，月增量
+  kIdx      : set of byte; // 特征值列的序号集合，假设监测仪器的特征值数量不会多于127
+  procedure ClearValues;   // 清理并初始化传入的Values参数
+  var
+    ii: Integer;
+  begin
+    if Length(Values) > 0 then
+      for ii := Low(Values) to High(Values) do
+          VarClear(Values[ii]);
+    SetLength(Values, 0);
+  end;
+
+begin
+  Result := False;
+  ClearValues;
+
+  sType := GetMeterTypeName(ADsnName); // 获取仪器类型
+  Meter := ExcelMeters.Meter[ADsnName];
+  iDTStart := Meter.DataSheetStru.DTStartRow;
+
+  if _GetMeterSheet(ADsnName, wbk, sht) = False then // 返回仪器的数据表
+      Exit;
+
+  iRow := _LocateDTRow(sht, DT, iDTStart, dloClosest); // 找到指定日期，或最接近的日期所在的行
+  if iRow = -1 then Exit;
+
+  iEarlierRow := _LocateDTRow(sht, IncDay(DT, -InteralDays), iDTStart, dloClosest); // 一个月前数据所在行
+  if iEarlierRow < iDTStart then iEarlierRow := iDTStart;
+  { another case, iEarlierRow = iRow, then what? }
+
+  kIdx := [];
+  k := 0;
+  { 统计有多少特征值项 }
+  for i := 0 to Meter.PDDefines.Count - 1 do
+    if Meter.PDDefine[i].HasEV then
+    begin
+      include(kIdx, i);
+      inc(k);
+    end;
+
+  if k > 0 then
+  begin
+    SetLength(Values, k);
+    i := 0;
+  { 下面对每一个特征值进行处理，每个特征值占一行 }
+    for k in kIdx do
+    begin
+      Values[i] := VarArrayCreate([0, 4], varVariant);
+      Values[i][0] := Meter.pdName(k);
+      Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // 观测日期
+      Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(k));
+      if iRow > iDTStart then
+      begin
+        iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
+          ExcelIO.GetDateTimeValue(sht, iEarlierRow, 1));
+        d := ExcelIO.GetFloatValue(sht, iEarlierRow, Meter.PDColumn(k));
+        d2 := Values[i][3] - d;
+        //d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
+        Values[i][2] := iDays;
+        Values[i][4] := d2;
+        //Values[i][5] := d30;
+      end
+      else
+      begin
+        Values[i][2] := 0;
+        Values[i][4] := Null;
+        //Values[i][5] := Null;
+      end;
+
+      inc(i);
+    end;
+  end;
+
+  Result := True;
+
 end;
 
 { -----------------------------------------------------------------------------

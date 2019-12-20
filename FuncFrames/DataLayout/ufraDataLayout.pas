@@ -77,6 +77,7 @@ type
     popMeterOp: TPopupMenu;
     piShowDataGraph: TMenuItem;
     piShowData: TMenuItem;
+    ProgressBar1: TProgressBar;
     procedure sgDataLayoutObjectMouseEnter(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectMouseLeave(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectSelect(Graph: TSimpleGraph; GraphObject: TGraphObject);
@@ -557,10 +558,17 @@ begin
     Screen.Cursor := crHourGlass;
     sgDataLayout.CommandMode := cmViewOnly;
     sgDataLayout.ShowHint := True;
-    if Assigned(FOnPlayBeginning) then
-        FOnPlayBeginning(Self);
+    if Assigned(FOnPlayBeginning) then FOnPlayBeginning(Self);
         // LockMap(True);
+
+    ProgressBar1.Min := 0;
+    ProgressBar1.Max := sgDataLayout.ObjectsCount;
+    ProgressBar1.Position := 0;
+    ProgressBar1.Visible := True;
+
     for i := 0 to sgDataLayout.ObjectsCount - 1 do
+    begin
+      ProgressBar1.Position := i + 1;
       if sgDataLayout.Objects.Items[i] is TdmcDataItem then
       begin
         if not ShowIncrement then
@@ -573,12 +581,13 @@ begin
       end
       else if sgDataLayout.Objects.Items[i] is TdmcDeformationDirection then
           ShowDeform(sgDataLayout.Objects.Items[i] as TdmcDeformationDirection);
+    end;
 
     chkViewOnly.Checked := True;
   finally
     Screen.Cursor := crDefault;
-    if Assigned(FOnPlayFinished) then
-        FOnPlayFinished(Self);
+    if Assigned(FOnPlayFinished) then FOnPlayFinished(Self);
+    ProgressBar1.Visible := False;
   end;
 end;
 

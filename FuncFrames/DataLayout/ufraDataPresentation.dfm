@@ -1,18 +1,19 @@
 object fraDataPresentation: TfraDataPresentation
   Left = 0
   Top = 0
-  Width = 608
-  Height = 391
+  Width = 734
+  Height = 426
   TabOrder = 0
   object pnlFuncs: TPanel
     Left = 0
     Top = 0
-    Width = 608
+    Width = 734
     Height = 33
     Align = alTop
     BevelKind = bkFlat
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 608
     object btnLastDatas: TButton
       Left = 4
       Top = 1
@@ -63,17 +64,34 @@ object fraDataPresentation: TfraDataPresentation
     object chkShowIncrement: TCheckBox
       Left = 475
       Top = 5
-      Width = 97
+      Width = 78
       Height = 17
       Caption = #26174#31034#22686#37327
       TabOrder = 5
+      OnClick = chkShowIncrementClick
+    end
+    object cbxIncOptions: TComboBox
+      Left = 548
+      Top = 4
+      Width = 89
+      Height = 21
+      Style = csDropDownList
+      ItemIndex = 0
+      TabOrder = 6
+      Text = #26368#26032#22686#37327
+      Visible = False
+      Items.Strings = (
+        #26368#26032#22686#37327
+        #21608#22686#37327
+        #26376#22686#37327
+        #24180#22686#37327)
     end
   end
   inline fraDataLayout: TfraDataLayout
     Left = 0
     Top = 33
-    Width = 608
-    Height = 358
+    Width = 734
+    Height = 393
     Align = alClient
     DoubleBuffered = True
     ParentDoubleBuffered = False
@@ -82,18 +100,24 @@ object fraDataPresentation: TfraDataPresentation
     ExplicitWidth = 608
     ExplicitHeight = 358
     inherited sgDataLayout: TSimpleGraph
-      Width = 608
-      Height = 336
+      Width = 734
+      Height = 371
       ExplicitWidth = 608
       ExplicitHeight = 336
+      inherited ProgressBar1: TProgressBar
+        Top = 356
+        Width = 734
+        ExplicitTop = 356
+        ExplicitWidth = 734
+      end
     end
     inherited ToolBar1: TToolBar
-      Width = 608
+      Width = 734
       ExplicitWidth = 608
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010133003800380010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+        494C010133003800480010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
         000000000000360000002800000040000000D0000000010020000000000000D0
         000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB

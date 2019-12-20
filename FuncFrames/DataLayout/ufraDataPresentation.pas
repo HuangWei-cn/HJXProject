@@ -35,10 +35,12 @@ type
     btnSpecialDate: TButton;
     popLayoutList: TPopupMenu;
     chkShowIncrement: TCheckBox;
+    cbxIncOptions: TComboBox;
     procedure btnLoadLayoutClick(Sender: TObject);
     procedure btnClearDatasClick(Sender: TObject);
     procedure btnLastDatasClick(Sender: TObject);
     procedure btnSpecialDateClick(Sender: TObject);
+    procedure chkShowIncrementClick(Sender: TObject);
   private
         { Private declarations }
     FDataOpts: integer; // 0-last; 1-special;
@@ -56,8 +58,8 @@ type
     procedure OnLayoutItemClick(Sender: TObject);
     procedure OnPlayBeginning(Sender: TObject);
     procedure OnPlayFinished(Sender: TObject);
-    //2019-11-19
-    procedure OnAppIdle(Sender:TObject);
+    // 2019-11-19
+    procedure OnAppIdle(Sender: TObject);
 
     procedure DatabaseOpened(Sender: TObject);
   public
@@ -75,7 +77,7 @@ begin
   inherited;
   fraDataLayout.OnNeedDataEvent := Self.OnNeedData;
   fraDataLayout.OnNeedIncrementEvent := Self.OnNeedIncrement;
-  fraDataLayout.OnNeedDeformEvent := self.OnNeedDeformData;
+  fraDataLayout.OnNeedDeformEvent := Self.OnNeedDeformData;
   dtpSpecialDate.Date := now;
 
     { todo:判断一下，IFunctionDispatcher中这些功能是否可用，若可用再设置 }
@@ -88,7 +90,7 @@ begin
     // 注册请求发送数据库登录事件
     { todo:不应在此处使用IAppServices，且使用前需要判断该接口是否有效 }
   IAppServices.RegEventDemander('LoginEvent', Self.DatabaseOpened);
-  iappservices.RegEventDemander('OnIdleEvent', Self.OnAppIdle);
+  IAppServices.RegEventDemander('OnIdleEvent', Self.OnAppIdle);
 end;
 
 procedure TfraDataPresentation.btnClearDatasClick(Sender: TObject);
@@ -112,6 +114,11 @@ procedure TfraDataPresentation.btnSpecialDateClick(Sender: TObject);
 begin
   FDataOpts := 1;
   fraDataLayout.Play;
+end;
+
+procedure TfraDataPresentation.chkShowIncrementClick(Sender: TObject);
+begin
+  cbxIncOptions.Visible := chkShowIncrement.Checked;
 end;
 
 procedure TfraDataPresentation.OnNeedData(AID: string; ADataName: string; var Data: Variant;
@@ -209,9 +216,11 @@ end;
 procedure TfraDataPresentation.OnNeedIncrement(AID: string; ADataName: string; var Data: Variant;
   var DT: TDateTime);
 var
-  Datas: TVariantDynArray;
-  sType: string;
-  i    : integer;
+  Datas   : TVariantDynArray;
+  sType   : string;
+  i       : integer;
+  iIncDays: integer;
+  GetData : Boolean;
   function FormatData(D: Variant): String;
   begin
     if (VarIsEmpty(D)) or (VarIsNull(D)) or (vartostr(D) = '') then
@@ -226,14 +235,27 @@ begin
 // else
 // DT := dtpSpecialDate.DateTime;
   Data := Null;
-  DT := now;
+  DT := dtpSpecialDate.Date;
   if IHJXClientFuncs = nil then
       exit;
   IHJXClientFuncs.SessionBegin;
-  if IHJXClientFuncs.GetDataIncrement(AID, DT, Datas) then
+
+  case cbxIncOptions.ItemIndex of
+    0: { 最新增量 }
+      GetData := IHJXClientFuncs.GetDataIncrement(AID, DT, Datas);
+  else
+    begin
+      case cbxIncOptions.ItemIndex of
+        1: iIncDays := 7;
+        2: iIncDays := 30;
+        3: iIncDays := 365;
+      end;
+      GetData := IHJXClientFuncs.GetDataIncrement2(AID, DT, iIncDays, Datas);
+    end;
+  end;
+
+  if GetData then
   begin
-      { 2019-08-06 查询增量方法改为查询具有特征值属性的量，因此返回的数组中按照特征值的顺序排列记录 }
-        (* i := ExcelMeters.Meter[AID].PDDefines.IndexOfDataName(ADataName); *)
     for i := 0 to High(Datas) do
     begin
       if ADataName = Datas[i][0] then
@@ -249,44 +271,6 @@ begin
             Data := Data + '；△' + FormatData(Datas[i][4]);
       end;
     end;
-        (*
-        sType := ExcelMeters.Meter[AID].Params.MeterType;
-        if i <> -1 then
-        begin
-
-            if (sType = '锚索测力计') or (sType = '锚杆应力计') then
-            begin
-                DT := Datas[0][1];
-                Data := FormatData(Datas[0][3]);
-                if Datas[0][4] > 0 then
-                    Data := Data + '；↑' + FormatData(Datas[0][4])
-                else if Datas[0][4] < 0 then
-                    Data := Data + '；↓' + FormatData(Datas[0][4])
-                else
-                    Data := Data + '；△' + FormatData(Datas[0][4]);
-            end
-            else if sType = '多点位移计' then
-            begin
-                DT := Datas[i][1];
-                Data := FormatData(Datas[i][3]);
-                if Datas[i][4] > 0 then
-                    Data := Data + '；↑' + FormatData(Datas[i][4])
-                else if Datas[i][4] < 0 then
-                    Data := Data + '；↓' + FormatData(Datas[i][4])
-                else
-                    Data := Data + '；△' + FormatData(Datas[i][4]);
-            end;
-
-          DT := Datas[i][1];
-          Data := FormatData(Datas[i][3]);
-          if Datas[i][4] > 0 then
-              Data := Data + '；↑' + FormatData(Datas[i][4])
-          else if Datas[i][4] < 0 then
-              Data := Data + '；↓' + FormatData(Datas[i][4])
-          else
-              Data := Data + '；△' + FormatData(Datas[i][4]);
-        end;
- *)
   end;
   IHJXClientFuncs.SessionEnd;
 
@@ -303,6 +287,7 @@ end;
 procedure TfraDataPresentation.OnPlayFinished(Sender: TObject);
 begin
   IAppServices.ClientDatas.SessionEnd;
+  ShowMessage('数据更新完毕.');
 end;
 
 procedure TfraDataPresentation.OnNeedDeformData(AID: string; XName: string; YName: string;
@@ -341,7 +326,7 @@ begin
   if fraDataLayout.sgDataLayout.PZState = 1 then
   begin
     fraDataLayout.sgDataLayout.PZState := 0;
-    fradatalayout.sgDataLayout.Invalidate;
+    fraDataLayout.sgDataLayout.Invalidate;
   end;
 end;
 

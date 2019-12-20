@@ -33,6 +33,19 @@ object fraDataLayout: TfraDataLayout
     OnObjectContextPopup = sgDataLayoutObjectContextPopup
     OnObjectMouseEnter = sgDataLayoutObjectMouseEnter
     OnObjectMouseLeave = sgDataLayoutObjectMouseLeave
+    object ProgressBar1: TProgressBar
+      Left = 0
+      Top = 387
+      Width = 659
+      Height = 15
+      Align = alBottom
+      DoubleBuffered = False
+      ParentDoubleBuffered = False
+      Position = 50
+      Step = 1
+      TabOrder = 0
+      Visible = False
+    end
   end
   object ToolBar1: TToolBar
     Left = 0
@@ -159,7 +172,7 @@ object fraDataLayout: TfraDataLayout
     Left = 158
     Top = 310
     Bitmap = {
-      494C010133003800500010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010133003800580010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB
