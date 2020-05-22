@@ -187,7 +187,8 @@ begin
         DS.Next;
       until DS.Eof;
     end;
-    Result := wcv.CrossPage;
+    // Result := wcv.CrossPage; // 如果使用CrossPage，则当需要获得多个独立表格时，将造成页面代码重复
+    Result := wcv.CrossGrid; //2020-05-22
   finally
     wcv.Free;
     SetLength(v, 0);
@@ -308,7 +309,8 @@ begin
         DS.Next;
       until DS.Eof;
     end;
-    Result := wcv.CrossPage;
+    //Result := wcv.CrossPage;
+    Result := wcv.CrossGrid;
   finally
     wcv.Free;
     SetLength(v, 0);

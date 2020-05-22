@@ -98,12 +98,12 @@ const
     + '<meta http-equiv="Content-Type" content="text/html; charset=GB2312" />'#13#10
     { + '@PageTitle@'#13#10 }
     + '<style type="text/css">'#13#10
-    + '.DataGrid {border:1px solid #000099;border-width:1px 1px 1px 1px;margin:1px 1px 1px 1px;border-collapse:collapse}'#13#10
-    + '.thStyle {font-size: 8pt; font-family: Tahoma; color: #000000; padding:3px;border:1px solid #000099}'#13#10
-    + '.tdStyle {font-size: 8pt; font-family: Tahoma; color: #000000; background-color:#FFFFFF;empty-cells:show;'
+    + '.DataGrid {border:1px solid #1F4E79;border-width:1px 1px 1px 1px;margin:1px 1px 1px 1px;border-collapse:collapse}'#13#10
+    + '.thStyle {font-size: 8pt; font-family: Consolas; color: #000000; padding:3px;border:1px solid #1F4E79}'#13#10
+    + '.tdStyle {font-size: 8pt; font-family: Consolas; color: #000000; background-color:#FFFFFF;empty-cells:show;'
     // #F7F7F7
-    + '          border:1px solid #000099; padding:3px}'#13#10
-    + '.CaptionStyle {font-family:黑体;font-size: 9pt;color: #000000; padding:3px;border:1px solid #000099; background-color:#FFFF99}'#13#10
+    + '          border:1px solid #1F4E79; padding:3px}'#13#10
+    + '.CaptionStyle {font-family:黑体;font-size: 9pt;color: #000000; padding:3px;border:1px solid #1F4E79; background-color:#FFFF99}'#13#10
     + '</style>'#13#10
     + '</head>'#13#10
     + '<body>'#13#10

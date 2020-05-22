@@ -19,9 +19,9 @@ const
         + '<html>'#13#10
         + '<head>'#13#10
         + '<meta http-equiv="Content-Type" content="text/html; charset=GB2312" />'#13#10
-        + '<title>'#13#10
-        + '@PageTitle@'#13#10
-        + '</title>'#13#10
+        //+ '<title>'#13#10
+        //+ '@PageTitle@'#13#10
+        //+ '</title>'#13#10
         + '</head>'#13#10
         + '<body>'#13#10
         + '@PageContent@'#13#10
@@ -33,7 +33,7 @@ const
         + '<html>'#13#10
         + '<head>'#13#10
         + '<meta http-equiv="Content-Type" content="text/html; charset=GB2312" />'#13#10
-        + '@PageTitle@'#13#10
+        //+ '@PageTitle@'#13#10
         + '<style type="text/css">'#13#10
         + '.DataGrid {border:1px solid #000099;border-width:1px 1px 1px 1px;margin:1px 1px 1px 1px;border-collapse:collapse}'#13#10
         + '.thStyle {font-size: 8pt; font-family: Tahoma; color: #000000; padding:3px;border:1px solid #000099}'#13#10
