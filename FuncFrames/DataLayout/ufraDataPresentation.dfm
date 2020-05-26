@@ -13,7 +13,6 @@ object fraDataPresentation: TfraDataPresentation
     BevelKind = bkFlat
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 608
     object btnLastDatas: TButton
       Left = 4
       Top = 1
@@ -97,13 +96,13 @@ object fraDataPresentation: TfraDataPresentation
     ParentDoubleBuffered = False
     TabOrder = 1
     ExplicitTop = 33
-    ExplicitWidth = 608
-    ExplicitHeight = 358
+    ExplicitWidth = 734
+    ExplicitHeight = 393
     inherited sgDataLayout: TSimpleGraph
       Width = 734
       Height = 371
-      ExplicitWidth = 608
-      ExplicitHeight = 336
+      ExplicitWidth = 734
+      ExplicitHeight = 371
       inherited ProgressBar1: TProgressBar
         Top = 356
         Width = 734
@@ -113,11 +112,11 @@ object fraDataPresentation: TfraDataPresentation
     end
     inherited ToolBar1: TToolBar
       Width = 734
-      ExplicitWidth = 608
+      ExplicitWidth = 734
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010133003800480010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+        494C010133003800500010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
         000000000000360000002800000040000000D0000000010020000000000000D0
         000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB

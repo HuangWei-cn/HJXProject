@@ -161,9 +161,13 @@ type
         procedure Changed(Flags: TGraphChangeFlags); override;
         procedure SetAutoSize(V: Boolean);
         procedure AdjustTextRect;
+        function GetShowBorder:Boolean; virtual;
+        procedure SetShowBorder(b:Boolean); virtual;
     public
         constructor Create(AOwner: TSimpleGraph); override;
         property AutoSize: Boolean read FAutoSize write SetAutoSize;
+    published
+        property ShowBorder: Boolean read GetShowBorder write SetShowBorder;
     end;
 
 implementation
@@ -1080,6 +1084,22 @@ begin
             Canvas.Free;
         end;
     end;
+end;
+
+function TGPTextNode.GetShowBorder:Boolean;
+begin
+  if pen.Style = psClear then
+    Result := False
+  else
+    Result := True;
+end;
+
+procedure TGPTextNode.SetShowBorder(b: Boolean);
+begin
+  if b then
+    pen.Style := psSolid
+  else
+    pen.Style := psClear;
 end;
 
 initialization

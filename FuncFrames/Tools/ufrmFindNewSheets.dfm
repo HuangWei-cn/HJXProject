@@ -11,6 +11,9 @@ object frmFindNewSheets: TfrmFindNewSheets
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poMainFormCenter
+  OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -39,21 +42,43 @@ object frmFindNewSheets: TfrmFindNewSheets
       OnClick = btnFindNewClick
     end
   end
-  object mmoResult: TMemo
+  object lvwNewSheets: TListView
     Left = 0
     Top = 89
     Width = 810
     Height = 492
     Align = alClient
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier Prime'
-    Font.Style = []
-    Lines.Strings = (
-      'mmoResult')
-    ParentFont = False
-    ScrollBars = ssVertical
+    Checkboxes = True
+    Columns = <
+      item
+        Caption = #24037#20316#34920
+        Width = 180
+      end
+      item
+        AutoSize = True
+        Caption = #24037#20316#31807
+      end>
+    PopupMenu = popOp
     TabOrder = 1
+    ViewStyle = vsReport
+    ExplicitLeft = 52
+    ExplicitTop = 108
+    ExplicitWidth = 250
+    ExplicitHeight = 150
+  end
+  object popOp: TPopupMenu
+    Left = 420
+    Top = 256
+    object piAppendNewSheet: TMenuItem
+      Action = actAppendNewSheet
+    end
+  end
+  object ActionList1: TActionList
+    Left = 508
+    Top = 60
+    object actAppendNewSheet: TAction
+      Caption = #28155#21152#24037#20316#34920#21040#20202#22120#25991#20214#21015#34920
+      OnExecute = actAppendNewSheetExecute
+    end
   end
 end

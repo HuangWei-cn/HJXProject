@@ -77,6 +77,9 @@ function SaveParams(AMeter: TMeterDefine; OldName: string): Boolean; overload;
 { 更新单个参数 }
 // function UpdateParam(ADsnName: string; ParamName: string; Param:Variant):Boolean;
 
+{ 添加一个仪器的数据工作表到仪器数据文件列表工作簿中 }
+function AppendDataSheet(ADsnName, ASheetName, ABookName, AMeterType, APosition: string): Integer;
+
 var
     { 以下三个全局变量用于编辑参数文件时，快速访问这些工作簿文件，省的打开工程文件再去找 }
   xlsPrjFile   : string;   // 工程设置文件
@@ -1630,6 +1633,59 @@ begin
 
 // 调用SaveParams
   Result := SaveParams(AMeter);
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : AppendDataSheet
+  Description: 保存一个仪器工作表到仪器数据文件列表工作簿中
+----------------------------------------------------------------------------- }
+function AppendDataSheet(ADsnName, ASheetName, ABookName, AMeterType, APosition: string): Integer;
+var
+  Wbk : IXLSWorkBook;
+  Sht : IXLSWorksheet;
+  i, j: Integer;
+  S   : string;
+begin
+  Result := 0;
+  if ExcelIO.OpenWorkbook(Wbk, xlsDFListFile) = False then
+  begin
+    ShowMessage('打开数据文件列表工作簿失败，手工添加算了。');
+    Exit;
+  end;
+  Sht := ExcelIO.GetSheet(Wbk, '仪器数据文件列表');
+  if Sht = nil then
+  begin
+    ShowMessage('No found datalist sheet, do it by youself.');
+    Exit;
+  end;
+
+  // 倒序查找最后一行
+  for i := Sht.UsedRange.Rows.Count + 3 downto 3 do
+  begin
+    // 如果是空行则继续，直到找到最后一行（有内容的）
+    if VarToStr(Sht.Cells[i, 2].Value) = '' then Continue
+    else
+    begin
+      // 找到后，第i+1行为最后一行之后的空行
+      Sht.Cells[i + 1, 1].Value := i + 1;
+      Sht.Cells[i + 1, 2].Value := ADsnName;
+      Sht.Cells[i + 1, 3].Value := ASheetName;
+      Sht.Cells[i + 1, 4].Value := ExtractFileName(ABookName);
+      Sht.Cells[i + 1, 5].Value := AMeterType;
+      Sht.Cells[i + 1, 6].Value := APosition;
+      for j := 1 to 6 do
+      begin
+        with Sht.Cells[i + 1, j].Font do
+        begin
+          name := 'Consolas';
+          size := 9;
+          Italic := True;
+        end;
+      end;
+      Break;
+    end;
+  end;
+  Result := Wbk.Save;
 end;
 
 class function THJXExcelParam.UpdateParam(DsnName: string; ParamName: string;

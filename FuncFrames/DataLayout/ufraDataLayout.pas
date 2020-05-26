@@ -633,7 +633,7 @@ begin
  }
   if VarIsNull(PDData) or VarIsEmpty(PDData) or (VarToStr(PDData) = '') then
       S := '/'
-  else if VarIsFloat(PDData) then
+  else if VarIsNumeric(PDData) then
       S := FormatFloat('0.00', PDData)
   else
       S := VarToStr(PDData);

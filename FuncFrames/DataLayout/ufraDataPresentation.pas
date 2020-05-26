@@ -12,6 +12,7 @@
 { DONE:增加显示仪器过程线功能 }
 { todo:增加显示仪器特征值功能 }
 { todo:增加高亮显示指定仪器s的功能 }
+{ todo:增加将打开的布置图添加到布置图列表中的功能 }
 unit ufraDataPresentation;
 
 interface
@@ -68,7 +69,7 @@ type
   end;
 
 implementation
-
+USES uHJX.EnvironmentVariables;
 {$R *.dfm}
 
 
@@ -106,6 +107,7 @@ end;
 
 procedure TfraDataPresentation.btnLoadLayoutClick(Sender: TObject);
 begin
+  dlgOpenDataLayout.InitialDir := ENV_SchemePath;
   if dlgOpenDataLayout.Execute then
       fraDataLayout.LoadDataLayout(dlgOpenDataLayout.FileName);
 end;
@@ -225,7 +227,7 @@ var
   begin
     if (VarIsEmpty(D)) or (VarIsNull(D)) or (vartostr(D) = '') then
         Result := ''
-    else if VarIsFloat(D) then
+    else if VarIsNumeric(D) then
         Result := FormatFloat('0.00', D);
   end;
 

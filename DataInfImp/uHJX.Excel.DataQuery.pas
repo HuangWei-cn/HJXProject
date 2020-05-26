@@ -113,7 +113,7 @@ var
 function _GetFloatOrNull(ASht: IXLSWorksheet; ARow, ACol: Integer): Variant;
 begin
   Result := Null;
-  if VarIsFloat(ASht.Cells[ARow, ACol].Value) then
+  if VarIsNumeric(ASht.Cells[ARow, ACol].Value) then
       Result := ASht.Cells[ARow, ACol].Value;
 end;
 
@@ -912,7 +912,7 @@ var
   begin
     Result := Null;
       // sht.Cells[irow,icol].Value
-    if VarIsFloat(sht.Cells[iRow, iCol].Value) then Result := sht.Cells[iRow, iCol].Value;
+    if VarIsNumeric(sht.Cells[iRow, iCol].Value) then Result := sht.Cells[iRow, iCol].Value;
   end;
 
 begin

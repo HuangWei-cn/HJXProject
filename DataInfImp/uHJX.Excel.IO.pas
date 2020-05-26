@@ -113,7 +113,10 @@ begin
         end;
       -1:
         begin
-          if MessageBox(0, PWideChar('是否要关闭Excel后重试？'), '打开Excel工作簿',
+          if MessageBox(0, PWideChar(aname + '无法打开，是否要关闭Excel后重试？'#13#10
+          + '若Excel或WPS没有占用该文件，则该文件可能是由WPS编辑过的、存在问题'
+          + '的Excel 2007或更高版本的文件(xlsx格式), 请用真正的Excel保存一遍再'
+          + '试试。若还不行，那就干点别的吧，别用了。'), '打开Excel工作簿',
             MB_ICONWARNING or MB_RETRYCANCEL) = IDCANCEL then
               bExit := True;
         end;

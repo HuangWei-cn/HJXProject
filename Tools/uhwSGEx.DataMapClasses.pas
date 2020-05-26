@@ -62,18 +62,18 @@ type
     FDTScale   : TDateTime;
     procedure SetData(v: Variant);
     procedure SetDTScale(dt: TDateTime);
-    function GetShowBorder: Boolean;
-    procedure SetShowBorder(b: Boolean);
   public
     procedure ShowData(AData: String; dt: TDateTime);
     procedure ClearData;
+    //function GetShowBorder: Boolean;
+    //procedure SetShowBorder(b: Boolean);
   published
     property DesignName: string read FDesignName write FDesignName;
     property DataName  : string read FDataName write FDataName;
     property DataUnit  : string read FDataUnit write FDataUnit;
     property Data      : Variant read FData write SetData;
     property DTScale   : TDateTime read FDTScale write SetDTScale;
-    property ShowBorder: Boolean read GetShowBorder write SetShowBorder;
+    property ShowBorder;
   end;
 
     { 2018-06-14 增加仪器标签对象。本对象未来的扩展功能有：1)显示数据不一定必须使用TdmcDataItem
@@ -85,6 +85,7 @@ type
   published
     property DesignName: string read FDesignName write FDesignName;
     property MeterType : string read FMeterType write FMeterType;
+    property ShowBorder;
   end;
 
     { 2019-06-19 增加表示仪器数据大小和方向的箭头，首要目标是实现平面变形数据的方向和大小 }
@@ -301,6 +302,7 @@ begin
   Self.Hint := FormatDateTime('yyyy-mm-dd', dt);
 end;
 
+(*
 function TdmcDataItem.GetShowBorder: Boolean;
 begin
   if pen.Style = psClear then
@@ -316,6 +318,7 @@ begin
   else
       pen.Style := psClear;
 end;
+*)
 
 constructor TdmcDeformationDirection.Create(AOwner: TSimpleGraph);
 begin
@@ -406,12 +409,14 @@ initialization
 
 TSimpleGraph.Register(TdmcMap);
 TSimpleGraph.Register(TdmcDataItem);
+TSimpleGraph.Register(TdmcMeterLabel);
 TSimpleGraph.Register(TdmcDeformationDirection);
 
 finalization
 
 TSimpleGraph.Unregister(TdmcMap);
 TSimpleGraph.Unregister(TdmcDataItem);
+TSimpleGraph.Unregister(TdmcMeterLabel);
 TSimpleGraph.Unregister(TdmcDeformationDirection);
 
 end.
