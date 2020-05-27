@@ -242,7 +242,7 @@ end;
 procedure TfraBasicTrendLine.piCopyAsEMFClick(Sender: TObject);
 begin
     chtLine.CopyToClipboardMetafile(True);
-    chtLine.CopyToClipboardBitmap;
+    //chtLine.CopyToClipboardBitmap;
 end;
 
 procedure TfraBasicTrendLine.piMinimalismClick(Sender: TObject);
@@ -262,7 +262,7 @@ begin
     finally
         JPG.Free;
     end;
-    chtLine.CopyToClipboardBitmap;
+    //chtLine.CopyToClipboardBitmap;
     // chtLine.CopyToClipboardMetafile(True);
 end;
 

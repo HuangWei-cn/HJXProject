@@ -56,17 +56,17 @@ type
   TdmcDataItem = class(TGPTextNode)
   private
     FDesignName: string;
-    FDataName  : String;
+    FDataName  : string;
     FDataUnit  : string;
     FData      : Variant;
     FDTScale   : TDateTime;
     procedure SetData(v: Variant);
     procedure SetDTScale(dt: TDateTime);
-  public
-    procedure ShowData(AData: String; dt: TDateTime);
-    procedure ClearData;
     //function GetShowBorder: Boolean;
     //procedure SetShowBorder(b: Boolean);
+  public
+    procedure ShowData(AData: string; dt: TDateTime);
+    procedure ClearData;
   published
     property DesignName: string read FDesignName write FDesignName;
     property DataName  : string read FDataName write FDataName;
@@ -74,6 +74,7 @@ type
     property Data      : Variant read FData write SetData;
     property DTScale   : TDateTime read FDTScale write SetDTScale;
     property ShowBorder;
+    property DataAlignRight;
   end;
 
     { 2018-06-14 增加仪器标签对象。本对象未来的扩展功能有：1)显示数据不一定必须使用TdmcDataItem
@@ -85,6 +86,7 @@ type
   published
     property DesignName: string read FDesignName write FDesignName;
     property MeterType : string read FMeterType write FMeterType;
+    property DataAlignRight;
     property ShowBorder;
   end;
 
@@ -100,8 +102,8 @@ type
  }
   TdmcDeformationDirection = class(TGPGraphicLink)
   private
-    FDesignName: String;
-    FMeterType : String;
+    FDesignName: string;
+    FMeterType : string;
     FXName     : string;  // X数据名
     FYName     : string;  // Y数据名
     FXDirect   : Integer; // X方向系数，即在图中是否需要将实际值乘以-1。当采用大地坐标时，不需要
@@ -118,7 +120,7 @@ type
   public
     constructor Create(AOwner: TSimpleGraph); override;
     procedure SetData(ANorth, AEast: Variant);
-    procedure ShowData(AData: String; dt: TDateTime);
+    procedure ShowData(AData: string; dt: TDateTime);
     procedure ClearData;
   published
     property DesignName: string read FDesignName write FDesignName;
@@ -200,7 +202,7 @@ begin
     SetBoundsRect(rc);
   end
   else
-      FRatio := 0;
+    FRatio := 0;
 end;
 
 procedure TdmcMap.SetLockRatio(b: Boolean);
@@ -242,11 +244,10 @@ begin
   if b then
   begin
     if not(gnoMovable in Self.NodeOptions) then
-        NodeOptions := NodeOptions + [gnoMovable];
+      NodeOptions := NodeOptions + [gnoMovable];
   end
-  else
-    if gnoMovable in NodeOptions then
-      NodeOptions := NodeOptions - [gnoMovable];
+  else if gnoMovable in NodeOptions then
+    NodeOptions := NodeOptions - [gnoMovable];
 end;
 
 procedure TdmcMap.SetSelectable(b: Boolean);
@@ -254,11 +255,10 @@ begin
   if b then
   begin
     if not(goSelectable in Options) then
-        Options := Options + [goSelectable];
+      Options := Options + [goSelectable];
   end
-  else
-    if goSelectable in Options then
-      Options := Options - [goSelectable];
+  else if goSelectable in Options then
+    Options := Options - [goSelectable];
 end;
 
 procedure TdmcMap.SetResizable(b: Boolean);
@@ -266,11 +266,10 @@ begin
   if b then
   begin
     if not(gnoResizable in Self.NodeOptions) then
-        NodeOptions := NodeOptions + [gnoResizable];
+      NodeOptions := NodeOptions + [gnoResizable];
   end
-  else
-    if gnoMovable in NodeOptions then
-      NodeOptions := NodeOptions - [gnoResizable];
+  else if gnoMovable in NodeOptions then
+    NodeOptions := NodeOptions - [gnoResizable];
 end;
 
 procedure TdmcDataItem.SetData(v: Variant);
@@ -306,20 +305,19 @@ end;
 function TdmcDataItem.GetShowBorder: Boolean;
 begin
   if pen.Style = psClear then
-      Result := False
+    Result := False
   else
-      Result := True;
+    Result := True;
 end;
 
 procedure TdmcDataItem.SetShowBorder(b: Boolean);
 begin
   if b then
-      pen.Style := psSolid
+    pen.Style := psSolid
   else
-      pen.Style := psClear;
+    pen.Style := psClear;
 end;
 *)
-
 constructor TdmcDeformationDirection.Create(AOwner: TSimpleGraph);
 begin
   inherited;
@@ -369,7 +367,8 @@ procedure TdmcDeformationDirection.ShowData(AData: string; dt: TDateTime);
 var
   pt0, pt1: TPoint;
 begin
-  if not Visible then Exit;
+  if not Visible then
+    Exit;
 
   FDTScale := dt;
   { 这里AData参数没什么用，这个对象使用SetData设置数据 }
@@ -409,14 +408,14 @@ initialization
 
 TSimpleGraph.Register(TdmcMap);
 TSimpleGraph.Register(TdmcDataItem);
-TSimpleGraph.Register(TdmcMeterLabel);
 TSimpleGraph.Register(TdmcDeformationDirection);
+TSimpleGraph.Register(TdmcMeterLabel);
 
 finalization
 
 TSimpleGraph.Unregister(TdmcMap);
 TSimpleGraph.Unregister(TdmcDataItem);
-TSimpleGraph.Unregister(TdmcMeterLabel);
 TSimpleGraph.Unregister(TdmcDeformationDirection);
+TSimpleGraph.Unregister(TdmcMeterLabel);
 
 end.
