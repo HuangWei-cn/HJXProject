@@ -23,6 +23,7 @@ object fraDataLayout: TfraDataLayout
     SnapToGrid = False
     TabOrder = 0
     OnContextPopup = sgDataLayoutContextPopup
+    OnDragDrop = sgDataLayoutDragDrop
     OnKeyDown = sgDataLayoutKeyDown
     OnKeyUp = sgDataLayoutKeyUp
     OnMouseWheelDown = sgDataLayoutMouseWheelDown
@@ -33,6 +34,7 @@ object fraDataLayout: TfraDataLayout
     OnObjectContextPopup = sgDataLayoutObjectContextPopup
     OnObjectMouseEnter = sgDataLayoutObjectMouseEnter
     OnObjectMouseLeave = sgDataLayoutObjectMouseLeave
+    PZState = 0
     object ProgressBar1: TProgressBar
       Left = 0
       Top = 387
@@ -172,7 +174,7 @@ object fraDataLayout: TfraDataLayout
     Left = 158
     Top = 310
     Bitmap = {
-      494C010133003800580010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010133003800680010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB
@@ -1989,6 +1991,13 @@ object fraDataLayout: TfraDataLayout
     object piShowData: TMenuItem
       Caption = #26174#31034#35266#27979#25968#25454
       OnClick = piShowDataClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object piHideObject: TMenuItem
+      Caption = #38544#34255
+      OnClick = piHideObjectClick
     end
   end
 end

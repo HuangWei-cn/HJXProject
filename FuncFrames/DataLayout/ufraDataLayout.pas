@@ -78,6 +78,8 @@ type
     piShowDataGraph: TMenuItem;
     piShowData: TMenuItem;
     ProgressBar1: TProgressBar;
+    N1: TMenuItem;
+    piHideObject: TMenuItem;
     procedure sgDataLayoutObjectMouseEnter(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectMouseLeave(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectSelect(Graph: TSimpleGraph; GraphObject: TGraphObject);
@@ -114,6 +116,8 @@ type
       var Handled: Boolean);
     procedure sgDataLayoutMouseWheelUp(Sender: TObject; Shift: TShiftState; MousePos: TPoint;
       var Handled: Boolean);
+    procedure piHideObjectClick(Sender: TObject);
+    procedure sgDataLayoutDragDrop(Sender, Source: TObject; X, Y: Integer);
   private
         { Private declarations }
     FOnNeedDataEvent      : TOnNeedDataEvent;
@@ -123,9 +127,10 @@ type
     FOnPlayFinished       : TNotifyEvent;
 
     FLayoutFileName: string;
-    FAutoDataFormat: Boolean;     // 是否由DataItem自动设置数据显示格式，缺省为自动
-    FMeterList     : TStringList; // 仪器列表 2018-06-05
-    FSelectedMeter : string;      // 2018-06-07
+    FAutoDataFormat: Boolean;      // 是否由DataItem自动设置数据显示格式，缺省为自动
+    FMeterList     : TStringList;  // 仪器列表 2018-06-05
+    FSelectedMeter : string;       // 2018-06-07
+    FSelectedObj   : TGraphObject; // 按下右键弹出菜单时的那个图形对象。执行时对象设置为不可选择，故……
 
     FOnMeterClick   : TOnMeterEvent; // 选中仪器产生的事件，返回值为弹出菜单中图形的名称
     FPopupDataGraph : TOnMeterEvent; // 弹出数据图形事件
@@ -139,6 +144,12 @@ type
     procedure ShowDataIncrement(AnItem: TdmcDataItem);
     { 2019-08-09 }
     procedure ShowDeform(AnItem: TdmcDeformationDirection);
+    /// <summary>
+    /// 在这里，用这个方法实现拖放后自动对齐数据标签，加快版面整洁程度
+    /// </summary>
+    procedure GraphEndDragging(Graph: TSimpleGraph; GraphObject: TGraphObject; HT: DWORD;
+      Cancelled: Boolean);
+
   public
         { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -169,6 +180,7 @@ begin
   inherited;
   FAutoDataFormat := True;
   FMeterList := TStringList.Create;
+  sgDataLayout.OnObjectEndDrag := Self.GraphEndDragging;
 end;
 
 destructor TfraDataLayout.Destroy;
@@ -198,6 +210,38 @@ begin
   end
   else
       Handled := True;
+end;
+
+procedure TfraDataLayout.sgDataLayoutDragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  go         : TGraphNode;
+  tp         : TPoint;
+  bNeedAlign : Boolean; // 需要设置对齐
+  bSetDefault: Boolean; // 需要设置缺省值
+  oo         : TGraphObject;
+begin
+  tp := sgDataLayout.ClientToGraph(X, Y);
+  oo := sgDataLayout.FindObjectAt(tp.X, tp.Y);
+(*
+// 如果X，Y处有东西，且为TGPTEXTNODE对象，则需要对齐
+  if (oo <> nil) and (oo is TGPTextNode) then
+  begin
+    bNeedAlign := True;
+    if not FdefAlignRight then
+    begin
+      tp.X := (oo as TGPTextNode).Left;
+      tp.Y := (oo as TGPTextNode).BoundsRect.Bottom + 2;
+    end
+    else
+    begin
+      tp.X := (oo as TGPTextNode).BoundsRect.Right - 10;
+      tp.Y := (oo as TGPTextNode).BoundsRect.Bottom + 2;
+    end;
+  end
+  else
+    bNeedAlign := False;
+
+  *)
 end;
 
 procedure TfraDataLayout.sgDataLayoutKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -254,24 +298,30 @@ procedure TfraDataLayout.sgDataLayoutObjectClick(Graph: TSimpleGraph; GraphObjec
 var
   S: string;
 begin
+  FSelectedObj := nil;
   if GraphObject is TdmcDataItem then
-  begin
-    FSelectedMeter := (GraphObject as TdmcDataItem).DesignName;
-    popMeterOp.AutoPopup := True;
-    if Assigned(FOnMeterClick) then
-    begin
-      S := '';
-      FOnMeterClick((GraphObject as TdmcDataItem).DesignName, S);
-      if S <> '' then
-          piShowDataGraph.caption := S
-      else
-          piShowDataGraph.caption := '显示数据图形';
-    end;
-  end
+      FSelectedMeter := (GraphObject as TdmcDataItem).DesignName
+  else if GraphObject is TdmcMeterLabel then
+      FSelectedMeter := (GraphObject as TdmcMeterLabel).DesignName
   else
   begin
+    piHideObject.Enabled := False;
     popMeterOp.AutoPopup := False;
     FSelectedMeter := '';
+    Exit;
+  end;
+
+  FSelectedObj := GraphObject;
+  piHideObject.Enabled := True;
+  popMeterOp.AutoPopup := True;
+  if Assigned(FOnMeterClick) then
+  begin
+    S := '';
+    FOnMeterClick(FSelectedMeter, S);
+    if S <> '' then
+        piShowDataGraph.caption := S
+    else
+        piShowDataGraph.caption := '显示数据图形';
   end;
 end;
 
@@ -532,6 +582,12 @@ begin
       end;
 end;
 
+procedure TfraDataLayout.piHideObjectClick(Sender: TObject);
+begin
+  if FSelectedObj <> nil then
+      FSelectedObj.Visible := False;
+end;
+
 procedure TfraDataLayout.piShowDataClick(Sender: TObject);
 var
   S: string;
@@ -702,6 +758,45 @@ begin
   // AnItem.North := X;
   // AnItem.East := Y;
   AnItem.ShowData('', DT);
+end;
+
+procedure TfraDataLayout.GraphEndDragging(Graph: TSimpleGraph; GraphObject: TGraphObject; HT: Cardinal;
+  Cancelled: Boolean);
+var
+  Obj: TGraphObject;
+begin
+  // 只有TdmcDataItem和TdmcMeterLabel才享受本过程的处理
+  if not((GraphObject is TdmcDataItem) or (GraphObject is TdmcMeterLabel)) then
+  begin
+    Cancelled := True;
+    Exit;
+  end;
+
+  // 只有当GraphObject盖在其他东西上面的时候才进行处理
+  with GraphObject as TGraphNode do
+  begin
+    Obj := Graph.FindObjectAt(Left - 4, Top - 4);
+    if Obj is TGPTextNode then
+    begin
+{$IFDEF DEBUG}
+      OutputDebugString(PChar('覆盖了这个东西：' + (Obj as TGPTextNode).Text + #13#10));
+{$ENDIF}
+      // 下面将Snap到Obj的下方，并且对齐
+      // align right side
+      if (GraphObject as TGPTextNode).DataAlignRight then
+        with GraphObject as TGraphNode do
+        begin
+          Left := (Obj as TGraphNode).BoundsRect.Right - Width;
+          Top := (Obj as TGraphNode).BoundsRect.Bottom + 2;
+        end
+      else // align left side
+        with GraphObject as TGraphNode do
+        begin
+          Left := (Obj as TGraphNode).Left;
+          Top := (Obj as TGraphNode).BoundsRect.Bottom + 2;
+        end;
+    end;
+  end;
 end;
 
 end.

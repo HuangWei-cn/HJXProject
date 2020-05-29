@@ -37,7 +37,7 @@ uses
 
 type
   TWebCrossHeader = class;
-  TWebCrossView = class;
+  TWebCrossView   = class;
 
   // 格式定义结构，暂时不包含Padding设置、表格线等更细致的内容
   // 同时，在本程序中规定，单元格等颜色不允许出现0，若FormatStyle中的Color=0，则忽略这个设置。因为
@@ -134,10 +134,10 @@ type
     constructor Create(Owner: TWebCrossView; AColumnCount: Integer);
     destructor Destroy; override;
 
-    procedure AddRow(ValueArray: array of Variant); overload;          // 向Matrix尾部添加一行
-    procedure AddRow; overload;                                        { 2019-12-21 }
+    procedure AddRow(ValueArray: array of Variant); overload; // 向Matrix尾部添加一行
+    procedure AddRow; overload; { 2019-12-21 }
     procedure AddCaptionRow(CaptionArray: array of Variant); overload; // 添加中间标题行
-    procedure AddCaptionRow; overload;                                 // 2019-12-21
+    procedure AddCaptionRow; overload; // 2019-12-21
 
     function HTMLCode: string;
         { 2013-06-19 仅返回表格代码，而非整页 }
@@ -252,7 +252,7 @@ const
   htmTRCode = '<TR>'#13#10 + '@Cells@'#13#10 + '</TR>'#13#10;
 
   htmHeadClass = 'class="thStyle"';
-  htmTDClass = 'class="tdStyle"';
+  htmTDClass   = 'class="tdStyle"';
 
 function ColorToHTML(Color: TColor): string;
 var
@@ -661,21 +661,22 @@ begin
                 { 如果是最后一行，则完成设置 }
         if iRow = (FRowCount - 1) then FCellMatrix[iMCStart][iCol].FRowSpan := iMC;
 
-                { 检查左侧的列，本列合并范围不能超过左侧各列纵向合并范围 }
-        if iCol > 0 then
-          for iLeftCol := 0 to iCol - 1 do
-            if ColHeader[iLeftCol].AllowColSpan then
-            begin
-              if (FCellMatrix[iRow][iLeftCol].Visible) { and
-                            (FCellMatrix[iRow][iLeftCol].FRowSpan = 1) } then
+        { 检查左侧的列，本列合并范围不能超过左侧各列纵向合并范围，但对标题行没有限制 }
+        if iRow > FTitleRows - 1 then
+          if iCol > 0 then
+            for iLeftCol := 0 to iCol - 1 do
+              if ColHeader[iLeftCol].AllowColSpan then
               begin
-                if iMCStart <> -1 then FCellMatrix[iMCStart][iCol].FRowSpan := iMC - 1;
-                FCellMatrix[iRow][iCol].Visible := True;
-                iMC := 1;
+                if (FCellMatrix[iRow][iLeftCol].Visible) { and
+                            (FCellMatrix[iRow][iLeftCol].FRowSpan = 1) } then
+                begin
+                  if iMCStart <> -1 then FCellMatrix[iMCStart][iCol].FRowSpan := iMC - 1;
+                  FCellMatrix[iRow][iCol].Visible := True;
+                  iMC := 1;
                                 // sValue := '';
-                iMCStart := iRow;
+                  iMCStart := iRow;
+                end;
               end;
-            end;
       end;
 
     end;
@@ -689,7 +690,7 @@ end;
 function TWebCrossMatrix.TableCode: string;
 const
 // TDCode = '<td @cls @colspan @rowspan @align>@var</td>'#13#10;
-  fntSty = '<font STYLE="font-family:@fontname@; font-size:@fontsize@pt; color:@fontcolor@">';
+  fntSty  = '<font STYLE="font-family:@fontname@; font-size:@fontsize@pt; color:@fontcolor@">';
   fntSty2 = '<font STYLE="@fontfamily@@fontsize@@fontcolor@">';
 var
   sTR, sTD, sTable, sRows, s: string;

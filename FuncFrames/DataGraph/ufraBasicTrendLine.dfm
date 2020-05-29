@@ -84,8 +84,11 @@ object fraBasicTrendLine: TfraBasicTrendLine
       Shadow.SmoothBlur = 43
       Brush.BackColor = clDefault
       DrawStyle = dsCurve
+      LinePen.Color = clDefault
+      Pointer.Brush.Style = bsClear
       Pointer.HorizSize = 2
       Pointer.InflateMargins = True
+      Pointer.Pen.Color = clDefault
       Pointer.Style = psRectangle
       Pointer.VertSize = 2
       Pointer.Visible = True
@@ -98,9 +101,11 @@ object fraBasicTrendLine: TfraBasicTrendLine
     object Series2: TLineSeries
       Shadow.SmoothBlur = 75
       Brush.BackColor = clDefault
-      DrawStyle = dsCurve
+      LinePen.Color = clDefault
+      Pointer.Brush.Style = bsClear
       Pointer.HorizSize = 3
       Pointer.InflateMargins = True
+      Pointer.Pen.Color = clDefault
       Pointer.Style = psCircle
       Pointer.VertSize = 3
       Pointer.Visible = True
@@ -122,7 +127,7 @@ object fraBasicTrendLine: TfraBasicTrendLine
   end
   object TeeGDIPlus1: TTeeGDIPlus
     Active = True
-    AntiAliasText = gpfNormal
+    AntiAliasText = gpfBest
     TeePanel = chtLine
     Left = 28
     Top = 4
