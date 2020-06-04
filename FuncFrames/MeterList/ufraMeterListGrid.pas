@@ -115,12 +115,17 @@ begin
         SetValue('SetupDate', Meter.Params.SetupDate);
         cdsMeters.Post;
     end;
+
+    dbgMeters.StartLoadingStatus('正在加载数据...');
     cdsMeters.Open;
     IHJXClientFuncs.SetFieldDisplayName(cdsMeters);
     mtMeters.Open;
 
     for i := 0 to dbgMeters.Columns.Count - 1 do
+    begin
         dbgMeters.Columns[i].OptimizeWidth;
+        dbgMeters.Columns[i].Title.TitleButton := True;
+    end;
 
     dbgMeters.DataGrouping.Active := False;
     gl := dbgMeters.DataGrouping.GroupLevels.Add;
@@ -131,6 +136,7 @@ begin
     dbgMeters.Columns[1].Visible := False;
     dbgMeters.DataGrouping.Active := True;
     dbgMeters.DataGrouping.GroupPanelVisible := True;
+    dbgmeters.FinishLoadingStatus;
 end;
 
 procedure TfraMeterListGrid.OnDBConnected(Sender: TObject);

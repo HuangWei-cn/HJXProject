@@ -24,13 +24,14 @@ object fraMeterListGrid: TfraMeterListGrid
     IndicatorParams.FillStyle = cfstThemedEh
     OddRowColor = clSkyBlue
     Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
-    OptionsEh = [dghFixed3D, dghHighlightFocus, dghClearSelection, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
+    OptionsEh = [dghFixed3D, dghHighlightFocus, dghClearSelection, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
     ParentFont = False
     ReadOnly = True
     SortLocal = True
     STFilter.Local = True
     STFilter.Visible = True
     TabOrder = 0
+    TitleParams.SortMarkerStyle = smstDefaultEh
     object RowDetailData: TRowDetailPanelControlEh
     end
   end

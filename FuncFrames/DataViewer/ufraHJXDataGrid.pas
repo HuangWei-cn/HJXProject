@@ -128,7 +128,8 @@ begin
 
     // 2018-05-29 对于成组锚杆应力计特殊对待
     Meter := ExcelMeters.Meter[DesignName];
-    if Meter.Params.MeterType = '锚杆应力计' then
+    // 2020-06-04 可以显示成组仪器，不仅限于锚杆应力计，应变计组也可以正常显示了。
+    if {Meter.Params.MeterType = '锚杆应力计'}Meter.PrjParams.GroupID <> '' then
     begin
         GrpName := Meter.PrjParams.GroupID;
         if GrpName <> '' then
@@ -144,6 +145,8 @@ begin
         IHJXClientFuncs.GetAllPDDatas(DesignName, cdsMeterDatas);
     cdsMeterDatas.Open;
     MemTableEh1.Open;
+    MemTableEh1.AggregatesActive := True;
+    //memtableeh1.AggFields
     for i := 0 to DBGridEh1.Columns.Count - 1 do
     begin
         DBGridEh1.Columns[i].Title.TitleButton := True;

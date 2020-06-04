@@ -15,6 +15,7 @@ object fraHJXDataGrid: TfraHJXDataGrid
     Height = 370
     Align = alClient
     AllowedOperations = []
+    ColumnDefValues.Title.TitleButton = True
     DataSource = DataSource1
     DynProps = <>
     Font.Charset = ANSI_CHARSET

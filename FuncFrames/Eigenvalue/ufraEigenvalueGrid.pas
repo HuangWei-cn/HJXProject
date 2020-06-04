@@ -148,8 +148,10 @@ begin
 
   Screen.Cursor := crHourGlass;
   try
+    grdEV.StartLoadingStatus('正在加载数据，请稍后......');
     GetEVDatas(S);
   finally
+    grdev.FinishLoadingStatus;
     Screen.Cursor := crDefault;
     prgBar.Visible := False;
   end;
@@ -268,7 +270,7 @@ begin
   grdEV.Columns[9].Field.DisplayLabel := '历史特征值|变幅';
 
   grdEV.Columns[10].Field.DisplayLabel := '年度特征值|最大值|日期';
-  grdEV.Columns[11].Field.DisplayLabel := '年度特征值|最测值|测值';
+  grdEV.Columns[11].Field.DisplayLabel := '年度特征值|最大值|测值';
   grdEV.Columns[12].Field.DisplayLabel := '年度特征值|最小值|日期';
   grdEV.Columns[13].Field.DisplayLabel := '年度特征值|最小值|测值';
   grdEV.Columns[14].Field.DisplayLabel := '年度特征值|增量';
