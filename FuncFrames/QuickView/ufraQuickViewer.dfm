@@ -1,14 +1,14 @@
 object fraQuickViewer: TfraQuickViewer
   Left = 0
   Top = 0
-  Width = 723
-  Height = 511
+  Width = 843
+  Height = 522
   TabOrder = 0
   object wbViewer: TWebBrowser
     Left = 0
     Top = 69
-    Width = 723
-    Height = 442
+    Width = 843
+    Height = 453
     Align = alClient
     TabOrder = 3
     OnBeforeNavigate2 = wbViewerBeforeNavigate2
@@ -17,7 +17,7 @@ object fraQuickViewer: TfraQuickViewer
     ExplicitWidth = 300
     ExplicitHeight = 150
     ControlData = {
-      4C000000B94A0000AF2D00000000000000000000000000000000000000000000
+      4C00000020570000D22E00000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
       2B2E126208000000000000004C0000000114020000000000C000000000000046
       8000000000000000000000000000000000000000000000000000000000000000
@@ -26,7 +26,7 @@ object fraQuickViewer: TfraQuickViewer
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 723
+    Width = 843
     Height = 69
     Align = alTop
     Padding.Left = 2
@@ -34,34 +34,37 @@ object fraQuickViewer: TfraQuickViewer
     Padding.Right = 5
     Padding.Bottom = 2
     TabOrder = 0
+    ExplicitWidth = 723
     object btnCreateQuickView: TButton
       Left = 8
       Top = 6
-      Width = 77
+      Width = 93
       Height = 41
-      Caption = #36895#35272
+      Caption = #26597#35810
       Style = bsCommandLink
       TabOrder = 0
       OnClick = btnCreateQuickViewClick
     end
     object btnShowIncrement: TButton
-      Left = 91
+      Left = 171
       Top = 6
       Width = 110
       Height = 41
       Caption = #26368#26032#22686#37327
       Style = bsCommandLink
       TabOrder = 1
+      Visible = False
       OnClick = btnShowIncrementClick
     end
     object GroupBox1: TGroupBox
-      Left = 484
+      Left = 604
       Top = 3
       Width = 233
       Height = 63
       Align = alRight
       Caption = #36873#39033
       TabOrder = 2
+      ExplicitLeft = 484
       object chkTableByType: TCheckBox
         Left = 12
         Top = 17
@@ -100,19 +103,39 @@ object fraQuickViewer: TfraQuickViewer
     object btnSpecificDates: TButton
       Left = 204
       Top = 6
-      Width = 106
+      Width = 141
       Height = 41
-      Caption = #25351#23450#26085#26399
+      Caption = #25351#23450#26085#26399#22686#37327
       Style = bsCommandLink
       TabOrder = 3
+      Visible = False
       OnClick = btnSpecificDatesClick
+    end
+    object rdgQueryType: TRadioGroup
+      Left = 419
+      Top = 3
+      Width = 185
+      Height = 63
+      Align = alRight
+      Caption = #26597#35810#31867#22411
+      Columns = 2
+      ItemIndex = 1
+      Items.Strings = (
+        #36880#25903#36895#35272
+        #26368#26032#22686#37327
+        #38388#38548#22686#37327
+        #26368#26032#25968#25454)
+      TabOrder = 4
+      ExplicitLeft = 468
+      ExplicitTop = 24
+      ExplicitHeight = 105
     end
   end
   object HtmlViewer: THtmlViewer
     Left = 0
     Top = 69
-    Width = 723
-    Height = 442
+    Width = 843
+    Height = 453
     BorderStyle = htFocused
     CharSet = GB2312_CHARSET
     DefFontName = 'Verdana'
@@ -130,6 +153,8 @@ object fraQuickViewer: TfraQuickViewer
     TabOrder = 1
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
+    ExplicitWidth = 723
+    ExplicitHeight = 442
   end
   object pnlProgress: TPanel
     Left = 80

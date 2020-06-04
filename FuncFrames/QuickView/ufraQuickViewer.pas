@@ -55,6 +55,7 @@ type
     DateTimePicker1: TDateTimePicker;
     DateTimePicker2: TDateTimePicker;
     chkSimpleSDGrid: TCheckBox;
+    rdgQueryType: TRadioGroup;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -78,6 +79,8 @@ type
     procedure ShowQuickView;
     { 显示观测数据增量，若UseFilter = False则显示全部仪器的数据增量，否则只显示超限的 }
     procedure ShowDataIncrement(UseFilter: Boolean = False);
+    { 显示最新的观测数据，每支仪器一条记录，按类型分表 }
+    procedure ShowLastDatas;
   end;
 
 implementation
@@ -138,7 +141,18 @@ end;
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.btnCreateQuickViewClick(Sender: TObject);
 begin
-  ShowQuickView;
+  case rdgQueryType.ItemIndex of
+    0: ShowQuickView;
+    1: ShowDataIncrement(chkUseFilter.Checked);
+    2:
+      begin
+        pnlDateSelector.Visible := True;
+        pnlDateSelector.Left := (Self.Width - pnlDateSelector.Width) div 2;
+        pnlDateSelector.Top := (Self.Height - pnlDateSelector.Height) div 2;
+      end; // ShowSpecificDatesData;
+    3: ShowLastDatas;
+  end;
+  // ShowQuickView;
 end;
 
 procedure TfraQuickViewer.ShowQuickView;
@@ -232,6 +246,10 @@ var
 
     WCV.Reset;
     WCV.ColCount := Length(V1); //
+    WCV.ColHeader[0].Align := taCenter;
+    for i := 1 to WCV.ColCount - 1 do
+        WCV.ColHeader[i].Align := taRightJustify;
+
     WCV.TitleRows := 1;
     SetLength(DataRow, WCV.ColCount);
     DataRow[0] := '观测日期';
@@ -266,26 +284,32 @@ begin
   iDec := 0;
   iOverLine := 0;
   MTList := TStringList.Create;
-  try
     // 准备仪器列表
-    if chkAllMeters.Checked then
-      for i := 0 to ExcelMeters.Count - 1 do
-          MTList.Add(ExcelMeters.Items[i].DesignName)
-    else
+  if chkAllMeters.Checked then
+    for i := 0 to ExcelMeters.Count - 1 do
+        MTList.Add(ExcelMeters.Items[i].DesignName)
+  else
+  begin
+    with IAppServices.FuncDispatcher as IFunctionDispatcher do
     begin
-      with IAppServices.FuncDispatcher as IFunctionDispatcher do
-      begin
       // 如果能选择部分仪器则
-        if HasProc('PopupMeterSelector') then
-            CallFunction('PopupMeterSelector', MTList)
-        else // 否则选择全部仪器
-        begin
-          for i := 0 to ExcelMeters.Count - 1 do
-              MTList.Add(ExcelMeters.Items[i].DesignName)
-        end;
+      if HasProc('PopupMeterSelector') then
+          CallFunction('PopupMeterSelector', MTList)
+      else // 否则选择全部仪器
+      begin
+        for i := 0 to ExcelMeters.Count - 1 do
+            MTList.Add(ExcelMeters.Items[i].DesignName)
       end;
     end;
+  end;
 
+  if MTList.Count = 0 then
+  begin
+    showmessage('没有选择需要查询的仪器，请选择后再查询。');
+    Exit;
+  end;
+
+  try
     Screen.Cursor := crHourGlass;
 
     ProgressBar.Max := { ExcelMeters.Count } MTList.Count;
@@ -529,16 +553,6 @@ begin
   if ExcelMeters.Count = 0 then
       Exit;
 
-  Body := '<h2>观测数据变化情况表</h2>';
-  WCV := TWebCrossView.Create;
-
-  // 如果不是按仪器类型分表，则SetGrid。按类型分表是在遇到新仪器类型的时候才SetGrid，若在此处
-  // SetGrid将造成只有表头的空表。
-  if not chkTableByType.Checked then SetGrid;
-
-  sType := '';
-  sPos := '';
-  IHJXClientFuncs.SessionBegin;
   // 准备仪器列表
   if chkAllMeters.Checked then
   begin
@@ -560,6 +574,23 @@ begin
       end;
     end;
   end;
+
+  if FMeterList.Count = 0 then
+  begin
+    showmessage('没有选择需要查询的仪器，请选择后再查询。');
+    Exit;
+  end;
+
+  Body := '<h2>观测数据变化情况表</h2>';
+  WCV := TWebCrossView.Create;
+
+  // 如果不是按仪器类型分表，则SetGrid。按类型分表是在遇到新仪器类型的时候才SetGrid，若在此处
+  // SetGrid将造成只有表头的空表。
+  if not chkTableByType.Checked then SetGrid;
+
+  sType := '';
+  sPos := '';
+  IHJXClientFuncs.SessionBegin;
 
   try
     Screen.Cursor := crHourGlass;
@@ -803,9 +834,9 @@ var
       WCV.ColHeader[0].AllowColSpan := True;
       WCV.ColHeader[2].AllowColSpan := True;
       WCV.ColHeader[4].AllowColSpan := True;
-      //wcv.ColHeader[6].AllowColSpan := True;
-      //wcv.ColHeader[7].AllowColSpan := True;
-      //wcv.ColHeader[8].AllowColSpan := True;
+      // wcv.ColHeader[6].AllowColSpan := True;
+      // wcv.ColHeader[7].AllowColSpan := True;
+      // wcv.ColHeader[8].AllowColSpan := True;
       WCV.ColHeader[3].Align := taRightJustify;
       for ii in [3, 5, 6, 7, 8] do WCV.ColHeader[ii].Align := taRightJustify;
 
@@ -853,7 +884,7 @@ begin
 
   if FMeterList.Count = 0 then
   begin
-    ShowMessage('没有选择监测仪器');
+    showmessage('没有选择监测仪器');
     Exit;
   end;
 
@@ -1054,6 +1085,203 @@ begin
     IAppServices.ClientDatas.SessionEnd;
   end;
 
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : ShowLastDatas
+  Description: 本方法显示所选仪器的最后一条记录，分部位、按类型分表，显示全部
+  物理量。
+----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.ShowLastDatas;
+var
+  Meter  : TMeterDefine;
+  iMeter : Integer;
+  i, iRow: Integer;
+  iCount : Integer;
+  WCV    : TWebCrossView;
+  V      : TVariantDynArray;
+  vH     : array of variant;
+  Body   : String;
+  Page   : String;
+  sType  : string;
+  sPos   : String;
+
+  procedure ClearValues;
+  var
+    ii: Integer;
+  begin
+    SetLength(vH, 0);
+    if Length(V) > 0 then
+      for ii := 0 to High(V) do
+          VarClear(V[ii]);
+    SetLength(V, 0);
+  end;
+
+  function IgnoreData(AData: variant; ALimit: Double): Boolean;
+  begin
+    Result := True;
+    if VarIsEmpty(AData) or VarIsNull(AData) then
+        Exit;
+    if abs(AData) >= ALimit then
+        Result := False;
+  end;
+
+  { 根据仪器类型设置表格 }
+  procedure SetGrid;
+  var
+    iii: Integer;
+  begin
+    WCV.ColCount := Meter.DataSheetStru.PDs.Count + 3; // 设计编号，观测日期，物理量系列，备注列
+    WCV.TitleRows := 1;
+    WCV.AddRow;
+    WCV.Cells[0, 0].Value := '设计编号';
+    WCV.Cells[1, 0].Value := '观测日期';
+    for iii := 0 to Meter.DataSheetStru.PDs.Count - 1 do
+    begin
+      WCV.Cells[2 + iii, 0].Value := Meter.PDDefine[iii].Name;
+      WCV.ColHeader[2 + iii].Align := taRightJustify;
+    end;
+    WCV.Cells[WCV.ColCount - 1, 0].Value := '备注';
+  end;
+
+begin
+  if ExcelMeters.Count = 0 then Exit;
+  HtmlViewer.Clear;
+  if chkUseIE.Checked then
+  begin
+    HtmlViewer.Visible := False;
+    wbViewer.Visible := True;
+    wbViewer.Align := alClient;
+  end
+  else
+  begin
+    HtmlViewer.Visible := True;
+    wbViewer.Visible := False;
+  end;
+
+  // 准备仪器列表
+  if chkAllMeters.Checked then
+  begin
+    FMeterList.Clear;
+    for i := 0 to ExcelMeters.Count - 1 do
+        FMeterList.Add(ExcelMeters.Items[i].DesignName)
+  end
+  else
+  begin
+    with IAppServices.FuncDispatcher as IFunctionDispatcher do
+    begin
+    // 如果能选择部分仪器则
+      if HasProc('PopupMeterSelector') then
+          CallFunction('PopupMeterSelector', { MTList } FMeterList)
+      else // 否则选择全部仪器
+      begin
+        for i := 0 to ExcelMeters.Count - 1 do
+            FMeterList.Add(ExcelMeters.Items[i].DesignName)
+      end;
+    end;
+  end;
+  if FMeterList.Count = 0 then
+  begin
+    showmessage('没有选择需要查询的监测仪器，请选择后再查询。');
+    Exit;
+  end;
+
+  Body := '<h2>观测数据变化情况表</h2>';
+  WCV := TWebCrossView.Create;
+
+  // 本方法产生的表格将按照仪器类型分表
+  // if not chkTableByType.Checked then SetGrid;
+
+  sType := '';
+  sPos := '';
+  IHJXClientFuncs.SessionBegin;
+
+  try
+    Screen.Cursor := crHourGlass;
+    ProgressBar.Position := 1;
+    ProgressBar.Max := { MTList } FMeterList.Count; // ExcelMeters.Count;
+    lblProgress.Caption := '';
+    lblDesignName.Caption := '';
+    iCount := { MTList } FMeterList.Count; // ExcelMeters.Count;
+    pnlProgress.Visible := True;
+
+    // sPos := ExcelMeters.Items[0].PrjParams.Position;
+    sPos := ExcelMeters.Meter[ { MTList } FMeterList.Strings[0]].PrjParams.Position;
+    Body := Body + '<h3>' + sPos + '</h3>';
+
+    for iMeter := 0 to { ExcelMeters.Count - 1 } { MTList } FMeterList.Count - 1 do
+    begin
+      Meter := ExcelMeters.Meter[ { MTList } FMeterList.Strings[iMeter]];
+
+      lblDesignName.Caption := Meter.DesignName;
+      lblProgress.Caption := Format('正在处理第%d支，共%d支', [iMeter, iCount]);
+      ProgressBar.Position := iMeter;
+      IAppServices.ProcessMessages;
+
+      if Meter.PrjParams.Position <> sPos then
+      begin
+        sPos := Meter.PrjParams.Position;
+        Body := Body + WCV.CrossGrid;
+        Body := Body + '<h3>' + sPos + '</h3>';
+        // 若不是按类型分表，则就是按部位分表
+        if not chkTableByType.Checked then
+        begin
+          WCV.Reset;
+          // SetGrid;
+        end;
+
+        sType := '';
+      end;
+
+      if Meter.Params.MeterType = '测斜孔' then
+          Continue;
+
+      if Meter.Params.MeterType <> sType then
+      begin
+        if chkTableByType.Checked then
+        begin
+          // 当stype =''时，说明已经是另一个部位的仪器了，此时WCV内容已经在添加部位标题之前添加到
+          // Body了，再添加表格就会在部位标题下面显示一个重复的表格。
+          if sType <> '' then
+              Body := Body + WCV.CrossGrid;
+          Body := Body + '<h4>' + Meter.Params.MeterType + '</h4>';
+          WCV.Reset;
+          SetGrid;
+        end
+        else
+            WCV.AddCaptionRow([Meter.Params.MeterType]);
+        sType := Meter.Params.MeterType;
+      end;
+
+      if IHJXClientFuncs.GetLastPDDatas(Meter.DesignName, V) then
+        if V[0] <> 0 then // 若观测日期为0，则表明该仪器没有观测数据
+        begin
+          WCV.AddRow;
+          iRow := WCV.RowCount - 1;
+          WCV.Cells[0, iRow].Value := Meter.DesignName;    // 设计编号
+          WCV.Cells[1, iRow].Value := VarToDateTime(V[0]); // 观测日期
+          // 添加物理量
+          for i := 0 to Meter.PDDefines.Count - 1 do
+            if VarIsNumeric(V[1 + i]) then
+                WCV.Cells[2 + i, iRow].Value := FormatFloat('0.00', V[i + 1]);
+          // 添加备注
+        end;
+    end;
+
+    Body := Body + WCV.CrossGrid;
+    Page := StringReplace(htmPageCode2, '@PageContent@', Body, []);
+    if chkUseIE.Checked then
+        WB_LoadHTML(wbViewer, Page)
+    else
+        HtmlViewer.LoadFromString(Page);
+  finally
+    { MTList.Free; }
+    WCV.Free;
+    ClearValues;
+    IHJXClientFuncs.SessionEnd;
+    Screen.Cursor := crDefault;
+    pnlProgress.Visible := False;
+  end;
 end;
 
 end.

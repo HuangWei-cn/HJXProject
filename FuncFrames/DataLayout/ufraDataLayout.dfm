@@ -28,7 +28,6 @@ object fraDataLayout: TfraDataLayout
     OnKeyUp = sgDataLayoutKeyUp
     OnMouseWheelDown = sgDataLayoutMouseWheelDown
     OnMouseWheelUp = sgDataLayoutMouseWheelUp
-    OnObjectSelect = sgDataLayoutObjectSelect
     OnObjectClick = sgDataLayoutObjectClick
     OnObjectDblClick = sgDataLayoutObjectDblClick
     OnObjectContextPopup = sgDataLayoutObjectContextPopup
@@ -174,7 +173,7 @@ object fraDataLayout: TfraDataLayout
     Left = 158
     Top = 310
     Bitmap = {
-      494C010133003800680010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101330038006C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB
@@ -1997,7 +1996,14 @@ object fraDataLayout: TfraDataLayout
     end
     object piHideObject: TMenuItem
       Caption = #38544#34255
+      Enabled = False
       OnClick = piHideObjectClick
+    end
+    object piInputMeterData: TMenuItem
+      Caption = #22635#20837#25968#25454
+      Enabled = False
+      Hint = #20154#24037#36755#20837#25968#25454#65292#20462#25913#33258#21160#26597#35810#32467#26524
+      OnClick = piInputMeterDataClick
     end
   end
 end

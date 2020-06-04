@@ -80,9 +80,9 @@ type
     ProgressBar1: TProgressBar;
     N1: TMenuItem;
     piHideObject: TMenuItem;
+    piInputMeterData: TMenuItem;
     procedure sgDataLayoutObjectMouseEnter(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectMouseLeave(Graph: TSimpleGraph; GraphObject: TGraphObject);
-    procedure sgDataLayoutObjectSelect(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectClick(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectDblClick(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure actViewWholeGraphExecute(Sender: TObject);
@@ -118,6 +118,7 @@ type
       var Handled: Boolean);
     procedure piHideObjectClick(Sender: TObject);
     procedure sgDataLayoutDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure piInputMeterDataClick(Sender: TObject);
   private
         { Private declarations }
     FOnNeedDataEvent      : TOnNeedDataEvent;
@@ -200,16 +201,22 @@ var
   Obj: TGraphObject;
 begin
   Obj := sgDataLayout.ObjectAtCursor;
-    // ShowMessage(Obj.ClassName);
+  FSelectedObj := Obj;
   if Obj is TdmcDataItem then
   begin
     FSelectedMeter := (Obj as TdmcDataItem).DesignName;
     FOnMeterClick((Obj as TdmcDataItem).DesignName, S);
-    piShowDataGraph.caption := S;
+    piShowDataGraph.Caption := S;
+    piHideObject.Enabled := True;
+    piInputMeterData.Enabled := True;
     Handled := False;
   end
   else
+  begin
+    piHideObject.Enabled := false;
+    piInputMeterData.Enabled := False;
       Handled := True;
+  end;
 end;
 
 procedure TfraDataLayout.sgDataLayoutDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -241,7 +248,7 @@ begin
   else
     bNeedAlign := False;
 
-  *)
+ *)
 end;
 
 procedure TfraDataLayout.sgDataLayoutKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -300,12 +307,16 @@ var
 begin
   FSelectedObj := nil;
   if GraphObject is TdmcDataItem then
-      FSelectedMeter := (GraphObject as TdmcDataItem).DesignName
+  begin
+    FSelectedMeter := (GraphObject as TdmcDataItem).DesignName;
+    piInputMeterData.Enabled := True;
+  end
   else if GraphObject is TdmcMeterLabel then
       FSelectedMeter := (GraphObject as TdmcMeterLabel).DesignName
   else
   begin
     piHideObject.Enabled := False;
+    piInputMeterData.Enabled := False;
     popMeterOp.AutoPopup := False;
     FSelectedMeter := '';
     Exit;
@@ -358,12 +369,6 @@ begin
 end;
 
 procedure TfraDataLayout.sgDataLayoutObjectMouseLeave(Graph: TSimpleGraph; GraphObject:
-  TGraphObject);
-begin
-//
-end;
-
-procedure TfraDataLayout.sgDataLayoutObjectSelect(Graph: TSimpleGraph; GraphObject:
   TGraphObject);
 begin
 //
@@ -588,6 +593,18 @@ begin
       FSelectedObj.Visible := False;
 end;
 
+procedure TfraDataLayout.piInputMeterDataClick(Sender: TObject);
+var
+  S: String;
+begin
+  if FSelectedObj = nil then Exit;
+  if not(FSelectedObj is TdmcDataItem) then Exit;
+
+  S := (FSelectedObj as TdmcDataItem).Text;
+  S := InputBox('输入数据', '请输入需要显示的数据：', S);
+  (FSelectedObj as TdmcDataItem).Text := S;
+end;
+
 procedure TfraDataLayout.piShowDataClick(Sender: TObject);
 var
   S: string;
@@ -760,7 +777,8 @@ begin
   AnItem.ShowData('', DT);
 end;
 
-procedure TfraDataLayout.GraphEndDragging(Graph: TSimpleGraph; GraphObject: TGraphObject; HT: Cardinal;
+procedure TfraDataLayout.GraphEndDragging(Graph: TSimpleGraph; GraphObject: TGraphObject;
+  HT: Cardinal;
   Cancelled: Boolean);
 var
   Obj: TGraphObject;

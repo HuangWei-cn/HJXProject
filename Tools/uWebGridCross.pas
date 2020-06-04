@@ -223,6 +223,7 @@ const
     + '</style>'#13#10 + '</head>'#13#10 + '<body>'#13#10 + '@PageContent@'#13#10 + '</body>'#13#10
     + '</html>';
 
+  { 新的页面代码，允许用户自行设置表格样式，如字体、字体大小、背景颜色、线框颜色等 }
   htmPageCode3 = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">'#13#10 + '<html>'#13#10 +
     '<head>'#13#10 + '<meta http-equiv="Content-Type" content="text/html; charset=GB2312" />'#13#10
     + '@PageTitle@'#13#10 + '<style type="text/css">'#13#10 +
