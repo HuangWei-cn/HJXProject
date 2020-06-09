@@ -68,7 +68,9 @@ object fraBasicTrendLine: TfraBasicTrendLine
     Align = alClient
     BevelOuter = bvNone
     Color = clWhite
+    ParentShowHint = False
     PopupMenu = popTL
+    ShowHint = True
     TabOrder = 0
     OnClick = chtLineClick
     OnDblClick = chtLineDblClick

@@ -5,19 +5,14 @@ object fraQuickViewer: TfraQuickViewer
   Height = 522
   TabOrder = 0
   object wbViewer: TWebBrowser
-    Left = 0
-    Top = 69
-    Width = 843
-    Height = 453
-    Align = alClient
+    Left = 8
+    Top = 324
+    Width = 300
+    Height = 150
     TabOrder = 3
     OnBeforeNavigate2 = wbViewerBeforeNavigate2
-    ExplicitLeft = 72
-    ExplicitTop = 248
-    ExplicitWidth = 300
-    ExplicitHeight = 150
     ControlData = {
-      4C00000020570000D22E00000000000000000000000000000000000000000000
+      4C000000021F0000810F00000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
       2B2E126208000000000000004C0000000114020000000000C000000000000046
       8000000000000000000000000000000000000000000000000000000000000000
@@ -34,7 +29,6 @@ object fraQuickViewer: TfraQuickViewer
     Padding.Right = 5
     Padding.Bottom = 2
     TabOrder = 0
-    ExplicitWidth = 723
     object btnCreateQuickView: TButton
       Left = 8
       Top = 6
@@ -46,7 +40,7 @@ object fraQuickViewer: TfraQuickViewer
       OnClick = btnCreateQuickViewClick
     end
     object btnShowIncrement: TButton
-      Left = 171
+      Left = 115
       Top = 6
       Width = 110
       Height = 41
@@ -64,13 +58,14 @@ object fraQuickViewer: TfraQuickViewer
       Align = alRight
       Caption = #36873#39033
       TabOrder = 2
-      ExplicitLeft = 484
       object chkTableByType: TCheckBox
         Left = 12
         Top = 17
         Width = 109
         Height = 17
         Caption = #25353#20202#22120#31867#22411#20998#34920
+        Checked = True
+        State = cbChecked
         TabOrder = 0
       end
       object chkUseIE: TCheckBox
@@ -95,13 +90,11 @@ object fraQuickViewer: TfraQuickViewer
         Width = 97
         Height = 17
         Caption = #20840#37096#20202#22120
-        Checked = True
-        State = cbChecked
         TabOrder = 3
       end
     end
     object btnSpecificDates: TButton
-      Left = 204
+      Left = 148
       Top = 6
       Width = 141
       Height = 41
@@ -112,9 +105,9 @@ object fraQuickViewer: TfraQuickViewer
       OnClick = btnSpecificDatesClick
     end
     object rdgQueryType: TRadioGroup
-      Left = 419
+      Left = 440
       Top = 3
-      Width = 185
+      Width = 164
       Height = 63
       Align = alRight
       Caption = #26597#35810#31867#22411
@@ -126,19 +119,29 @@ object fraQuickViewer: TfraQuickViewer
         #38388#38548#22686#37327
         #26368#26032#25968#25454)
       TabOrder = 4
-      ExplicitLeft = 468
-      ExplicitTop = 24
-      ExplicitHeight = 105
+    end
+    object rdgPresentType: TRadioGroup
+      Left = 368
+      Top = 3
+      Width = 72
+      Height = 63
+      Align = alRight
+      Caption = #34920#29616#26041#24335
+      ItemIndex = 0
+      Items.Strings = (
+        'WebGrid'
+        'EhGrid')
+      TabOrder = 5
     end
   end
   object HtmlViewer: THtmlViewer
-    Left = 0
-    Top = 69
-    Width = 843
-    Height = 453
+    Left = 23
+    Top = 97
+    Width = 341
+    Height = 238
     BorderStyle = htFocused
     CharSet = GB2312_CHARSET
-    DefFontName = 'Verdana'
+    DefFontName = 'Courier New'
     DefFontSize = 10
     HistoryMaxCount = 0
     NoSelect = False
@@ -148,13 +151,38 @@ object fraQuickViewer: TfraQuickViewer
     PrintMarginTop = 2.000000000000000000
     PrintScale = 1.000000000000000000
     OnHotSpotClick = HtmlViewerHotSpotClick
-    Align = alClient
     PopupMenu = PopupMenu1
     TabOrder = 1
+    Visible = False
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
-    ExplicitWidth = 723
-    ExplicitHeight = 442
+  end
+  object DBGridEh1: TDBGridEh
+    Left = 112
+    Top = 183
+    Width = 389
+    Height = 296
+    AllowedOperations = []
+    Border.ExtendedDraw = False
+    ColumnDefValues.Title.TitleButton = True
+    DataGrouping.GroupPanelVisible = True
+    DataSource = dsDatas
+    DynProps = <>
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Consolas'
+    Font.Style = []
+    OptionsEh = [dghFixed3D, dghHighlightFocus, dghClearSelection, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
+    ParentFont = False
+    SortLocal = True
+    STFilter.Local = True
+    STFilter.Visible = True
+    TabOrder = 5
+    TitleParams.MultiTitle = True
+    Visible = False
+    object RowDetailData: TRowDetailPanelControlEh
+    end
   end
   object pnlProgress: TPanel
     Left = 80
@@ -200,8 +228,8 @@ object fraQuickViewer: TfraQuickViewer
     end
   end
   object pnlDateSelector: TPanel
-    Left = 80
-    Top = 196
+    Left = 200
+    Top = 240
     Width = 461
     Height = 141
     TabOrder = 4
@@ -345,5 +373,28 @@ object fraQuickViewer: TfraQuickViewer
     Title = #20445#23384#32467#26524
     Left = 164
     Top = 452
+  end
+  object MemTableEh1: TMemTableEh
+    FetchAllOnOpen = True
+    Params = <>
+    DataDriver = DataSetDriverEh1
+    Left = 696
+    Top = 365
+  end
+  object dsDatas: TDataSource
+    DataSet = MemTableEh1
+    Left = 696
+    Top = 417
+  end
+  object cdsDatas: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 772
+    Top = 417
+  end
+  object DataSetDriverEh1: TDataSetDriverEh
+    ProviderDataSet = cdsDatas
+    Left = 772
+    Top = 353
   end
 end

@@ -17,7 +17,9 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, System.Types,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, HTMLUn2, HtmlView, Vcl.ExtCtrls,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.Menus, Vcl.OleCtrls, SHDocVw;
+  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.Menus, Vcl.OleCtrls, SHDocVw, MemTableDataEh,
+  Data.DB, DBGridEhGrouping, ToolCtrlsEh, DBGridEhToolCtrls, DynVarsEh, DataDriverEh,
+  Datasnap.DBClient, EhLibVCL, GridsEh, DBAxisGridsEh, DBGridEh, MemTableEh;
 
 type
   TfraQuickViewer = class(TFrame)
@@ -56,6 +58,12 @@ type
     DateTimePicker2: TDateTimePicker;
     chkSimpleSDGrid: TCheckBox;
     rdgQueryType: TRadioGroup;
+    MemTableEh1: TMemTableEh;
+    dsDatas: TDataSource;
+    cdsDatas: TClientDataSet;
+    DataSetDriverEh1: TDataSetDriverEh;
+    DBGridEh1: TDBGridEh;
+    rdgPresentType: TRadioGroup;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -69,6 +77,8 @@ type
   private
     { Private declarations }
     FMeterList: TStrings;
+    FDBGrid   : TDBGridEh;
+    procedure _CreateIncrementDataSet;
     { 显示两个指定日期的数据，及其增量 }
     procedure ShowSpecificDatesData;
   public
@@ -113,11 +123,87 @@ const
     + '</body>'#13#10
     + '</html>';
 
+  FN_INCDATA: array [0 .. 8] of string = ('安装部位', '仪器类型', '设计编号', '物理量', '观测日期', '间隔天数', '当前测值',
+    '最新增量', '30天增量');
+
 var
   MaxDeltaDDWY: Double = 0.1;
   MaxDeltaMS  : Double = 5;
   MaxDeltaMG  : Double = 5;
   MaxDeltaSY  : Double = 1;
+
+procedure TfraQuickViewer._CreateIncrementDataSet;
+var
+  i : Integer;
+  DF: TFieldDef;
+begin
+  if MemTableEh1.Active then MemTableEh1.Close;
+
+  if cdsDatas.Active then cdsDatas.Close;
+  // for i := 0 to cdsdatas.FieldDefs.Count -1 do cdsDatas.FieldDefs[i].Free;
+  cdsDatas.FieldDefs.Clear;
+  // for i := 0 to cdsdatas.IndexDefs.Count -1 do cdsdatas.IndexDefs[i].Free;
+  cdsDatas.IndexDefs.Clear;
+
+  // 安装部位
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'Position';
+  DF.DataType := ftstring;
+  DF.DisplayName := '安装部位';
+  // 仪器类型
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'MeterType';
+  DF.DataType := ftstring;
+  DF.DisplayName := '仪器类型';
+  // 设计编号
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'DesignName';
+  DF.DataType := ftstring;
+  DF.DisplayName := '设计编号';
+  // 物理量
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'PDName';
+  DF.DataType := ftstring;
+  DF.DisplayName := '物理量';
+  // 观测日期
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'DTScale';
+  DF.DataType := ftDateTime;
+  DF.DisplayName := '观测日期';
+  // 间隔天数
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'InteralDays';
+  DF.DataType := ftFloat;
+  DF.DisplayName := '间隔天数';
+  // 当前测值
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'Data';
+  DF.DataType := ftFloat;
+  DF.DisplayName := '当前测值';
+  // 最新增量
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'Increment';
+  DF.DataType := ftFloat;
+  DF.DisplayName := '最新增量';
+  // 最近30天增量
+  DF := cdsDatas.FieldDefs.AddFieldDef;
+  DF.Name := 'Inc30Days';
+  DF.DataType := ftFloat;
+  DF.DisplayName := '最近30天增量';
+
+  // 添加索引
+  cdsDatas.IndexDefs.Add('IdxPos', 'Position', []);
+  cdsDatas.IndexDefs.Add('IdxTyp', 'MeterType', []);
+  cdsDatas.IndexDefs.Add('IdxDgn', 'DesignName', []);
+  // cdsDatas.IndexDefs.Add('IdxPos','Position',[]);
+  cdsDatas.CreateDataSet;
+  for i := 0 to cdsDatas.Fields.Count - 1 do
+  begin
+    cdsDatas.Fields[i].DisplayLabel := FN_INCDATA[i]; // cdsDatas.Fields[i].DisplayName;
+    if cdsDatas.Fields[i].DataType = ftFloat then
+      (cdsDatas.Fields[i] as TNumericField).DisplayFormat := '0.00';
+  end;
+end;
 
 constructor TfraQuickViewer.Create(AOwner: TComponent);
 begin
@@ -127,6 +213,9 @@ begin
   dtp1.Time := 0;
   dtp2.Time := 0;
   FMeterList := TStringList.Create;
+  FDBGrid := TDBGridEh.Create(Self);
+  FDBGrid.Align := alClient;
+  // FDBGrid.DataSource := dsDatas;
 end;
 
 destructor TfraQuickViewer.Destroy;
@@ -141,6 +230,8 @@ end;
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.btnCreateQuickViewClick(Sender: TObject);
 begin
+  pnlProgress.Left := (Self.Width - pnlProgress.Width) div 2;
+  pnlProgress.Top := (Self.Height - pnlProgress.Height) div 2;
   case rdgQueryType.ItemIndex of
     0: ShowQuickView;
     1: ShowDataIncrement(chkUseFilter.Checked);
@@ -357,12 +448,14 @@ begin
     begin
       wbViewer.Visible := True;
       HtmlViewer.Visible := False;
+      wbViewer.Align := alClient;
       WB_LoadHTML(wbViewer, Page);
     end
     else
     begin
       HtmlViewer.Visible := True;
       wbViewer.Visible := False;
+      HtmlViewer.Align := alClient;
       HtmlViewer.LoadFromString(Page);
     end;
   finally
@@ -490,6 +583,7 @@ var
   sPos  : String;
   k     : Integer;     // 特征值项的序号；
   kIdx  : set of Byte; // 特征值序号集合，假设特征值项不超过127个。
+  gl    : TGridDataGroupLevelEh;
   procedure ClearValues;
   var
     ii: Integer;
@@ -537,16 +631,34 @@ var
 
 begin
   HtmlViewer.Clear;
-  if chkUseIE.Checked then
+  // 如果WebGrid
+  if rdgPresentType.ItemIndex = 0 then
+  begin
+    DBGridEh1.Visible := False;
+    if MemTableEh1.Active then
+        MemTableEh1.Close;
+    if cdsDatas.Active then
+        cdsDatas.Close;
+    if chkUseIE.Checked then
+    begin
+      HtmlViewer.Visible := False;
+      wbViewer.Visible := True;
+      wbViewer.Align := alClient;
+    end
+    else
+    begin
+      HtmlViewer.Visible := True;
+      HtmlViewer.Align := alClient;
+      wbViewer.Visible := False;
+    end;
+  end
+  else // 否则是EhGrid
   begin
     HtmlViewer.Visible := False;
-    wbViewer.Visible := True;
-    wbViewer.Align := alClient;
-  end
-  else
-  begin
-    HtmlViewer.Visible := True;
     wbViewer.Visible := False;
+    DBGridEh1.Visible := True;
+    DBGridEh1.Align := alClient;
+    _CreateIncrementDataSet;
   end;
 
   { MTList := TStringList.Create; }
@@ -581,15 +693,19 @@ begin
     Exit;
   end;
 
-  Body := '<h2>观测数据变化情况表</h2>';
-  WCV := TWebCrossView.Create;
+  if rdgPresentType.ItemIndex = 0 then
+  begin
+    Body := '<h2>观测数据变化情况表</h2>';
+    WCV := TWebCrossView.Create;
 
-  // 如果不是按仪器类型分表，则SetGrid。按类型分表是在遇到新仪器类型的时候才SetGrid，若在此处
-  // SetGrid将造成只有表头的空表。
-  if not chkTableByType.Checked then SetGrid;
+    // 如果不是按仪器类型分表，则SetGrid。按类型分表是在遇到新仪器类型的时候才SetGrid，若在此处
+    // SetGrid将造成只有表头的空表。
+    if not chkTableByType.Checked then SetGrid;
 
-  sType := '';
-  sPos := '';
+    sType := '';
+    sPos := '';
+  end;
+
   IHJXClientFuncs.SessionBegin;
 
   try
@@ -609,130 +725,53 @@ begin
       // Meter := ExcelMeters.Items[iMeter];
       Meter := ExcelMeters.Meter[ { MTList } FMeterList.Strings[iMeter]];
 
+      if Meter.Params.MeterType = '测斜孔' then
+          Continue;
+
       lblDesignName.Caption := Meter.DesignName;
       lblProgress.Caption := Format('正在处理第%d支，共%d支', [iMeter, iCount]);
       ProgressBar.Position := iMeter;
       IAppServices.ProcessMessages;
 
-      if Meter.PrjParams.Position <> sPos then
+      if rdgPresentType.ItemIndex = 0 then // WebGrid需要按部位和类型划分页面
       begin
-        sPos := Meter.PrjParams.Position;
-        Body := Body + WCV.CrossGrid;
-        Body := Body + '<h3>' + sPos + '</h3>';
-        // 若不是按类型分表，则就是按部位分表
-        if not chkTableByType.Checked then
+        if Meter.PrjParams.Position <> sPos then
         begin
-          WCV.Reset;
-          SetGrid;
+          sPos := Meter.PrjParams.Position;
+          Body := Body + WCV.CrossGrid;
+          Body := Body + '<h3>' + sPos + '</h3>';
+        // 若不是按类型分表，则就是按部位分表
+          if not chkTableByType.Checked then
+          begin
+            WCV.Reset;
+            SetGrid;
+          end;
+
+          sType := '';
         end;
 
-        sType := '';
-      end;
-
-      if Meter.Params.MeterType = '测斜孔' then
-          Continue;
-      if Meter.Params.MeterType <> sType then
-      begin
-        if chkTableByType.Checked then
+        if Meter.Params.MeterType <> sType then
         begin
+          if chkTableByType.Checked then
+          begin
           // 当stype =''时，说明已经是另一个部位的仪器了，此时WCV内容已经在添加部位标题之前添加到
           // Body了，再添加表格就会在部位标题下面显示一个重复的表格。
-          if sType <> '' then
-              Body := Body + WCV.CrossGrid;
-          Body := Body + '<h4>' + Meter.Params.MeterType + '</h4>';
-          WCV.Reset;
-          SetGrid;
-        end
-        else
-            WCV.AddCaptionRow([Meter.Params.MeterType]);
-        sType := Meter.Params.MeterType;
+            if sType <> '' then
+                Body := Body + WCV.CrossGrid;
+            Body := Body + '<h4>' + Meter.Params.MeterType + '</h4>';
+            WCV.Reset;
+            SetGrid;
+          end
+          else
+              WCV.AddCaptionRow([Meter.Params.MeterType]);
+          sType := Meter.Params.MeterType;
+        end;
       end;
 
       { 查询仪器数据增量 }
       { 2019-07-31 查询增量的方法已经改为查询仪器带有特征值标记的物理量项目 }
       if IHJXClientFuncs.GetDataIncrement(Meter.DesignName, Now, V) then
       begin
-        { todo:改变这个愚蠢的方法，将定义写到配置文件中去 }
-        (*
-        if (sType = '锚索测力计') or (sType = '锚杆应力计') or (sType = '渗压计') or (sType = '基岩变形计')
-          or (sType = '测缝计') or (sType = '裂缝计') or (sType = '位错计') or (sType = '钢筋计')
-          or (sType = '钢板计') or (sType = '水位计') or (sType = '水位') or (sType = '量水堰')
-          or (sType = '应变计') or (sType = '无应力计') then
-        begin
-          if UseFilter then
-            if sType = '锚索测力计' then
-            begin
-              if IgnoreData(V[0][4], MaxDeltaMS) and IgnoreData(V[0][5], MaxDeltaMS)
-              then
-                  Continue
-            end
-            else if sType = '锚杆应力计' then
-            begin
-              if IgnoreData(V[0][4], MaxDeltaMG) and IgnoreData(V[0][5], MaxDeltaMG)
-              then
-                  Continue;
-            end
-            else if sType = '渗压计' then
-            begin
-              if IgnoreData(V[0][4], MaxDeltaSY) and IgnoreData(V[0][5], MaxDeltaSY) then
-                  Continue;
-            end
-            else if sType = '基岩变形计' then
-            begin
-              if IgnoreData(V[0][4], MaxDeltaDDWY) and IgnoreData(V[0][5], MaxDeltaDDWY) then
-                  Continue;
-            end;
-
-          vH[0] := sType;
-          vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
-            Meter.DesignName + '</a>';
-          vH[2] := Meter.PDName(0);
-          vH[3] := FormatDateTime('yyyy-mm-dd', V[0][1]);
-          vH[4] := V[0][2];
-          vH[5] := V[0][3];
-          vH[6] := V[0][4];
-          vH[7] := V[0][5];
-          WCV.AddRow(vH);
-        end
-        else if sType = '多点位移计' then
-        begin
-          for i := Low(V) to High(V) do
-          begin
-            if UseFilter then
-              if IgnoreData(V[i][4], MaxDeltaDDWY) and
-                IgnoreData(V[i][5], MaxDeltaDDWY)
-              then
-                  Continue;
-
-            vH[0] := sType;
-            vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
-              Meter.DesignName + '</a>';
-            vH[2] := Meter.PDName(i);
-            vH[3] := FormatDateTime('yyyy-mm-dd', V[i][1]);
-            vH[4] := V[i][2];
-            vH[5] := V[i][3];
-            vH[6] := V[i][4];
-            vH[7] := V[i][5];
-            WCV.AddRow(vH);
-          end;
-        end
-        else if sType = '平面位移测点' then
-        begin
-          for i := Low(V) to High(V) do
-          begin
-            vH[0] := sType;
-            vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
-              Meter.DesignName + '</a>';
-            vH[2] := V[i][0]; // Meter.PDName(i);
-            vH[3] := FormatDateTime('yyyy-mm-dd', V[i][1]);
-            vH[4] := V[i][2];
-            vH[5] := V[i][3];
-            vH[6] := V[i][4];
-            vH[7] := V[i][5];
-            WCV.AddRow(vH);
-          end;
-        end;
- *)
       { 2019-07-31 因增量查询方法已经改为查询具有特征值标记的物理量，因此这里也修改为列出具备特征值
       标记的物理量，暂时不考虑过滤小变化量的情况。关于查询的结果V，参见uHJX.Excel.DataQuery单元中的
       GetDataIncrement方法中的定义 }
@@ -749,33 +788,81 @@ begin
           i := 0;
           for k in kIdx do
           begin
-            vH[0] := sType;
-            vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
-              Meter.DesignName + '</a>';
-            vH[2] := V[i][0]; // 物理量名
-            vH[3] := FormatDateTime('yyyy-mm-dd', V[i][1]);
-            vH[4] := V[i][2]; // 间隔日期
-            vH[5] := V[i][3]; // 最后测值
-            vH[6] := V[i][4]; // 与上次测值的增量
-            vH[7] := V[i][5]; // 30日增量
-            WCV.AddRow(vH);
-
+            if rdgPresentType.ItemIndex = 0 then
+            begin
+              vH[0] := sType;
+              vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
+                Meter.DesignName + '</a>';
+              vH[2] := V[i][0]; // 物理量名
+              vH[3] := FormatDateTime('yyyy-mm-dd', V[i][1]);
+              vH[4] := V[i][2]; // 间隔日期
+              vH[5] := V[i][3]; // 最后测值
+              vH[6] := V[i][4]; // 与上次测值的增量
+              vH[7] := V[i][5]; // 30日增量
+              WCV.AddRow(vH);
+            end
+            else
+            begin
+              // 2020-06-09------------------------------------------------------------
+              cdsDatas.Append;
+              cdsDatas.FieldByName('Position').Value := Meter.PrjParams.Position;
+              cdsDatas.FieldByName('MeterType').Value := Meter.Params.MeterType;
+              cdsDatas.FieldByName('DesignName').Value := Meter.DesignName;
+              cdsDatas.FieldByName('PDName').Value := V[i][0];
+              cdsDatas.FieldByName('DTScale').Value := V[i][1];
+              cdsDatas.FieldByName('InteralDays').Value := V[i][2];
+              cdsDatas.FieldByName('Data').Value := V[i][3];
+              cdsDatas.FieldByName('Increment').Value := V[i][4];
+              cdsDatas.FieldByName('Inc30Days').Value := V[i][5];
+              cdsDatas.Post;
+            end;
             Inc(i);
           end;
         end;
       end;
 
     end;
-    Body := Body + WCV.CrossGrid;
-    Page := StringReplace(htmPageCode2, '@PageContent@', Body, []);
-    if chkUseIE.Checked then
-        WB_LoadHTML(wbViewer, Page)
+
+    if rdgPresentType.ItemIndex = 0 then
+    begin
+      Body := Body + WCV.CrossGrid;
+      Page := StringReplace(htmPageCode2, '@PageContent@', Body, []);
+      if chkUseIE.Checked then
+          WB_LoadHTML(wbViewer, Page)
+      else
+          HtmlViewer.LoadFromString(Page);
+    end
     else
-        HtmlViewer.LoadFromString(Page);
+    begin
+    // 2020-06-09------------------------------------------------
+      for i := 0 to cdsDatas.Fields.Count - 1 do
+      begin
+        cdsDatas.Fields[i].DisplayLabel := cdsDatas.Fields[i].DisplayName;
+        if cdsDatas.Fields[i].DataType = ftFloat then
+          (cdsDatas.Fields[i] as TNumericField).DisplayFormat := '0.00';
+      end;
+      cdsDatas.Open;
+      MemTableEh1.Open;
+      // FDBGrid.BringToFront;
+      // FDBGrid.Align := alClient;
+      // FDBGrid.Visible := True;
+      DBGridEh1.DataGrouping.Active := False;
+      DBGridEh1.DataGrouping.GroupLevels.Clear;
+      DBGridEh1.DataGrouping.GroupLevels.Add.Column := DBGridEh1.Columns[0];
+      // gl := DBGridEh1.DataGrouping.GroupLevels.Add;
+      // gl.Column := DBGridEh1.Columns[0];
+      DBGridEh1.Columns[0].Visible := False;
+      DBGridEh1.DataGrouping.Active := True;
+      DBGridEh1.DataGrouping.GroupPanelVisible := True;
+    end;
+    // -----------------------------------------------------------
   finally
     { MTList.Free; }
-    WCV.Free;
-    ClearValues;
+    if rdgPresentType.ItemIndex = 0 then
+    begin
+      WCV.Free;
+      ClearValues;
+    end;
     IHJXClientFuncs.SessionEnd;
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
@@ -869,6 +956,7 @@ begin
   begin
     HtmlViewer.Visible := True;
     wbViewer.Visible := False;
+    htmlviewer.Align := alClient;
   end;
   // 选择仪器
   if chkAllMeters.Checked then
@@ -1146,6 +1234,7 @@ var
 
 begin
   if ExcelMeters.Count = 0 then Exit;
+  DBGridEh1.Visible := False;
   HtmlViewer.Clear;
   if chkUseIE.Checked then
   begin
@@ -1157,6 +1246,7 @@ begin
   begin
     HtmlViewer.Visible := True;
     wbViewer.Visible := False;
+    htmlviewer.Align := alClient;
   end;
 
   // 准备仪器列表
@@ -1227,7 +1317,7 @@ begin
         if not chkTableByType.Checked then
         begin
           WCV.Reset;
-          // SetGrid;
+          SetGrid;
         end;
 
         sType := '';
