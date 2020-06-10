@@ -173,6 +173,8 @@ object fraQuickViewer: TfraQuickViewer
     Font.Height = -12
     Font.Name = 'Consolas'
     Font.Style = []
+    IndicatorTitle.ShowDropDownSign = True
+    IndicatorTitle.TitleButton = True
     OptionsEh = [dghFixed3D, dghHighlightFocus, dghClearSelection, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
     ParentFont = False
     SortLocal = True
@@ -182,49 +184,6 @@ object fraQuickViewer: TfraQuickViewer
     TitleParams.MultiTitle = True
     Visible = False
     object RowDetailData: TRowDetailPanelControlEh
-    end
-  end
-  object pnlProgress: TPanel
-    Left = 80
-    Top = 84
-    Width = 405
-    Height = 89
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 2
-    Visible = False
-    object Label1: TLabel
-      Left = 16
-      Top = 13
-      Width = 75
-      Height = 16
-      Caption = #27491#22312#26816#26597#65306
-    end
-    object lblDesignName: TLabel
-      Left = 91
-      Top = 13
-      Width = 4
-      Height = 16
-    end
-    object lblProgress: TLabel
-      Left = 16
-      Top = 63
-      Width = 373
-      Height = 16
-      Alignment = taCenter
-      AutoSize = False
-    end
-    object ProgressBar: TProgressBar
-      Left = 16
-      Top = 40
-      Width = 373
-      Height = 17
-      Step = 1
-      TabOrder = 0
     end
   end
   object pnlDateSelector: TPanel
@@ -339,6 +298,49 @@ object fraQuickViewer: TfraQuickViewer
       ParentShowHint = False
       ShowHint = True
       TabOrder = 3
+    end
+  end
+  object pnlProgress: TPanel
+    Left = 80
+    Top = 84
+    Width = 405
+    Height = 89
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+    Visible = False
+    object Label1: TLabel
+      Left = 16
+      Top = 13
+      Width = 75
+      Height = 16
+      Caption = #27491#22312#26816#26597#65306
+    end
+    object lblDesignName: TLabel
+      Left = 91
+      Top = 13
+      Width = 4
+      Height = 16
+    end
+    object lblProgress: TLabel
+      Left = 16
+      Top = 63
+      Width = 373
+      Height = 16
+      Alignment = taCenter
+      AutoSize = False
+    end
+    object ProgressBar: TProgressBar
+      Left = 16
+      Top = 40
+      Width = 373
+      Height = 17
+      Step = 1
+      TabOrder = 0
     end
   end
   object PopupMenu1: TPopupMenu
