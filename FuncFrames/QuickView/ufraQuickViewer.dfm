@@ -177,6 +177,9 @@ object fraQuickViewer: TfraQuickViewer
     IndicatorTitle.TitleButton = True
     OptionsEh = [dghFixed3D, dghHighlightFocus, dghClearSelection, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
     ParentFont = False
+    PopupMenu = popGrid
+    SearchPanel.Enabled = True
+    SearchPanel.FilterOnTyping = True
     SortLocal = True
     STFilter.Local = True
     STFilter.Visible = True
@@ -344,8 +347,8 @@ object fraQuickViewer: TfraQuickViewer
     end
   end
   object PopupMenu1: TPopupMenu
-    Left = 328
-    Top = 452
+    Left = 628
+    Top = 132
     object miCopy: TMenuItem
       Caption = #25335#36125
       OnClick = miCopyClick
@@ -398,5 +401,38 @@ object fraQuickViewer: TfraQuickViewer
     ProviderDataSet = cdsDatas
     Left = 772
     Top = 353
+  end
+  object popGrid: TPopupMenu
+    OnPopup = popGridPopup
+    Left = 568
+    Top = 132
+    object piShowTrendLine: TMenuItem
+      Action = actShowTrendLine
+    end
+    object piShowDataGrid: TMenuItem
+      Action = actShowDatas
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object piSetFont: TMenuItem
+      Caption = #35774#32622#23383#20307
+    end
+  end
+  object ActionList1: TActionList
+    Left = 588
+    Top = 440
+    object actShowTrendLine: TAction
+      Caption = #26174#31034#36807#31243#32447
+      OnExecute = actShowTrendLineExecute
+    end
+    object actShowDatas: TAction
+      Caption = #26174#31034#35266#27979#25968#25454#34920
+      OnExecute = actShowDatasExecute
+    end
+    object actSetGridFont: TAction
+      Caption = #35774#32622#23383#20307
+      OnExecute = actSetGridFontExecute
+    end
   end
 end

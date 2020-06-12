@@ -21,7 +21,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, HTMLUn2, HtmlView, Vcl.ExtCtrls,
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.Menus, Vcl.OleCtrls, SHDocVw, MemTableDataEh,
   Data.DB, DBGridEhGrouping, ToolCtrlsEh, DBGridEhToolCtrls, DynVarsEh, DataDriverEh,
-  Datasnap.DBClient, EhLibVCL, GridsEh, DBAxisGridsEh, DBGridEh, MemTableEh;
+  Datasnap.DBClient, EhLibVCL, GridsEh, DBAxisGridsEh, DBGridEh, MemTableEh, System.Actions,
+  Vcl.ActnList;
 
 type
   TfraQuickViewer = class(TFrame)
@@ -66,6 +67,15 @@ type
     DataSetDriverEh1: TDataSetDriverEh;
     DBGridEh1: TDBGridEh;
     rdgPresentType: TRadioGroup;
+    popGrid: TPopupMenu;
+    piShowTrendLine: TMenuItem;
+    piShowDataGrid: TMenuItem;
+    N3: TMenuItem;
+    piSetFont: TMenuItem;
+    ActionList1: TActionList;
+    actShowTrendLine: TAction;
+    actShowDatas: TAction;
+    actSetGridFont: TAction;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -76,6 +86,10 @@ type
       TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
     procedure btnSpecificDatesClick(Sender: TObject);
     procedure btnDateSelectedClick(Sender: TObject);
+    procedure popGridPopup(Sender: TObject);
+    procedure actShowTrendLineExecute(Sender: TObject);
+    procedure actShowDatasExecute(Sender: TObject);
+    procedure actSetGridFontExecute(Sender: TObject);
   private
     { Private declarations }
     FMeterList: TStrings;
@@ -83,6 +97,8 @@ type
     procedure _CreateIncrementDataSet;
     // 创建指定间隔增量数据集
     procedure _Create2DayIncDataSet;
+    // 设置DBGridEh的颜色等
+    procedure _SetGridPresent;
     { 显示两个指定日期的数据，及其增量 }
     procedure ShowSpecificDatesData;
   public
@@ -276,6 +292,50 @@ begin
   end;
 end;
 
+procedure TfraQuickViewer._SetGridPresent;
+var
+  i: Integer;
+  S: String;
+  procedure __SetColumnColor(Clmn: TColumnEh; BgColor, FtColor: TColor);
+  begin
+    Clmn.Color := BgColor;
+    Clmn.Font.Color := FtColor;
+  end;
+
+begin
+  // 先设置共有的类型
+  if DBGridEh1.FieldColumns['Position'] <> nil then
+      __SetColumnColor(DBGridEh1.FieldColumns['Position'], clWebWheat, clBlack);
+  if DBGridEh1.FieldColumns['MeterType'] <> nil then
+      __SetColumnColor(DBGridEh1.FieldColumns['MeterType'], clWebLemonChiffon, clBlack);
+  if DBGridEh1.FieldColumns['DesignName'] <> nil then
+      __SetColumnColor(DBGridEh1.FieldColumns['DesignName'], clWhite, clBlack);
+  if DBGridEh1.FieldColumns['PDName'] <> nil then
+      __SetColumnColor(DBGridEh1.FieldColumns['PDName'], clWhite, clWebGreen);
+  if DBGridEh1.FieldColumns['DesignName'] <> nil then
+      __SetColumnColor(DBGridEh1.FieldColumns['DesignName'], clWhite, clBlack);
+
+  for i := 0 to DBGridEh1.Columns.Count - 1 do
+  begin
+    S := DBGridEh1.Columns[i].FieldName;
+    if (S = 'DTScale') or (pos('Date', S) > 0) then
+        __SetColumnColor(DBGridEh1.Columns[i], clWhite, clWebSlateBlue)
+    else if pos('Data', S) > 0 then
+        __SetColumnColor(DBGridEh1.Columns[i], clWebPaleGreen, clBlack)
+    else if S = 'IntralDays' then
+        __SetColumnColor(DBGridEh1.Columns[i], clWhite, clWebOlive)
+    else if S = 'Increment' then
+        __SetColumnColor(DBGridEh1.Columns[i], clWebPink, clBlack)
+    else if S = 'Inc30Days' then
+        __SetColumnColor(DBGridEh1.Columns[i], clWebPlum, clBlack)
+    else if S = 'Rate' then
+        __SetColumnColor(DBGridEh1.Columns[i], clWebKhaki, clWebSeaGreen);
+    { else
+        __SetColumnColor(DBGridEh1.Columns[i], clWhite, clBlack); }
+    DBGridEh1.Columns[i].OptimizeWidth;
+  end;
+end;
+
 constructor TfraQuickViewer.Create(AOwner: TComponent);
 begin
   inherited;
@@ -296,6 +356,36 @@ end;
   Procedure  : ShowQuickView
   Description: 显示速览内容
 ----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.actSetGridFontExecute(Sender: TObject);
+begin
+//
+end;
+
+procedure TfraQuickViewer.actShowDatasExecute(Sender: TObject);
+var
+  mn: String;
+begin
+  if not cdsDatas.Active then Exit;
+  if IAppServices = nil then Exit;
+  if IAppServices.FuncDispatcher = nil then Exit;
+  mn := MemTableEh1.FieldByName('DesignName').AsString;
+  if Trim(mn) = '' then Exit;
+  (IAppServices.FuncDispatcher as IFunctionDispatcher).ShowData(mn, nil);
+end;
+
+procedure TfraQuickViewer.actShowTrendLineExecute(Sender: TObject);
+var
+  mn: String;
+begin
+  if not cdsDatas.Active then Exit;
+  if IAppServices = nil then Exit;
+  if IAppServices.FuncDispatcher = nil then Exit;
+  // mn := cdsDatas.FieldByName('DesignName').AsString;
+  mn := MemTableEh1.FieldByName('DesignName').AsString;
+  if Trim(mn) = '' then Exit;
+  (IAppServices.FuncDispatcher as IFunctionDispatcher).ShowDataGraph(mn, nil);
+end;
+
 procedure TfraQuickViewer.btnCreateQuickViewClick(Sender: TObject);
 begin
   pnlProgress.Left := (Self.Width - pnlProgress.Width) div 2;
@@ -537,17 +627,17 @@ end;
 procedure TfraQuickViewer.wbViewerBeforeNavigate2(ASender: TObject; const pDisp: IDispatch;
   const URL, Flags, TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
 var
-  s, cmd, sName: String;
+  S, cmd, sName: String;
   i            : Integer;
 begin
-  s := VarToStr(URL);
-  if Pos('about', s) > 0 then // 加载空页面
+  S := VarToStr(URL);
+  if pos('about', S) > 0 then // 加载空页面
       Cancel := False
-  else if Pos('popgraph', s) > 0 then
+  else if pos('popgraph', S) > 0 then
   begin
-    i := Pos(':', s);
-    cmd := Copy(s, 1, i - 1);
-    sName := Copy(s, i + 1, Length(s) - 1);
+    i := pos(':', S);
+    cmd := Copy(S, 1, i - 1);
+    sName := Copy(S, i + 1, Length(S) - 1);
     // ShowMessage('Hot link: ' + s);
     if cmd = 'popgraph' then
       (IAppServices.FuncDispatcher as IFunctionDispatcher).PopupDataGraph(sName);
@@ -589,16 +679,16 @@ end;
 procedure TfraQuickViewer.HtmlViewerHotSpotClick(Sender: TObject; const SRC: string;
   var Handled: Boolean);
 var
-  cmd, s: string;
+  cmd, S: string;
   i     : Integer;
 begin
     // ShowMessage(src);
-  i := Pos(':', SRC);
+  i := pos(':', SRC);
   cmd := Copy(SRC, 1, i - 1);
-  s := Copy(SRC, i + 1, Length(SRC) - i);
+  S := Copy(SRC, i + 1, Length(SRC) - i);
     // ShowMessage(s);
   if cmd = 'PopGraph' then
-    (IAppServices.FuncDispatcher as IFunctionDispatcher).PopupDataGraph(s);;
+    (IAppServices.FuncDispatcher as IFunctionDispatcher).PopupDataGraph(S);;
 end;
 
 procedure TfraQuickViewer.miCopyClick(Sender: TObject);
@@ -633,6 +723,21 @@ begin
         strs.Free;
       end;
     end;
+end;
+
+procedure TfraQuickViewer.popGridPopup(Sender: TObject);
+begin
+  // 判断Grid.DataSet是否Active
+  if (popGrid.PopupComponent as TDBGridEh).DataSource.DataSet.Active then
+  begin
+    piShowTrendLine.Enabled := True;
+    piShowDataGrid.Enabled := True;
+  end
+  else
+  begin
+    piShowTrendLine.Enabled := False;
+    piShowDataGrid.Enabled := False;
+  end;
 end;
 
 procedure TfraQuickViewer.ShowDataIncrement(UseFilter: Boolean = False);
@@ -924,6 +1029,7 @@ begin
       DBGridEh1.Columns[1].Visible := False;
       DBGridEh1.DataGrouping.Active := True;
       DBGridEh1.DataGrouping.GroupPanelVisible := True;
+      _SetGridPresent;
     end;
     // -----------------------------------------------------------
   finally
@@ -1233,6 +1339,7 @@ begin
       DBGridEh1.Columns[1].Visible := False;
       DBGridEh1.DataGrouping.Active := True;
       DBGridEh1.DataGrouping.GroupPanelVisible := True;
+      _SetGridPresent;
     end;
 
   finally
@@ -1381,7 +1488,7 @@ begin
       ProgressBar.Position := iMeter;
 
       if Meter.Params.MeterType = '测斜孔' then
-      Continue;
+          Continue;
 
       IAppServices.ProcessMessages;
 
