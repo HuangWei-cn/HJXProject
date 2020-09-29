@@ -60,6 +60,29 @@ type
           本函数与GetDataIncrement有差别，本函数没有30天增量，因此只有5列数据。 }
     function GetDataIncrement2(ADsnName: String; DT: TDateTime; InteralDays: Integer;
       var Values: TVariantDynArray): Boolean;
+
+      { 返回指定时间段内指定仪器的指定周期增量，如返回月增量、周增量、季度增量、半年增量、年增量等。
+        本函数每次执行仅查询一个传感器的某一物理量的周期增量，若需要查询一堆仪器或仪器的多个物理量，
+        则需要调用多次。
+        输入参数：
+        1、APDIndex：待查仪器的物理量序号。对于多数仪器，APDIndex为0；但对于多点位移计，若需要列出各
+           深度测点的周期间隔，则需要逐一调用。某些仪器可能需要查询其他物理量，比如钢筋计查询温度，
+           水平位移测点查询其他方向、或者坐标变换结果等，此时APDIndex均不为0；
+        2、StartDay指周期起始日期是该周期第几天，如月增量按照黄金峡为每月20日~次月19日。年、季的
+           StartDay均如此。但是周增量的StartDay = 1~7，对应周一~周日，超过7的视为1。
+        3、Period=0~3，分别对应月、年、季、周，一般用不到周增量，间隔太小。
+
+        返回值为Variant类型数组，其记录格式为：
+              日期间隔名称  起始值  截止值  增量  最大值  最小值  变幅
+
+        返回数据项格式说明：
+          1、日期间隔名称：如“2019年8月”、“2020年第一季度”、“2016年”
+          2、起始值、截止值、增量：分别为该周期第一天测值、该周期最后一天测值、起始和截止测值差值
+          3、最大值、最小值：分别为该周期内的最大值、最小值、变幅
+        用户程序可以通过调用本方法获取数据后填写仪器的增量表
+ }
+    function GetPeriodIncrement(ADsnName: String; APDIndex: Integer; StartDate, EndDate: TDateTime;
+      var Values: TVariantDynArray; StartDay: Integer = 20; Period: Integer = 0): Boolean;
   end;
 
 var

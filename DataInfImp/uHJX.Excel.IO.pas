@@ -39,6 +39,8 @@ type
     function GetFloatValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Double;
     function GetDateTimeValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): TDateTime;
     function GetIntValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Integer;
+    // 返回Variant类型的值
+    function GetValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Variant;
         // 判断工作簿是否打开，WBK必须是由本类创建的
     function BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
 
@@ -113,10 +115,10 @@ begin
         end;
       -1:
         begin
-          if MessageBox(0, PWideChar(aname + '无法打开，是否要关闭Excel后重试？'#13#10
-          + '若Excel或WPS没有占用该文件，则该文件可能是由WPS编辑过的、存在问题'
-          + '的Excel 2007或更高版本的文件(xlsx格式), 请用真正的Excel保存一遍再'
-          + '试试。若还不行，那就干点别的吧，别用了。'), '打开Excel工作簿',
+          if MessageBox(0, PWideChar(AName + '无法打开，是否要关闭Excel后重试？'#13#10
+            + '若Excel或WPS没有占用该文件，则该文件可能是由WPS编辑过的、存在问题'
+            + '的Excel 2007或更高版本的文件(xlsx格式), 请用真正的Excel保存一遍再'
+            + '试试。若还不行，那就干点别的吧，别用了。'), '打开Excel工作簿',
             MB_ICONWARNING or MB_RETRYCANCEL) = IDCANCEL then
               bExit := True;
         end;
@@ -171,8 +173,22 @@ begin
 end;
 
 function TExcelIO.GetDateTimeValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): TDateTime;
+var
+  S: string;
 begin
-  Result := VarToDateTime(ASheet.Cells[ARow, ACol].value);
+  try
+    Result := VarToDateTime(ASheet.Cells[ARow, ACol].value);
+  except
+    on e: Exception do
+    begin
+      if ASheet.Workbook is TmyWorkbook then
+          S := (ASheet.Workbook as TmyWorkbook).FullName + '中的工作簿' + ASheet.Name
+      else
+          S := '工作簿' + ASheet.Name;
+      S := S + format('第%d行第%d列内容不是合法的日期格式，请检查。', [ARow, ACol]);
+      showmessage(S);
+    end;
+  end;
 end;
 
 function TExcelIO.GetIntValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): Integer;
@@ -182,6 +198,12 @@ begin
   Result := 0;
   S := GetStrValue(ASheet, ARow, ACol);
   TryStrToInt(S, Result);
+end;
+
+function TExcelIO.GetValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): Variant;
+begin
+  varClear(Result);
+  Result := ASheet.Cells[ARow, ACol].Value;
 end;
 
 function TExcelIO.BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
@@ -199,9 +221,9 @@ var
 begin
   if not FileExists(ABKName) then Exit;
   try
-    xlapp := null;
+    XLApp := null;
     XLApp := GetExcelApp; // CreateOleObject('Excel.Application');
-    if VarIsNull(xlapp) or VarIsEmpty(XLApp) then xlapp := GetExcelApp(True);
+    if VarIsNull(XLApp) or VarIsEmpty(XLApp) then XLApp := GetExcelApp(True);
 
     if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
     begin
@@ -287,7 +309,7 @@ begin
 
       if VarIsNull(SrcSheet) then Continue;
 
-      SrcSheet.Copy(Null, TagBk.WorkSheets.Item[TagBk.WorkSheets.Count]);
+      SrcSheet.Copy(null, TagBk.WorkSheets.Item[TagBk.WorkSheets.Count]);
       TagSheet := TagBk.WorkSheets.Item[TagBk.WorkSheets.Count];
       if S2 <> '' then
       begin
@@ -300,11 +322,11 @@ begin
     end;
     // 执行到这里，算是拷贝完毕了
     try
-      //删除第一个表
-      tagbk.WorkSheets[1].Delete;
+      // 删除第一个表
+      TagBk.WorkSheets[1].Delete;
       { todo:根据扩展名判断是保存为xlExcel9795还是xlExcel12 }
       TagBk.SaveAs(TagBook, 56); // xlExcel8 = 56: Excel 97~2003
-      //TagBk.SaveAs(TagBook);
+      // TagBk.SaveAs(TagBook);
       Sleep(1000);
       Result := True;
     finally
@@ -331,7 +353,7 @@ begin
     else
         Result := GetActiveOleObject('Excel.Application');
 
-    //若Excel Application没有Ready，等待
+    // 若Excel Application没有Ready，等待
     if not(VarIsNull(Result) or VarIsEmpty(Result)) then
       while Result.Ready = False do;
 

@@ -348,6 +348,7 @@ begin
       varBoolean: Result := Booltostr(FValue);
       varString, varOLEStr: if Trim(FValue) = '' then Result := '¡¡'
         else Result := FValue;
+      varUnknown: Result := ' ';
     else Result := VartoStr(FValue);
     end; // case
   end;
@@ -858,6 +859,7 @@ end;
 procedure TWebCrossView.Reset;
 begin
   FreeAndNil(FMatrix);
+  FColCount := 0;
 end;
 
 { ----------------------------------------------------------------------------- }

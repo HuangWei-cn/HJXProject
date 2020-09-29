@@ -91,6 +91,40 @@ type
       本函数与GetDataIncrement有差别，本函数没有30天增量，因此只有5列数据； }
     function GetDataIncrement2(ADsnName: String; DT: TDateTime; InteralDays: Integer;
       var Values: TVariantDynArray): Boolean;
+
+    /// <summary>
+    /// * 返回指定时间段内指定仪器的指定周期增量，如返回月增量、周增量、季度增量、半年增量、年增量等。
+    /// 本函数每次执行仅查询一个传感器的某一物理量的周期增量，若需要查询一堆仪器或仪器的多个物理量，
+    /// 则对每支仪器的每个物理量都需要调用本方法一次。
+    /// * 若某仪器在观测数据序列中间缺少某时段数据，如缺少4月12日~8月25日期间数据的情况，暂时采用中间
+    /// 缺少数据的月份增量为0的方式。最好能在备注中说明这种情况，或采用其他显示方式。
+    /// * 各个周期的取值方法：月周期，本周起止时间段一般从上月StartDay到本月的StartDay，除非是采用自
+    /// 然月；年周期，从上一年12月StartDay到本年度12月startday，除非是自然年；季度采用自然计时，即从
+    /// 季度的1日~下一季度的1日；周周期，取上一周的StartDay~本周的StartDay，除非StartDay为1.
+    /// </summary>
+    /// <param name="ADsnName">监测仪器设计编号</param>
+    /// <param name="APDIndex">待查询的物理量序号，对于多数应用情况，APDIndex=0即可满足要求。但是对于
+    /// 某些仪器，如多点位移计，若需要列出各深度测点的周期间隔，则需要用APDIndex逐一指定传感器。或者
+    /// 对于水平位移计测点需要查询其他方向、钢筋计查询温度增量等
+    /// </param>
+    /// <param name="StartDate">查询的起始日期</param>
+    /// <param name="EndDate">查询的截止日期</param>
+    /// <param name="Values">返回的查询结果，以Variant二维数组方式返回，采用Variant数组的原因在于某
+    /// 些数据可能为Null值，若是用double，则无法表示Null。
+    /// 每条记录的格式为：
+    /// 日期间隔名称 起始日期 截止日期 起始值  截止值  增量  最大值  最小值  变幅  备注
+    /// 数据项含义说明：
+    /// 1、日期间隔名称：String类型，如“2018年8月”、“2020年第一季度”、“2017年”；
+    /// 2、起始日期、截止日期：Double，本次间隔的起止日期。
+    /// 3、起始值、截止值、增量：Double 分别对应该周期第一天测值、最后一天测值、两者差值；
+    /// 4、最大值、最小值、变幅：Double，分别对应该周期内的最大最小值和两者差值；
+    /// </param>
+    /// <param name="StartDay">指该周期的起始日期，如月周期的20，指每月20日至次月19日。对于年和季度
+    /// 周期的情况也是如此。但是对于周增量，则StartDay=1~7，对应周一~周日，超过7则认为是1。</param>
+    /// <param name="Period">0~3，分别对应月、年、季、周</param>
+    /// <returns>查询成功为True，否则为False</returns>
+    function GetPeriodIncrement(ADsnName: String; APDIndex: Integer; StartDate, EndDate: TDateTime;
+      var Values: TVariantDynArray; StartDay: Integer = 20; Period: Integer = 0): Boolean;
   end;
 
 procedure RegistClientDatas;
@@ -1965,22 +1999,200 @@ begin
           ExcelIO.GetDateTimeValue(sht, iEarlierRow, 1));
         d := ExcelIO.GetFloatValue(sht, iEarlierRow, Meter.PDColumn(k));
         d2 := Values[i][3] - d;
-        //d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
+        // d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
         Values[i][2] := iDays;
         Values[i][4] := d2;
-        //Values[i][5] := d30;
+        // Values[i][5] := d30;
       end
       else
       begin
         Values[i][2] := 0;
         Values[i][4] := Null;
-        //Values[i][5] := Null;
+        // Values[i][5] := Null;
       end;
 
       inc(i);
     end;
   end;
 
+  Result := True;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : _GetPeriodDay
+  Description: 计算查询周期的截止日期或起始日期。本方法供GetPeriodIncrement方法
+  调用。
+  若NextPeriod为True，即求下一个周期的起始日期，也是本周期的截止日期，若为
+  False，则求本周期的起始日期。
+----------------------------------------------------------------------------- }
+function _GetPeriodDay(ADate: TDateTime; Period, StartDay: Integer; NextPeriod: Boolean = True)
+  : TDateTime;
+var
+  iPeriod, iiYear, iiMonth, iiDay: Integer;
+begin
+  Result := 0;
+  iiYear := YearOf(ADate);
+  iiMonth := MonthOf(ADate);
+  iiDay := DayOf(ADate);
+  case Period of
+    0:
+      begin
+          // 月周期，如果StartDay=1，则本月周期为1日~下月1日，否则从上月StartDay到本月StartDay
+        if StartDay = 1 then
+        begin
+          Result := IncMonth(EncodeDate(iiYear, iiMonth, 1));
+        end
+        else
+        begin
+          if NextPeriod then
+              Result := IncMonth(EncodeDate(iiYear, iiMonth, StartDay))
+          else
+              Result := EncodeDate(iiYear, iiMonth, StartDay)
+        end;
+      end;
+    1:
+      begin
+          /// 对年的周期，如果StartDay=1，则从本年度1月1日~12月31日，否则
+          /// 暂定为从前一年12月某日到本年度12月某日。如2018年的年度测值取时范围为2017年
+          /// 12月20日~2018年12月20日。
+        if NextPeriod then
+            Result := EncodeDate(iiYear + 1, 12, StartDay)
+        else
+            Result := EncodeDate(iiYear, 12, StartDay);
+      end;
+    2:
+      // 季度周期暂时不考虑
+      begin
+      end;
+    3:
+      // 周周期暂不考虑，观测频次往往间隔都超过一周了……
+      begin
+        iPeriod := WeeksInYear(ADate);
+      end;
+  end;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : GetPeriodIncrement
+  Description: 查询指定仪器的指定物理量在指定时间范围内指定周期类型的增量
+  本方法可用于显示仪器的观测数据统计结果、绘制增量直方图、烛光图等高级图形
+----------------------------------------------------------------------------- }
+function ThjxDataQuery.GetPeriodIncrement(ADsnName: String; APDIndex: Integer;
+  StartDate, EndDate: TDateTime; var Values: TVariantDynArray; StartDay: Integer = 20;
+  Period: Integer = 0): Boolean;
+var
+  wbk  : IXLSWorkBook;
+  sht  : IXLSWorksheet;
+  Meter: TMeterDefine;
+  sType: String;
+
+  iStartRow, iEndRow { 给定起止日期对应的行号 } ,
+    iFirstRow, iLastRow { 周期起止时间对应的行号 } ,
+    iDay, n, i,
+    iDataCol, iRow  : Integer;
+  sPeriodName       : string;    // 每条记录的间隔时段名称，如“2018年9月”
+  dtStart, dtEnd    : TDateTime; // 间隔时段的起止时间
+  dStart, dEnd, dInc: double;    // 间隔时段的起止测值和增量值
+  // dMax, dMin, dA :double; //间隔时段的最大最小值及测值在期间内的变幅
+  // ----清理待输出的结果Values--------------------
+  procedure __ClearValues;
+  var
+    ii: Integer;
+  begin
+    if Length(Values) > 0 then
+      for ii := Low(Values) to High(Values) do
+          VarClear(Values[ii]);
+    SetLength(Values, 0);
+  end;
+
+  // ----计算增量-------
+  function __GetInc(V1, V2: Variant): Variant;
+  begin
+    Result := Null;
+    if VarIsNumeric(V1) and VarIsNumeric(V2) then Result := V2 - V1;
+  end;
+
+begin
+  Result := False;
+  __ClearValues;
+  sType := GetMeterTypeName(ADsnName);
+  Meter := ExcelMeters.Meter[ADsnName];
+  iStartRow := Meter.DataSheetStru.DTStartRow; // 数据表中的第一行，即数据起始行
+  if iStartRow = -1 then Exit;
+
+  iDataCol := Meter.PDColumn(APDIndex);
+  if _GetMeterSheet(ADsnName, wbk, sht) = False then Exit;
+
+  { 为降低代码复杂度，目前只考虑取回月增量，其他间隔以后再说。很久不写代码了，都快忘记编程了 }
+  n := 0; // 数组长度
+  iStartRow := _LocateDTRow(sht, StartDate, iStartRow, dloClosest); // 取回指定时段的首行
+  iFirstRow := iStartRow;
+  iEndRow := _LocateDTRow(sht, EndDate, iStartRow, dloClosest); // 截止日期对应的行
+  dtStart := ExcelIO.GetDateTimeValue(sht, iStartRow, 1); // 首行日期
+  dStart := ExcelIO.GetFloatValue(sht, iStartRow, iDataCol); // 第一个周期的起始数据
+  /// 对于起始日期所在的第一个周期的判断，遵循如下逻辑：
+  /// 1、若DayOf(dtStart)<StartDay，则本周期起始日期=dtStart，截止日期=周期的StartDay，如周期为月，
+  /// StartDay=20，dtStart=2018-7-12，则本周为2018-7-12 ~ 2018-7-20。
+  /// 2、若DayOf(dtStart)>=StartDay，则本周期起始日期=dtStart，截止日期=下一周期的StartDay。如周期
+  /// 为月，StartDay=20，dtStart=2018-7-25，则本周期为2018-7-25 ~ 2018-8-20。
+  /// 首个周期之后的各个周期判断就简单了。
+  iDay := DayOf(dtStart);
+  if iDay < StartDay then
+  begin
+    // 当iDay<StartDay时，需要判断本周期的结束日期是否等于iDay。如给定StartDate为8月17日，每月从上个
+    // 月的20日开始计，则8月17日应属于8月的测值。此时需要查询最接近8月20日的观测日期，若最接近8月20日
+    // 的观测日期是8月17日，甚至是8月16日，应查询8月17日~9月20日的期间测值。
+    iLastRow := _LocateDTRow(sht, _GetPeriodDay(dtStart, Period, StartDay, False), iStartRow,
+      dloClosest);
+    // 若iLastRow <= iStartRow，表明本周期没有数据，应查询下一周期，否则取本周期值。因此，只有当
+    // iLastRow > iStartRow时，本周期才有数据，才需要在这里进行查询，否则就进入正常的查询循环。
+    // 同时，这里也没有考虑到中间缺失几个周期数据的情况下，应该怎样表示。
+    if iLastRow > iStartRow then
+    begin
+      inc(n);
+      iFirstRow := iStartRow;
+      SetLength(Values, n);
+      Values[n - 1] := VarArrayCreate([0, 9], varVariant);
+      Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart); // 暂时只处理月增量问题
+      Values[n - 1][1] := dtStart;
+      Values[n - 1][2] := ExcelIO.GetDateTimeValue(sht, iLastRow, 1);
+      Values[n - 1][3] := ExcelIO.GetValue(sht, iFirstRow, iDataCol);
+      Values[n - 1][4] := ExcelIO.GetValue(sht, iLastRow, iDataCol);
+      // 求增量：
+      Values[n - 1][5] := __GetInc(Values[n - 1][3], Values[n - 1][4]);
+      // 暂时不查询周期特征值和备注
+      for i := 6 to 9 do
+          Values[n - 1][i] := Null;
+      iFirstRow := iLastRow;
+      dtStart := Values[n - 1][2];
+    end;
+  end;
+
+  // 重复查询，直到iEndRow的日期超出EndDate
+  repeat
+    /// 取周期截止日期所在的行号
+    iLastRow := _LocateDTRow(sht, _GetPeriodDay(dtStart, Period, StartDay), iStartRow, dloClosest);
+    if iLastRow = -1 then Break;
+    if iLastRow > iEndRow then iLastRow := iEndRow;
+    dtEnd := ExcelIO.GetDateTimeValue(sht, iLastRow, 1);
+    /// get datas
+    inc(n);
+    SetLength(Values, n);
+    Values[n - 1] := VarArrayCreate([0, 9], varVariant);
+    Values[n - 1][0] := FormatDateTime('yyyy-mm', dtEnd); //以结束日期的月份作为本周期增量的时段名
+    Values[n - 1][1] := dtStart;
+    Values[n - 1][2] := dtEnd;
+    Values[n - 1][3] := ExcelIO.GetValue(sht, iFirstRow, iDataCol);
+    Values[n - 1][4] := ExcelIO.GetValue(sht, iLastRow, iDataCol);
+    Values[n - 1][5] := __GetInc(Values[n - 1][3], Values[n - 1][4]);
+
+    /// 准备查询下一个周期
+    iFirstRow := iLastRow;
+    dtStart := dtEnd;
+
+    /// 判断结束条件。若下一周期起始日期≥时段截止日期时，结束循环。
+    if iFirstRow >= iEndRow then Break;
+  until False;
   Result := True;
 end;
 
