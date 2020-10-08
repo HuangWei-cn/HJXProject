@@ -16,7 +16,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VclTee.TeeGDIPlus, VclTee.TeEngine,
-  VclTee.Series, VclTee.ArrowCha, Vcl.ExtCtrls, VclTee.TeeProcs, VclTee.Chart, Vcl.Menus;
+  VclTee.Series, VclTee.ArrowCha, Vcl.ExtCtrls, VclTee.TeeProcs, VclTee.Chart, Vcl.Menus,
+  VclTee.TeeChineseSimp;
 
 type
   TfraBasePlaneDisplacementChart = class(TFrame)
@@ -29,10 +30,13 @@ type
     piSaveAs: TMenuItem;
     chtCumulativeDeform: TChart;
     ssCumulative: TArrowSeries;
+    N2: TMenuItem;
+    piChartSetup: TMenuItem;
     procedure piCopyAsBitmapClick(Sender: TObject);
     procedure piCopyAsMetafileClick(Sender: TObject);
     procedure piSaveAsClick(Sender: TObject);
     procedure FrameResize(Sender: TObject);
+    procedure piChartSetupClick(Sender: TObject);
   private
         { Private declarations }
   public
@@ -47,7 +51,8 @@ type
 implementation
 
 uses
-  VclTee.TeExport;
+  VclTee.TeExport, VclTee.TeePrevi, VclTee.EditChar, VclTee.TeePoEdi {, TeCanvas} ,
+  VclTee.TeePenDlg,  VclTee.TeeStore, VclTee.TeePNG, VclTee.TeeJPEG, VclTee.TeeGIF;
 {$R *.dfm}
 
 
@@ -61,6 +66,11 @@ procedure TfraBasePlaneDisplacementChart.FrameResize(Sender: TObject);
 begin
   chtDisplacement.Width := chtDisplacement.Height;
   chtCumulativeDeform.Width := chtCumulativeDeform.Height;
+end;
+
+procedure TfraBasePlaneDisplacementChart.piChartSetupClick(Sender: TObject);
+begin
+  EditChart(nil, TChart(popChart.PopupComponent));
 end;
 
 procedure TfraBasePlaneDisplacementChart.piCopyAsBitmapClick(Sender: TObject);

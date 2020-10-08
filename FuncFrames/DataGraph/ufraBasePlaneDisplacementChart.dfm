@@ -241,5 +241,12 @@ object fraBasePlaneDisplacementChart: TfraBasePlaneDisplacementChart
       Caption = #21478#23384#20026'...'
       OnClick = piSaveAsClick
     end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object piChartSetup: TMenuItem
+      Caption = #35774#32622
+      OnClick = piChartSetupClick
+    end
   end
 end

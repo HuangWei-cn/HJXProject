@@ -40,6 +40,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnQueryClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure WBBeforeNavigate2(ASender: TObject; const pDisp: IDispatch; const URL, Flags,
+      TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
   private
     { Private declarations }
     WCV: TWebCrossView;
@@ -53,7 +55,7 @@ var
 implementation
 
 uses
-  ufrmMeterSelector;
+  ufrmMeterSelector, ufrmIncBarGraph;
 {$R *.dfm}
 
 
@@ -116,7 +118,7 @@ var
     WCV.Cells[7, 0].Value := '时段最小值';
     WCV.Cells[8, 0].Value := '时段变幅';
     WCV.Cells[9, 0].Value := '备注';
-    for ii := 3 to 8 do wcv.ColHeader[ii].Align := taRightJustify;
+    for ii := 3 to 8 do WCV.ColHeader[ii].Align := taRightJustify;
   end;
   /// 设置横向表格的表头
   procedure __SetVertGridHead;
@@ -131,8 +133,8 @@ var
     // 横向表格的表头其余表格为时间段
     for ii := Low(V) to High(V) do
     begin
-        WCV.Cells[ii + 1, 0].Value := V[ii][0];
-        wcv.ColHeader[ii+1].Align := taRightJustify;
+      WCV.Cells[ii + 1, 0].Value := V[ii][0];
+      WCV.ColHeader[ii + 1].Align := taRightJustify;
     end;
   end;
 
@@ -150,7 +152,8 @@ begin
   begin
     Meter := excelmeters.Meter[MeterList[iMeter]];
     sType := Meter.Params.MeterType;
-    sMeter := '<H3>' + sType + Meter.DesignName + '月增量表</H3>'#13#10;
+    sMeter := '<H3>' + sType + '<a href="popgraph:' + Meter.DesignName + '">' + Meter.DesignName +
+      '</a>月增量表</H3>'#13#10;
     WCV.Reset;
     // 对每一个特征值进行查询
     for k := 0 to Meter.PDDefines.Count - 1 do
@@ -206,6 +209,28 @@ end;
 procedure TfrmPeriodIncrement.FormDestroy(Sender: TObject);
 begin
   WCV.Free;
+end;
+
+procedure TfrmPeriodIncrement.WBBeforeNavigate2(ASender: TObject; const pDisp: IDispatch; const URL,
+  Flags, TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
+var
+  S, cmd, sName: String;
+  i            : Integer;
+begin
+  S := VarToStr(URL);
+  if pos('about', S) > 0 then // 加载空页面
+      Cancel := False
+  else if pos('popgraph', S) > 0 then
+  begin
+    i := pos(':', S);
+    cmd := Copy(S, 1, i - 1);
+    sName := Copy(S, i + 1, Length(S) - 1);
+    // ShowMessage('Hot link: ' + s);
+    if cmd = 'popgraph' then
+        ufrmIncBarGraph.PopupIncBar(sName, -1, 0, updStartDay.Position, dtpStartDate.Date,
+        dtpEndDate.Date);
+    Cancel := True;
+  end;
 end;
 
 end.

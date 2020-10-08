@@ -167,11 +167,14 @@ begin
       Exit;
     { todo:这里增加判断，如果AWBK就是仪器的工作簿，则无需再经过打开的步骤了 }
   if UseSession then
-      AWBK := SSWorkBook
+  begin
+    if SSWorkBook = nil then SSWorkBook := TMyWorkbook.Create;
+    AWBK := SSWorkBook;
+  end
   else if not Assigned(AWBK) then
-      AWBK := TmyWorkbook.Create;
+      AWBK := TMyWorkbook.Create;
 
-  if TmyWorkbook(AWBK).FullName <> Meter.DataBook then
+  if TMyWorkbook(AWBK).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(AWBK, Meter.DataBook) then
         Exit;
 
@@ -442,7 +445,7 @@ end;
 procedure ThjxDataQuery.SessionBegin;
 begin
   FUseSession := True;
-  SSWorkBook := TmyWorkbook.Create;
+  SSWorkBook := TMyWorkbook.Create;
 end;
 
 procedure ThjxDataQuery.SessionEnd;
@@ -473,9 +476,9 @@ begin
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
 
   if FUseSession then wbk := SSWorkBook
-  else wbk := TmyWorkbook.Create;
+  else wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then Exit;
 
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
@@ -531,9 +534,9 @@ begin
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
 
   if FUseSession then wbk := SSWorkBook
-  else wbk := TmyWorkbook.Create;
+  else wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then Exit;
 
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
@@ -593,9 +596,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
 
@@ -667,9 +670,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
 
@@ -739,9 +742,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
 
@@ -813,9 +816,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
 
@@ -873,7 +876,7 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
   if ExcelIO.OpenWorkbook(wbk, Meter.DataBook) = False then
       Exit;
@@ -960,7 +963,7 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
   if ExcelIO.OpenWorkbook(wbk, Meter.DataBook) = False then
       Exit;
@@ -1055,9 +1058,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
@@ -1221,9 +1224,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
@@ -1365,9 +1368,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
@@ -1476,9 +1479,9 @@ begin
   if FUseSession then
       wbk := SSWorkBook
   else
-      wbk := TmyWorkbook.Create;
+      wbk := TMyWorkbook.Create;
 
-  if TmyWorkbook(wbk).FullName <> Meter.DataBook then
+  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
         Exit;
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
@@ -1551,7 +1554,7 @@ begin
         // 对于第一支仪器，打开工作簿和工作表
     if i = 0 then
     begin
-      AGrpSheets[0].WbkBook := TmyWorkbook.Create;
+      AGrpSheets[0].WbkBook := TMyWorkbook.Create;
       ExcelIO.OpenWorkbook(AGrpSheets[0].WbkBook, Meter.DataBook);
       AGrpSheets[0].Sheet := ExcelIO.GetSheet(AGrpSheets[0].WbkBook, Meter.DataSheet);
     end
@@ -1560,7 +1563,7 @@ begin
       for j := 0 to i do
       begin
         IAppServices.ProcessMessages;
-        if TmyWorkbook(AGrpSheets[j].WbkBook).FullName = Meter.DataBook then
+        if TMyWorkbook(AGrpSheets[j].WbkBook).FullName = Meter.DataBook then
         begin
           AGrpSheets[i].WbkBook := AGrpSheets[j].WbkBook;
           bwbk := True; // 已有工作簿
@@ -1569,7 +1572,7 @@ begin
       end;
       if not bwbk then
       begin
-        AGrpSheets[i].WbkBook := TmyWorkbook.Create;
+        AGrpSheets[i].WbkBook := TMyWorkbook.Create;
         ExcelIO.OpenWorkbook(AGrpSheets[i].WbkBook, Meter.DataBook);
       end;
       AGrpSheets[i].Sheet := ExcelIO.GetSheet(AGrpSheets[i].WbkBook, Meter.DataSheet);
@@ -2089,10 +2092,12 @@ var
   iStartRow, iEndRow { 给定起止日期对应的行号 } ,
     iFirstRow, iLastRow { 周期起止时间对应的行号 } ,
     iDay, n, i,
-    iDataCol, iRow  : Integer;
-  sPeriodName       : string;    // 每条记录的间隔时段名称，如“2018年9月”
-  dtStart, dtEnd    : TDateTime; // 间隔时段的起止时间
-  dStart, dEnd, dInc: double;    // 间隔时段的起止测值和增量值
+    iDataCol, iRow: Integer;
+  sPeriodName     : string;    // 每条记录的间隔时段名称，如“2018年9月”
+  dtStart, dtEnd  : TDateTime; // 间隔时段的起止时间
+  dtPeriodDate    : TDateTime; // 当前周期的理论截止时间，主要应对起始日在周期中间的情况，具体来说
+                                 // 用于月周期的情况，一般只有月周期的起始日不是每月1日，基本都在中间。
+  dStart, dEnd, dInc: double; // 间隔时段的起止测值和增量值
   // dMax, dMin, dA :double; //间隔时段的最大最小值及测值在期间内的变幅
   // ----清理待输出的结果Values--------------------
   procedure __ClearValues;
@@ -2170,8 +2175,9 @@ begin
 
   // 重复查询，直到iEndRow的日期超出EndDate
   repeat
+    dtPeriodDate := _GetPeriodDay(dtStart, Period, StartDay);
     /// 取周期截止日期所在的行号
-    iLastRow := _LocateDTRow(sht, _GetPeriodDay(dtStart, Period, StartDay), iStartRow, dloClosest);
+    iLastRow := _LocateDTRow(sht, dtPeriodDate, iStartRow, dloClosest);
     if iLastRow = -1 then Break;
     if iLastRow > iEndRow then iLastRow := iEndRow;
     dtEnd := ExcelIO.GetDateTimeValue(sht, iLastRow, 1);
@@ -2179,7 +2185,11 @@ begin
     inc(n);
     SetLength(Values, n);
     Values[n - 1] := VarArrayCreate([0, 9], varVariant);
-    Values[n - 1][0] := FormatDateTime('yyyy-mm', dtEnd); //以结束日期的月份作为本周期增量的时段名
+    // 如果StartDay=1，则周期以StartDay为准，否则以dtPeriodDate为准
+    if StartDay = 1 then
+        Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart)
+    else
+        Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate); // 以结束日期的月份作为本周期增量的时段名
     Values[n - 1][1] := dtStart;
     Values[n - 1][2] := dtEnd;
     Values[n - 1][3] := ExcelIO.GetValue(sht, iFirstRow, iDataCol);

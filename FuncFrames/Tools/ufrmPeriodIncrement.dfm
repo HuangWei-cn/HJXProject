@@ -31,7 +31,6 @@ object frmPeriodIncrement: TfrmPeriodIncrement
       Align = alLeft
       Caption = #26597#35810#26102#38388#27573
       TabOrder = 0
-      ExplicitHeight = 95
       object Label1: TLabel
         Left = 24
         Top = 24
@@ -73,7 +72,6 @@ object frmPeriodIncrement: TfrmPeriodIncrement
       Align = alLeft
       Caption = #26597#35810#21608#26399
       TabOrder = 1
-      ExplicitHeight = 95
       object Label3: TLabel
         Left = 17
         Top = 46
@@ -142,7 +140,6 @@ object frmPeriodIncrement: TfrmPeriodIncrement
       Align = alLeft
       Caption = #34920#26684#26679#24335
       TabOrder = 3
-      ExplicitHeight = 89
       object radHGrid: TRadioButton
         Left = 16
         Top = 20
@@ -170,6 +167,7 @@ object frmPeriodIncrement: TfrmPeriodIncrement
     Height = 499
     Align = alClient
     TabOrder = 1
+    OnBeforeNavigate2 = WBBeforeNavigate2
     ExplicitLeft = 1
     ExplicitTop = 98
     ExplicitHeight = 487
