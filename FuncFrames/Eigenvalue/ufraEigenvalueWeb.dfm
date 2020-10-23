@@ -74,7 +74,7 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
       Width = 127
       Height = 58
       Caption = #20202#22120#36873#39033
-      ItemIndex = 0
+      ItemIndex = 1
       Items.Strings = (
         #20840#37096#20202#22120
         #37096#20998#20202#22120)
@@ -90,6 +90,50 @@ object fraEigenvalueWeb: TfraEigenvalueWeb
       Step = 1
       TabOrder = 3
       Visible = False
+    end
+    object grpEVItemSelect: TGroupBox
+      Left = 6
+      Top = 224
+      Width = 127
+      Height = 121
+      Caption = #25968#25454#36873#39033
+      TabOrder = 4
+      object chkHistoryEV: TCheckBox
+        Left = 12
+        Top = 20
+        Width = 97
+        Height = 17
+        Caption = #21382#21490#29305#24449#20540
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+      end
+      object chkYearEV: TCheckBox
+        Left = 12
+        Top = 43
+        Width = 97
+        Height = 17
+        Caption = #24180#29305#24449#20540
+        TabOrder = 1
+      end
+      object chkMonthEV: TCheckBox
+        Left = 12
+        Top = 66
+        Width = 97
+        Height = 17
+        Caption = #26376#29305#24449#20540
+        TabOrder = 2
+      end
+      object chkLastData: TCheckBox
+        Left = 12
+        Top = 89
+        Width = 97
+        Height = 17
+        Caption = #24403#21069#27979#20540
+        Checked = True
+        State = cbChecked
+        TabOrder = 3
+      end
     end
   end
   object wbEVPage: TWebBrowser

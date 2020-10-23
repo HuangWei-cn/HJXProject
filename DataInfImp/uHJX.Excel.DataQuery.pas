@@ -31,7 +31,7 @@ interface
 
 uses
   System.Classes, System.Types, System.SysUtils, System.Variants, System.StrUtils, Data.DB,
-  Datasnap.DBClient, System.DateUtils, {MidasLib,}
+  Datasnap.DBClient, System.DateUtils, {MidasLib,}vcl.dialogs,
   uHJX.Intf.Datas, uHJX.Excel.IO, uHJX.Data.Types, uHJX.Intf.AppServices;
 
 type
@@ -276,7 +276,7 @@ begin
   if S = '' then
       Exit;
 
-  DT1 := StrToDateTime(S);
+  DT1 :=ExcelIO.GetDateTimeValue(sheet,istart,1); //StrToDateTime(S);
   if DT1 = DT then
   begin
     Result := iStart;
@@ -304,7 +304,7 @@ begin
     else
         Break;
   end;
-  DT2 := StrToDateTime(S);
+  DT2 :=excelio.GetDateTimeValue(sheet,irow,1); // StrToDateTime(S);
   if DT2 = DT then
   begin
     Result := iRow;
@@ -999,7 +999,7 @@ begin
         Continue;
         // ---------------------
     DS.Append;
-    DS.Fields[0].Value := StrToDateTime(S);
+    DS.Fields[0].Value := ExcelIO.GetDateTimeValue(sht, iRow, 1); // StrToDateTime(S);
     if AnnoCol > 0 then
         DS.Fields[DS.Fields.Count - 1].Value := ExcelIO.GetStrValue(sht, iRow, AnnoCol);
 
@@ -1605,7 +1605,8 @@ var
   Group      : TMeterGroupItem;
   i, j, iRow : Integer;
   k, n       : Integer;
-  S          : String;
+  S, msg     : String;
+  DT         : TDateTime;
 begin
   Result := False;
   Group := MeterGroup.ItemByName[AGrpName];
@@ -1623,8 +1624,16 @@ begin
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(GroupSheets[0].Sheet.Cells[iRow, 1].Value));
-    if S = '' then
-        Continue;
+    if S = '' then Continue;
+    // 判断S是否是合法的日期字符串，若不是合法的日期格式，则提示用户后继续，但放弃本行的处理
+    if TryStrToDateTime(S, DT) = False then
+    begin
+      msg := GroupSheets[0].Sheet.Name;
+      msg := Format('工作表%s的第%d行第%d列的内容“%s”不是合法的日期格式，请检查。', [msg, iRow, 1, S]);
+      ShowMessage(msg);
+      Continue;
+    end;
+
     DS.Append;
     DS.Fields[0].Value := StrToDateTime(S); // DTScale，这里没有判断S类型转换错误
 

@@ -174,18 +174,20 @@ end;
 
 function TExcelIO.GetDateTimeValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): TDateTime;
 var
-  S: string;
+  S,S1: string;
 begin
   try
     Result := VarToDateTime(ASheet.Cells[ARow, ACol].value);
   except
     on e: Exception do
     begin
+      Result := 0;
+      S1 := VarToStr(Asheet.Cells[arow,acol].Value);
       if ASheet.Workbook is TmyWorkbook then
           S := (ASheet.Workbook as TmyWorkbook).FullName + '中的工作簿' + ASheet.Name
       else
           S := '工作簿' + ASheet.Name;
-      S := S + format('第%d行第%d列内容不是合法的日期格式，请检查。', [ARow, ACol]);
+      S := S + format('第%d行第%d列内容“%s”不是合法的日期格式，请检查。', [ARow, ACol, S1]);
       showmessage(S);
     end;
   end;
