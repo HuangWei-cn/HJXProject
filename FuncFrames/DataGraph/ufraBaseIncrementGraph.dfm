@@ -14,6 +14,7 @@ object fraIncGraph: TfraIncGraph
     BackWall.Brush.Gradient.StartColor = 15395562
     BackWall.Color = clWhite
     BackWall.Transparent = False
+    Border.Visible = True
     Foot.Font.Color = clBlue
     Foot.Font.Name = 'Verdana'
     Gradient.Direction = gdBottomTop
@@ -77,6 +78,7 @@ object fraIncGraph: TfraIncGraph
     Color = clWhite
     ParentShowHint = False
     PopupMenu = popIncBar
+    AutoSize = True
     ShowHint = True
     TabOrder = 0
     OnMouseMove = chtBarMouseMove

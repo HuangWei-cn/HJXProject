@@ -14,6 +14,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FFrame: TfraIncGraph;
@@ -26,6 +27,8 @@ type
     FPeriod             : Integer; // 0- mongth; 1-Year; 2-Senson; 3-Week
     FStartDate, FEndDate: TDateTime;
     procedure SetChart(ADsnName: String; APDIndex: Integer);
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     { Public declarations }
     /// <summary>
@@ -60,6 +63,15 @@ implementation
 
 {$R *.dfm}
 
+
+var
+  FrmHeight, FrmWidth: Integer;
+
+procedure TfrmIncbar.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.WndParent := 0;
+end;
 
 procedure TfrmIncbar.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -97,6 +109,12 @@ begin
   FreeAndNil(FFrame);
 end;
 
+procedure TfrmIncbar.FormResize(Sender: TObject);
+begin
+  FrmHeight := Self.Height;
+  FrmWidth := Self.Width;
+end;
+
 { -----------------------------------------------------------------------------
   Procedure  : ShowGraph
   Description:
@@ -127,6 +145,7 @@ var
   S     : string;
   Values: TVariantDynArray;
 begin
+  Self.Caption := ADsnName + '增量棒图';
   if APDIndex = -1 then
   begin
     // 先处理PDIndex=0的情况，这时候调用一次自己
@@ -165,6 +184,7 @@ procedure TfrmIncbar.ShowGraph(ADsnName: string; APDIndex: Integer; AValue: TVar
 var
   i: Integer;
 begin
+  Self.Caption := ADsnName + '增量棒图';
   SetChart(ADsnName, APDIndex);
   for i := Low(AValue) to High(AValue) do
   begin
@@ -194,6 +214,11 @@ var
   frm: TfrmIncbar;
 begin
   frm := TfrmIncbar.Create(Application.MainForm);
+  if (FrmWidth > 0) and (FrmHeight>0) then
+      frm.SetBounds(frm.Left,frm.Top,FrmWidth,FrmHeight);
+//  if FrmHeight > 0 then
+//      frm.Height := FrmHeight;
+
   frm.ShowGraph(ADesignName, APDIndex, Period, StartDay, StartDate, EndDate);
   frm.Show;
 end;

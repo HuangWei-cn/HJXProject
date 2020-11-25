@@ -45,6 +45,8 @@ type
   private
     { Private declarations }
     WCV: TWebCrossView;
+  protected
+    procedure CreateParams(var Params:TCreateParams); override;
   public
     { Public declarations }
   end;
@@ -79,6 +81,12 @@ const
     + '@PageContent@'#13#10
     + '</body>'#13#10
     + '</html>';
+
+procedure TfrmPeriodIncrement.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.WndParent := 0;
+end;
 
 procedure TfrmPeriodIncrement.btnQueryClick(Sender: TObject);
 var

@@ -1096,12 +1096,12 @@ var
       WCV.ColHeader[6].AllowRowSpan := True;
       WCV.ColHeader[0].AllowColSpan := True;
       WCV.ColHeader[2].AllowColSpan := True;
-      WCV.ColHeader[4].AllowColSpan := True;
+      WCV.ColHeader[3].AllowColSpan := True;
       // wcv.ColHeader[6].AllowColSpan := True;
       // wcv.ColHeader[7].AllowColSpan := True;
       // wcv.ColHeader[8].AllowColSpan := True;
-      WCV.ColHeader[3].Align := taRightJustify;
-      for ii in [3, 5, 6, 7, 8] do WCV.ColHeader[ii].Align := taRightJustify;
+      WCV.ColHeader[4].Align := taRightJustify;
+      for ii in [4, 5, 6, 7, 8] do WCV.ColHeader[ii].Align := taRightJustify;
 
       SetLength(vH, 9);
       vH[0] := '设计编号';
@@ -1112,9 +1112,9 @@ var
       vH[8] := '变化速率';
       WCV.AddRow(vH);
       vH[2] := '起始日期';
-      vH[3] := '测值';
-      vH[4] := '截止日期';
-      vH[5] := '测值';
+      vH[3] := '截止日期';
+      vH[4] := '起始测值';
+      vH[5] := '截止测值';
       WCV.AddRow(vH);
     end;
 
@@ -1265,7 +1265,7 @@ begin
           if not chkSimpleSDGrid.Checked then
           begin
             vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
-            vH[4] := FormatDateTime('yyyy-mm-dd', dt2);
+            vH[3] := FormatDateTime('yyyy-mm-dd', dt2);
             vH[7] := dt2 - dt1; // 日期间隔
           end;
         end;
@@ -1283,7 +1283,7 @@ begin
             end
             else
             begin
-              vH[3] := V[j + 1];
+              vH[4] := V[j + 1];
               vH[5] := V1[j + 1];
               vH[6] := V1[j + 1] - V[j + 1];
               if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
