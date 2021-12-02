@@ -335,6 +335,7 @@ begin
   end;
 
   S := APath + ADesignName + '.jpg';
+  fraTLTool.FfraTL.chtLine.Legend.CheckBoxes := False;
   TeeSaveToJPEG(fraTLTool.FfraTL.chtLine, S, AWidth, AHeight);
   Result := S;
 end;
@@ -356,6 +357,7 @@ begin
 
   JpgFmt.Panel := fraTLTool.FfraTL.chtLine;
   fraTLTool.DrawLine(ADesignName);
+  fraTLTool.FfraTL.chtLine.Legend.CheckBoxes := False;
   JpgFmt.SaveToStream(AStream);
   Result := True;
 end;

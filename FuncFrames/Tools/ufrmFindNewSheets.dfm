@@ -20,16 +20,16 @@ object frmFindNewSheets: TfrmFindNewSheets
     Left = 0
     Top = 0
     Width = 810
-    Height = 89
+    Height = 73
     Align = alTop
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
     object btnFindNew: TButton
       Left = 12
-      Top = 12
-      Width = 161
-      Height = 65
+      Top = 10
+      Width = 217
+      Height = 47
       Caption = #26597#25214#26032#22686#24037#20316#34920
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -37,6 +37,7 @@ object frmFindNewSheets: TfrmFindNewSheets
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      Style = bsCommandLink
       TabOrder = 0
       WordWrap = True
       OnClick = btnFindNewClick
@@ -44,9 +45,9 @@ object frmFindNewSheets: TfrmFindNewSheets
   end
   object lvwNewSheets: TListView
     Left = 0
-    Top = 89
+    Top = 73
     Width = 810
-    Height = 492
+    Height = 508
     Align = alClient
     Checkboxes = True
     Columns = <
@@ -61,10 +62,8 @@ object frmFindNewSheets: TfrmFindNewSheets
     PopupMenu = popOp
     TabOrder = 1
     ViewStyle = vsReport
-    ExplicitLeft = 52
-    ExplicitTop = 108
-    ExplicitWidth = 250
-    ExplicitHeight = 150
+    ExplicitTop = 89
+    ExplicitHeight = 492
   end
   object popOp: TPopupMenu
     Left = 420

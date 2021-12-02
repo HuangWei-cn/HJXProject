@@ -76,6 +76,22 @@ type
     actShowTrendLine: TAction;
     actShowDatas: TAction;
     actSetGridFont: TAction;
+    N2: TMenuItem;
+    piIncFontSize: TMenuItem;
+    piDecFontSize: TMenuItem;
+    dlgFont: TFontDialog;
+    actIncFontSize: TAction;
+    actDecFontSize: TAction;
+    actOpenDataSheet: TAction;
+    piOpenDataSheet: TMenuItem;
+    N4: TMenuItem;
+    N5: TMenuItem;
+    actCopytoClipboard: TAction;
+    N6: TMenuItem;
+    piCollapse: TMenuItem;
+    piCollapseThisLevel: TMenuItem;
+    piCollapseSubLevels: TMenuItem;
+    piCollapseAllLevel: TMenuItem;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -90,6 +106,13 @@ type
     procedure actShowTrendLineExecute(Sender: TObject);
     procedure actShowDatasExecute(Sender: TObject);
     procedure actSetGridFontExecute(Sender: TObject);
+    procedure actIncFontSizeExecute(Sender: TObject);
+    procedure actDecFontSizeExecute(Sender: TObject);
+    procedure actOpenDataSheetExecute(Sender: TObject);
+    procedure actCopytoClipboardExecute(Sender: TObject);
+    procedure piCollapseThisLevelClick(Sender: TObject);
+    procedure piCollapseSubLevelsClick(Sender: TObject);
+    procedure piCollapseAllLevelClick(Sender: TObject);
   private
     { Private declarations }
     FMeterList: TStrings;
@@ -117,8 +140,8 @@ implementation
 
 uses
   uHJX.Data.Types, uHJX.Intf.AppServices, uHJX.Intf.FunctionDispatcher, uHJX.Intf.Datas,
-  uHJX.Classes.Meters,
-  uWebGridCross, uWBLoadHTML;
+  uHJX.Classes.Meters, uHJX.Excel.IO,
+  uWebGridCross, uWBLoadHTML, DBGridEhImpExp;
 {$R *.dfm}
 
 
@@ -356,9 +379,70 @@ end;
   Procedure  : ShowQuickView
   Description: 显示速览内容
 ----------------------------------------------------------------------------- }
-procedure TfraQuickViewer.actSetGridFontExecute(Sender: TObject);
+procedure TfraQuickViewer.actCopytoClipboardExecute(Sender: TObject);
 begin
-//
+  DBGridEh_DoCopyAction(DBGridEh1, True)
+end;
+
+procedure TfraQuickViewer.actDecFontSizeExecute(Sender: TObject);
+var
+  i: Integer;
+begin
+  if DBGridEh1.Font.Size > 5 then
+  begin
+    DBGridEh1.Font.Size := DBGridEh1.Font.Size - 1;
+    DBGridEh1.TitleFont.Size := DBGridEh1.Font.Size;
+    for i := 0 to DBGridEh1.Columns.Count - 1 do
+    begin
+      DBGridEh1.Columns[i].Font.Size := DBGridEh1.Font.Size;
+      DBGridEh1.Columns[i].OptimizeWidth;
+    end;
+  end;
+end;
+
+procedure TfraQuickViewer.actIncFontSizeExecute(Sender: TObject);
+var
+  i: Integer;
+begin
+  DBGridEh1.Font.Size := DBGridEh1.Font.Size + 1;
+  DBGridEh1.TitleFont.Size := DBGridEh1.Font.Size;
+  for i := 0 to DBGridEh1.Columns.Count - 1 do
+  begin
+    DBGridEh1.Columns[i].Font.Size := DBGridEh1.Font.Size;
+    DBGridEh1.Columns[i].OptimizeWidth;
+  end;
+end;
+
+procedure TfraQuickViewer.actOpenDataSheetExecute(Sender: TObject);
+var
+  mn: String;
+  mt: TMeterDefine;
+begin
+  if not cdsDatas.Active then
+      Exit;
+  if IAppServices = nil then
+      Exit;
+  mn := MemTableEh1.FieldByName('DesignName').AsString;
+  mt := ExcelMeters.Meter[mn];
+  if mt <> nil then
+      TExcelIO.Excel_ShowSheet(mt.DataBook, mt.DataSheet);
+end;
+
+procedure TfraQuickViewer.actSetGridFontExecute(Sender: TObject);
+var
+  i: Integer;
+begin
+  dlgFont.Font.Assign(DBGridEh1.Font);
+  if dlgFont.Execute then
+  begin
+    DBGridEh1.Font.Assign(dlgFont.Font);
+    DBGridEh1.TitleFont.Assign(dlgFont.Font);
+    for i := 0 to DBGridEh1.Columns.Count - 1 do
+    begin
+      DBGridEh1.Columns[i].Font.Assign(dlgFont.Font);
+      DBGridEh1.Columns[i].OptimizeWidth;
+    end;
+  end;
 end;
 
 procedure TfraQuickViewer.actShowDatasExecute(Sender: TObject);
@@ -723,6 +807,52 @@ begin
         strs.Free;
       end;
     end;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : piCollapseAllLevelClick
+  Description: 采用递归收缩所有展开的TreeNode
+----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.piCollapseAllLevelClick(Sender: TObject);
+  procedure _CollapseAll(Node: TGroupDataTreeNodeEh);
+  var
+    i: Integer;
+  begin
+    Node.Expanded := False;
+    if Node.Count > 0 then
+      for i := 0 to Node.Count - 1 do _CollapseAll(Node.Items[i]);
+  end;
+
+begin
+  _CollapseAll(DBGridEh1.DataGrouping.GroupDataTree.Root);
+  DBGridEh1.DataGrouping.GroupDataTree.Root.Expanded := True;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : piCollapseSubLevelsClick
+  Description: 收起本级所有展开
+----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.piCollapseSubLevelsClick(Sender: TObject);
+var
+  Nd: TGroupDataTreeNodeEh;
+  i : Integer;
+begin
+  Nd := DBGridEh1.DataGrouping.CurDataNode;
+  if Nd.Count > 0 then
+    for i := 0 to Nd.Count - 1 do
+        Nd.Items[i].Expanded := False;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : piCollapseThisLevelClick
+  Description: Group Tree收起本级展开节点
+----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.piCollapseThisLevelClick(Sender: TObject);
+begin
+  // 先收起选中记录的父节点试试
+  if DBGridEh1.DataGrouping.CurDataNode.Parent <> nil then
+      DBGridEh1.DataGrouping.CurDataNode.Parent.Expanded := False;
+  // DBGridEh1.DataGrouping.GroupDataTree.Collapse(DBGridEh1.DataGrouping.CurDataNode.Parent);
 end;
 
 procedure TfraQuickViewer.popGridPopup(Sender: TObject);

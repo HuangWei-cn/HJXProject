@@ -36,6 +36,9 @@ type
   TOnNeedDataEvent = procedure(AID: string; ADataName: string; var Data: Variant;
     var DT: TDateTime) of object;
 
+// TOnNeedDataIncEvent = procedure(AID:string; ADataName:string; var Data:Variant;
+// var DT1,DT2:TDateTime) of object;
+
   TOnMeterEvent = procedure(AID: string; var Param: string) of object;
 
   TOnNeedDeformDataEvent = procedure(AID: String; XName, YName: string; var XData: Variant;
@@ -81,6 +84,8 @@ type
     N1: TMenuItem;
     piHideObject: TMenuItem;
     piInputMeterData: TMenuItem;
+    N2: TMenuItem;
+    piPopupDataWindow: TMenuItem;
     procedure sgDataLayoutObjectMouseEnter(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectMouseLeave(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectClick(Graph: TSimpleGraph; GraphObject: TGraphObject);
@@ -119,6 +124,7 @@ type
     procedure piHideObjectClick(Sender: TObject);
     procedure sgDataLayoutDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure piInputMeterDataClick(Sender: TObject);
+    procedure piPopupDataWindowClick(Sender: TObject);
   private
         { Private declarations }
     FOnNeedDataEvent      : TOnNeedDataEvent;
@@ -152,12 +158,16 @@ type
       Cancelled: Boolean);
 
   public
-        { Public declarations }
+    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure LoadDataLayout(AFile: string);
     procedure Play(ShowIncrement: Boolean = False);
     procedure ClearDatas;
+    procedure PopupEditorWindow;
+    procedure PopupGraphObjList;
+
+    { properties.... }
     property OnNeedDataEvent: TOnNeedDataEvent read FOnNeedDataEvent write FOnNeedDataEvent;
     property OnNeedDeformEvent: TOnNeedDeformDataEvent read FOnNeedDeformDataEvent
       write FOnNeedDeformDataEvent;
@@ -172,7 +182,7 @@ type
   end;
 
 implementation
-
+uses ufrmInputLayoutData, ufrmDataItemsList;
 {$R *.dfm}
 
 
@@ -213,9 +223,9 @@ begin
   end
   else
   begin
-    piHideObject.Enabled := false;
+    piHideObject.Enabled := False;
     piInputMeterData.Enabled := False;
-      Handled := True;
+    Handled := True;
   end;
 end;
 
@@ -330,9 +340,9 @@ begin
     S := '';
     FOnMeterClick(FSelectedMeter, S);
     if S <> '' then
-        piShowDataGraph.caption := S
+        piShowDataGraph.Caption := S
     else
-        piShowDataGraph.caption := '显示数据图形';
+        piShowDataGraph.Caption := '显示数据图形';
   end;
 end;
 
@@ -349,7 +359,7 @@ begin
   if GraphObject is TdmcDataItem then
   begin
     FOnMeterClick((GraphObject as TdmcDataItem).DesignName, S);
-    piShowDataGraph.caption := S;
+    piShowDataGraph.Caption := S;
     Handled := False;
   end
   else
@@ -604,6 +614,14 @@ begin
   S := InputBox('输入数据', '请输入需要显示的数据：', S);
   (FSelectedObj as TdmcDataItem).Text := S;
 end;
+{-----------------------------------------------------------------------------
+  Procedure  : piPopupDataWindowClick
+  Description: 弹出数据输入窗口
+-----------------------------------------------------------------------------}
+procedure TfraDataLayout.piPopupDataWindowClick(Sender: TObject);
+begin
+  PopupEditorWindow;
+end;
 
 procedure TfraDataLayout.piShowDataClick(Sender: TObject);
 var
@@ -737,16 +755,22 @@ end;
 
 procedure TfraDataLayout.ShowDataIncrement(AnItem: TdmcDataItem);
 var
-  Data: Variant;
-  DT  : TDateTime;
-  S   : string;
-  Incr: Integer;
+  Data : Variant;
+  DT   : TDateTime;
+  i    : Integer;
+  S    : string;
+  sHint: string;
+  Incr : Integer;
 begin
   OnNeedIncrementEvent(AnItem.DesignName, AnItem.DataName, Data, DT);
   if (VarIsNull(Data)) or (VarIsEmpty(Data)) or (VarToStr(Data) = '') then
       S := '/'
   else
       S := VarToStr(Data);
+  // 处理增量返回结果中的附加Hint部分
+  i := Pos('#', S);
+  sHint := Copy(S, i + 1, length(S) - i);
+  S := Copy(S, 0, i - 1);
 
     // 判断S中是否有上箭头或下箭头，上箭头数据增大，下箭头数据减少
   if Pos('↑', S) > 0 then
@@ -760,6 +784,7 @@ begin
     { TODO: 使用不同颜色显示增量情况，如红色为正，蓝色为负等等 }
     // 显示内容
   AnItem.ShowData(S, DT);
+  AnItem.Hint := AnItem.DesignName + ' : ' + AnItem.DataName + #13#10 + sHint;
 end;
 
 procedure TfraDataLayout.ShowDeform(AnItem: TdmcDeformationDirection);
@@ -815,6 +840,27 @@ begin
         end;
     end;
   end;
+end;
+{-----------------------------------------------------------------------------
+  Procedure  : PopupEditorWindow
+  Description: 弹出数据编辑窗口，方便手工输入数据
+-----------------------------------------------------------------------------}
+procedure TfraDataLayout.PopupEditorWindow;
+var frm: TfrmInputLayoutData;
+begin
+  frm := TfrmInputLayoutData.Create(Self);
+  frm.Layout := self;
+  frm.ShowModal;
+  frm.Release;
+end;
+
+procedure TfraDataLayout.PopupGraphObjList;
+var frm: TfrmDataItemsList;
+begin
+  frm := TfrmDataItemsList.Create(Self);
+  frm.SGraph := self.sgDataLayout;
+  frm.ShowModal;
+  frm.Release;
 end;
 
 end.

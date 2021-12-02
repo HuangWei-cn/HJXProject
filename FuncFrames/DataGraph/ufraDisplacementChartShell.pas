@@ -77,6 +77,7 @@ var
   DS    : TClientDataSet;
   X0, Y0: double;
   X1, Y1: double;
+  DT    : TDateTime;
 begin
   fraPDChart.ClearDatas;
   if IHJXClientFuncs = nil then
@@ -88,14 +89,14 @@ begin
   if mt.Params.MeterType <> '平面位移测点' then
       Exit;
 
-  fraPDChart.SetChartTitle(mt.PrjParams.Position + '平面位移测点' + mt.DesignName + '位移轨迹图');
+  fraPDChart.SetChartTitle(mt.PrjParams.Position + '平面位移测点' + mt.DesignName {+ '位移轨迹图'});
     { 2019-08-06 将坐标轴标题改为本地坐标 }
   fraPDChart.chtDisplacement.LeftAxis.Title.Caption := 'X方向-临空面(mm)';
   fraPDChart.chtDisplacement.BottomAxis.Title.Caption := 'Y方向-右侧(mm)';
 
   with fraPDChart do
   begin
-    chtCumulativeDeform.Title.Text.Text := '平面位移测点'+mt.DesignName +'累积位移';
+    chtCumulativeDeform.Title.Text.Text := '平面位移测点' + mt.DesignName + '累积位移';
     chtCumulativeDeform.LeftAxis.Title.Caption := 'X方向-临空面(mm)';
     chtCumulativeDeform.BottomAxis.Title.Caption := 'Y方向-右侧(mm)';
   end;
@@ -114,11 +115,15 @@ begin
                     X1 := DS.Fields[5].AsFloat; // SdY;
                     Y1 := DS.Fields[4].AsFloat; // SdX;
  *)
+          DT := DS.Fields[0].AsDateTime;
           X1 := DS.Fields[13].AsFloat; // SdY' 本地坐标Y方向
           Y1 := DS.Fields[12].AsFloat; // SdX' 本地坐标X方向
                     // 重合点不绘图，否则那箭头很难看
           if (X1 <> X0) and (Y1 <> Y0) then
               fraPDChart.AddData(X0, Y0, X1, Y1);
+
+          fraPDChart.AddData(DT, Y1, X1);
+
           X0 := X1;
           Y0 := Y1;
           DS.Next;
@@ -135,6 +140,7 @@ var
   DS    : TClientDataSet;
   X0, Y0: double;
   X1, Y1: double;
+  DT    : TDateTime;
 begin
   fraPDChart.ClearDatas;
   if (DTStart = 0) and (DTEnd = 0) then
@@ -151,7 +157,7 @@ begin
     if mt.Params.MeterType <> '平面位移测点' then
         Exit;
     fraPDChart.SetChartTitle(mt.PrjParams.Position + '平面位移测点' + mt.DesignName + '位移轨迹图');
-    frapdchart.chtCumulativeDeform.Title.Text.Text := '平面位移测点' + mt.DesignName + '累积位移';
+    fraPDChart.chtCumulativeDeform.Title.Text.Text := '平面位移测点' + mt.DesignName + '累积位移';
     DS := TClientDataSet.Create(Self);
     try
       if (DTEnd = 0) then
@@ -163,10 +169,13 @@ begin
           Y0 := 0;
           DS.First;
           repeat
+            DT := DS.Fields[0].AsDateTime;
             X1 := DS.Fields[5].AsFloat;
             Y1 := DS.Fields[4].AsFloat;
             if (X1 <> X0) and (Y1 <> Y0) then
                 fraPDChart.AddData(X0, Y0, X1, Y1);
+
+            fraPDChart.AddData(DT, Y1, X1);
 
             X0 := X1;
             Y0 := Y1;

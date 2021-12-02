@@ -37,6 +37,7 @@ type
     GroupBox3: TGroupBox;
     radHGrid: TRadioButton;
     radVGrid: TRadioButton;
+    radWeak: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure btnQueryClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -46,7 +47,7 @@ type
     { Private declarations }
     WCV: TWebCrossView;
   protected
-    procedure CreateParams(var Params:TCreateParams); override;
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     { Public declarations }
   end;
@@ -95,6 +96,8 @@ var
   i, iCol, k   : Integer;
   iMeter       : Integer;
   V            : TVariantDynArray;
+  iStartDay    : Integer;
+  iPeriod      : Integer;
   Body, Page   : String;
   sType, sMeter: string; // sType为仪器类型，sMeter为生成的仪器数据HTML代码
   Meter        : TMeterDefine;
@@ -133,17 +136,33 @@ var
   var
     ii: Integer;
   begin
-    WCV.ColCount := Length(V) + 1;
+    WCV.ColCount := Length(V) + 4; // 2021-11-22 原本是增加1列，现在增加了起始截至测值和总增量3列;
     WCV.TitleRows := 1;
     WCV.AddRow;
     // 横向表格表头的第一单元格为观测量
     WCV.Cells[0, 0].Value := '观测量';
+    // 2021-11-22 新加
+    WCV.Cells[1, 0].Value := '起始测值';
+    WCV.Cells[2, 0].Value := '截止测值';
+    WCV.Cells[High(V) + 4, 0].Value := '期间总增量';
+
+    WCV.ColHeader[1].Align := taRightJustify;
+    WCV.ColHeader[2].Align := taRightJustify;
+    WCV.ColHeader[High(V) + 4].Align := taRightJustify;
+    WCV.ColHeader[0].ColumnFormat.BGColor := clGreen;
+
     // 横向表格的表头其余表格为时间段
     for ii := Low(V) to High(V) do
     begin
-      WCV.Cells[ii + 1, 0].Value := V[ii][0];
-      WCV.ColHeader[ii + 1].Align := taRightJustify;
+      WCV.Cells[ii + 3, 0].Value := V[ii][0];
+      WCV.ColHeader[ii + 3].Align := taRightJustify;
     end;
+  end;
+
+  function __GetInc(V1, V2: Variant): Variant;
+  begin
+    Result := '';
+    if VarIsNumeric(V1) and VarIsNumeric(V2) then Result := V2 - V1;
   end;
 
 begin
@@ -155,6 +174,11 @@ begin
   frm.Release;
   if MeterList.Count = 0 then exit;
   Page := htmPageCode2;
+  iStartDay := updStartDay.Position;
+  if radMonth.Checked then iPeriod := 0
+  else if radYear.Checked then iPeriod := 1
+  else if radWeak.Checked then iPeriod := 3;
+
   IAppServices.ClientDatas.SessionBegin;
   for iMeter := 0 to MeterList.Count - 1 do
   begin
@@ -168,8 +192,10 @@ begin
     begin
       if Meter.PDDefines.Items[k].HasEV then
       begin
+        { if IAppServices.ClientDatas.GetPeriodIncrement(MeterList[iMeter], k, dtpStartDate.Date,
+          dtpEndDate.Date, V) then }
         if IAppServices.ClientDatas.GetPeriodIncrement(MeterList[iMeter], k, dtpStartDate.Date,
-          dtpEndDate.Date, V) then
+          dtpEndDate.Date, V, iStartDay, iPeriod) then
         begin
           /// 对于竖向显示的数据表格，每一个物理量将用单独的表格进行呈现
           if radVGrid.Checked then
@@ -190,10 +216,13 @@ begin
           begin
             if WCV.ColCount = 0 then __SetVertGridHead;
             WCV.AddRow;
-            i := WCV.RowCount - 1; // 新行号
-            WCV.Cells[0, i].Value := Meter.PDName(k);
+            i := WCV.RowCount - 1;                    // 新行号
+            WCV.Cells[0, i].Value := Meter.PDName(k); // 数据项名称
+            WCV.Cells[1, i].Value := V[low(V)][3];    // 起始测值
+            WCV.Cells[2, i].Value := V[high(V)][4];   // 截止测值
+            WCV.Cells[WCV.ColCount - 1, i].Value := __GetInc(V[Low(V)][3], V[high(V)][4]);
             for iCol := low(V) to high(V) do
-                WCV.Cells[iCol + 1, i].Value := V[iCol][5];
+                WCV.Cells[iCol + 3, i].Value := V[iCol][5];
           end;
         end;
       end;
@@ -203,7 +232,7 @@ begin
     __ClearValues;
     Body := Body + sMeter;
   end;
-  Page := stringreplace(Page, '@PageContent@', Body, []);
+  Page := StringReplace(Page, '@PageContent@', Body, []);
   WB_LoadHTML(WB, Page);
   IAppServices.ClientDatas.SessionEnd;
 end;
@@ -224,8 +253,17 @@ procedure TfrmPeriodIncrement.WBBeforeNavigate2(ASender: TObject; const pDisp: I
 var
   S, cmd, sName: String;
   i            : Integer;
+  iPeriod      : Integer;
 begin
   S := VarToStr(URL);
+
+  if radWeak.Checked then
+      iPeriod := 3
+  else if radMonth.Checked then
+      iPeriod := 0
+  else if radYear.Checked then
+      iPeriod := 1;
+
   if pos('about', S) > 0 then // 加载空页面
       Cancel := False
   else if pos('popgraph', S) > 0 then
@@ -235,7 +273,7 @@ begin
     sName := Copy(S, i + 1, Length(S) - 1);
     // ShowMessage('Hot link: ' + s);
     if cmd = 'popgraph' then
-        ufrmIncBarGraph.PopupIncBar(sName, -1, 0, updStartDay.Position, dtpStartDate.Date,
+        ufrmIncBarGraph.PopupIncBar(sName, -1, iPeriod, updStartDay.Position, dtpStartDate.Date,
         dtpEndDate.Date);
     Cancel := True;
   end;

@@ -31,7 +31,7 @@ interface
 
 uses
   System.Classes, System.Types, System.SysUtils, System.Variants, System.StrUtils, Data.DB,
-  Datasnap.DBClient, System.DateUtils, {MidasLib,}vcl.dialogs,
+  Datasnap.DBClient, System.DateUtils, {MidasLib,} vcl.dialogs,
   uHJX.Intf.Datas, uHJX.Excel.IO, uHJX.Data.Types, uHJX.Intf.AppServices;
 
 type
@@ -276,7 +276,7 @@ begin
   if S = '' then
       Exit;
 
-  DT1 :=ExcelIO.GetDateTimeValue(sheet,istart,1); //StrToDateTime(S);
+  DT1 := ExcelIO.GetDateTimeValue(Sheet, iStart, 1); // StrToDateTime(S);
   if DT1 = DT then
   begin
     Result := iStart;
@@ -304,7 +304,7 @@ begin
     else
         Break;
   end;
-  DT2 :=excelio.GetDateTimeValue(sheet,irow,1); // StrToDateTime(S);
+  DT2 := ExcelIO.GetDateTimeValue(Sheet, iRow, 1); // StrToDateTime(S);
   if DT2 = DT then
   begin
     Result := iRow;
@@ -2080,6 +2080,7 @@ begin
       // 周周期暂不考虑，观测频次往往间隔都超过一周了……
       begin
         iPeriod := WeeksInYear(ADate);
+        Result := IncDay(ADate, 7); // 简单粗暴的增加7天好了
       end;
   end;
 end;
@@ -2195,10 +2196,24 @@ begin
     SetLength(Values, n);
     Values[n - 1] := VarArrayCreate([0, 9], varVariant);
     // 如果StartDay=1，则周期以StartDay为准，否则以dtPeriodDate为准
-    if StartDay = 1 then
-        Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart)
-    else
-        Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate); // 以结束日期的月份作为本周期增量的时段名
+    case Period of
+      0: // 月增量
+        if StartDay = 1 then
+            Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart)
+        else
+            Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate); // 以结束日期的月份作为本周期增量的时段名
+      1: // 年增量
+        if StartDay = 1 then
+            Values[n - 1][0] := FormatDateTime('yyyy', dtStart) + '年'
+        else
+            Values[n - 1][0] := FormatDateTime('yyyy', dtPeriodDate) + '年'; // 以结束日期的月份作为本周期增量的时段名
+      2: // 季度增量，这个麻烦一点，干脆显示日期的了，回头有时间再处理
+        { doto: 周期增量处理如何显示季度 }
+        Values[n - 1][0] := FormatDateTime('yyyy-mm-dd', dtPeriodDate);
+      3: // 周增量
+        Values[n - 1][0] := FormatDateTime('yyyy-mm-dd', dtPeriodDate);
+    end;
+
     Values[n - 1][1] := dtStart;
     Values[n - 1][2] := dtEnd;
     Values[n - 1][3] := ExcelIO.GetValue(sht, iFirstRow, iDataCol);

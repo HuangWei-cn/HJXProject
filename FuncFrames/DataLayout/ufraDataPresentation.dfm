@@ -1,122 +1,216 @@
 object fraDataPresentation: TfraDataPresentation
   Left = 0
   Top = 0
-  Width = 734
+  Width = 933
   Height = 426
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object pnlFuncs: TPanel
     Left = 0
     Top = 0
-    Width = 734
-    Height = 33
+    Width = 933
+    Height = 89
     Align = alTop
     BevelKind = bkFlat
     BevelOuter = bvNone
     TabOrder = 0
-    object btnLastDatas: TButton
-      Left = 4
-      Top = 1
-      Width = 75
-      Height = 25
-      Caption = #26368#26032#25968#25454
-      TabOrder = 0
-      OnClick = btnLastDatasClick
-    end
-    object dtpSpecialDate: TDateTimePicker
-      Left = 168
-      Top = 4
-      Width = 105
-      Height = 21
-      Date = 42850.489188310190000000
-      Time = 42850.489188310190000000
-      TabOrder = 1
-    end
-    object btnClearDatas: TButton
-      Left = 279
-      Top = 1
-      Width = 75
-      Height = 25
-      Caption = #28165#38500#25968#25454
-      TabOrder = 2
-      OnClick = btnClearDatasClick
-    end
-    object btnLoadLayout: TButton
-      Left = 356
-      Top = 1
-      Width = 113
-      Height = 25
-      Caption = #21152#36733#20998#24067#22270
-      DropDownMenu = popLayoutList
-      Style = bsSplitButton
-      TabOrder = 3
-      OnClick = btnLoadLayoutClick
-    end
-    object btnSpecialDate: TButton
-      Left = 87
-      Top = 1
-      Width = 75
-      Height = 25
-      Caption = #25351#23450#26085#26399
-      TabOrder = 4
-      OnClick = btnSpecialDateClick
-    end
     object chkShowIncrement: TCheckBox
-      Left = 475
-      Top = 5
+      Left = 612
+      Top = 25
       Width = 78
       Height = 17
       Caption = #26174#31034#22686#37327
-      TabOrder = 5
+      Checked = True
+      State = cbChecked
+      TabOrder = 0
+      Visible = False
       OnClick = chkShowIncrementClick
     end
-    object cbxIncOptions: TComboBox
-      Left = 548
-      Top = 4
-      Width = 89
-      Height = 21
-      Style = csDropDownList
-      ItemIndex = 0
-      TabOrder = 6
-      Text = #26368#26032#22686#37327
-      Visible = False
-      Items.Strings = (
-        #26368#26032#22686#37327
-        #21608#22686#37327
-        #26376#22686#37327
-        #24180#22686#37327)
+    object gbx01: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 136
+      Height = 85
+      Align = alLeft
+      Caption = #21151#33021
+      TabOrder = 1
+      object btnClearDatas: TButton
+        Left = 12
+        Top = 52
+        Width = 113
+        Height = 25
+        Caption = #28165#38500#25968#25454
+        TabOrder = 0
+        OnClick = btnClearDatasClick
+      end
+      object btnLoadLayout: TButton
+        Left = 12
+        Top = 21
+        Width = 113
+        Height = 25
+        Caption = #21152#36733#20998#24067#22270
+        DropDownMenu = popLayoutList
+        Style = bsSplitButton
+        TabOrder = 1
+        OnClick = btnLoadLayoutClick
+      end
+    end
+    object gbxQueryData: TGroupBox
+      Left = 136
+      Top = 0
+      Width = 131
+      Height = 85
+      Align = alLeft
+      Caption = #26597#35810#25968#25454
+      TabOrder = 2
+      object btnSpecialDate: TButton
+        Left = 12
+        Top = 21
+        Width = 105
+        Height = 25
+        Hint = #26597#35810#26368#26032#25110#25351#23450#26102#38388#30340#35266#27979#25968#25454
+        Caption = #26597#35810#25968#25454
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        OnClick = btnSpecialDateClick
+      end
+      object dtpSpecialDate: TDateTimePicker
+        Left = 12
+        Top = 52
+        Width = 105
+        Height = 25
+        Hint = #36873#25321#35201#26597#35810#30340#25968#25454#26085#26399
+        Date = 42850.489188310190000000
+        Time = 42850.489188310190000000
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+      end
+    end
+    object gbxInc: TGroupBox
+      Left = 267
+      Top = 0
+      Width = 230
+      Height = 85
+      Align = alLeft
+      Caption = #26597#35810#22686#37327
+      TabOrder = 3
+      object cbxIncOptions: TComboBox
+        Left = 12
+        Top = 52
+        Width = 87
+        Height = 22
+        Hint = 
+          #36873#25321#22686#37327#26102#38271'|'#36873#25321#22686#37327#30340#38388#38548#12290#21069'4'#20010#38388#38548#26159#20174#26597#35810#25968#25454#30340#37027#20010#26085#26399#36215#31639#65292#13#10#21521#21069#25512#25351#23450#30340#38388#38548#65307#8220#26597#35810#26102#38388#27573#22686#37327#8221#30340#36215#27490#26085#26399#26159#21491#20391#13#10 +
+          #30340#20004#20010#26085#26399#36873#25321#12290'|1'
+        Style = csOwnerDrawVariable
+        ItemIndex = 0
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = #26368#26032#22686#37327
+        TextHint = 'TextHint.......'
+        OnClick = cbxIncOptionsClick
+        Items.Strings = (
+          #26368#26032#22686#37327
+          #21608#22686#37327
+          #26376#22686#37327
+          #24180#22686#37327
+          #25351#23450#26102#38388#33539#22260)
+      end
+      object btnQryInc: TButton
+        Left = 12
+        Top = 21
+        Width = 87
+        Height = 25
+        Hint = #26597#35810#24067#32622#22270#20869#30417#27979#20202#22120#30340#35266#27979#25968#25454#21450#25968#25454#22686#37327
+        Caption = #26597#35810#22686#37327
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        OnClick = btnQryIncClick
+      end
+      object dtpStartDate: TDateTimePicker
+        Left = 109
+        Top = 21
+        Width = 106
+        Height = 25
+        Hint = #36873#25321#22686#37327#36215#22987#26085#26399
+        Date = 44509.713856273150000000
+        Time = 44509.713856273150000000
+        Enabled = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+      end
+      object dtpEndDate: TDateTimePicker
+        Left = 109
+        Top = 52
+        Width = 106
+        Height = 25
+        Hint = #36873#25321#22686#37327#30340#25130#33267#26085#26399
+        Date = 44509.714149687490000000
+        Time = 44509.714149687490000000
+        Enabled = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 3
+      end
+    end
+    object btnFillinData: TButton
+      Left = 507
+      Top = 21
+      Width = 88
+      Height = 25
+      Caption = #22635#20837#25968#25454
+      TabOrder = 4
+      OnClick = btnFillinDataClick
+    end
+    object btnHideData: TButton
+      Left = 507
+      Top = 52
+      Width = 88
+      Height = 25
+      Caption = #22270#20803#23545#35937#34920
+      TabOrder = 5
+      OnClick = btnHideDataClick
     end
   end
   inline fraDataLayout: TfraDataLayout
     Left = 0
-    Top = 33
-    Width = 734
-    Height = 393
+    Top = 89
+    Width = 933
+    Height = 337
     Align = alClient
     DoubleBuffered = True
     ParentDoubleBuffered = False
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 1
-    ExplicitTop = 33
-    ExplicitWidth = 734
-    ExplicitHeight = 393
+    ExplicitTop = 89
+    ExplicitWidth = 933
+    ExplicitHeight = 337
     inherited sgDataLayout: TSimpleGraph
-      Width = 734
-      Height = 371
-      ExplicitWidth = 734
-      ExplicitHeight = 371
+      Width = 933
+      Height = 315
+      ExplicitWidth = 933
+      ExplicitHeight = 315
       inherited ProgressBar1: TProgressBar
-        Top = 356
-        Width = 734
-        ExplicitTop = 356
-        ExplicitWidth = 734
+        Top = 300
+        Width = 933
+        ExplicitTop = 300
+        ExplicitWidth = 933
       end
     end
     inherited ToolBar1: TToolBar
-      Width = 734
-      ExplicitWidth = 734
+      Width = 933
+      ExplicitWidth = 933
     end
     inherited ImageList: TImageList
       Bitmap = {
-        494C010133003800500010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+        494C010133003800640010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
         000000000000360000002800000040000000D0000000010020000000000000D0
         000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCB

@@ -12,6 +12,8 @@
                         还不支持矢量图和位移图。
 ----------------------------------------------------------------------------- }
 { todo:增加对矢量图和位移图的处理 }
+{ todo:横轴的SubAxis的处理还存在问题，1-似乎无法正确显示日期和月份；2-年份显示在中间那个SubAxis；
+3-年份的Label一直在重复，这个应该只重复一次就够了，不应该每个tick都显示2018，2018，2018。。。 }
 unit uHJX.Template.ChartTemplateProc;
 
 interface
@@ -21,7 +23,7 @@ uses
   VCLTee.Chart, VCLTee.Series, VCLTee.TeEngine, VCLTee.TeeProcs,
   Data.DB, Datasnap.DBClient,
   uHJX.Intf.AppServices, uHJX.Intf.Datas, uHJX.Classes.Meters, {uTLDefineProc}
-  uHJX.Classes.Templates, uHJX.Template.ChartTemplate;
+  uHJX.Classes.Templates, uHJX.Template.ChartTemplate, uMyTeeAxisScrollTool;
 
 { 本方法绘制过程线 }
 procedure DrawMeterSeries(AChart: TChart; ChtTmpl: TChartTemplate; ADsnName: string;
@@ -48,9 +50,10 @@ end;
 
 procedure SetupChart(AChart: TChart; ChtTmpl: TChartTemplate);
 var
-  i    : Integer;
-  ax   : TchtAxis;
-  chtAx: TChartAxis;
+  i         : Integer;
+  ax        : TchtAxis;
+  chtAx     : TChartAxis;
+  myAxisTool: ThwTeeAxisScrollTool;
 begin
   ResetChart(AChart);
 
@@ -64,6 +67,10 @@ begin
   begin
     if ax.BottomSide then chtAx := AChart.BottomAxis
     else chtAx := AChart.TopAxis;
+
+    myAxisTool := ThwTeeAxisScrollTool.Create(AChart.Parent);
+    myAxisTool.Axis := chtAx;
+    myaxistool.Active := true;
 
     chtAx.Visible := True;
     if ChtTmpl.ChartType = cttTrendLine then chtAx.DateTimeFormat := ax.Format
@@ -115,6 +122,10 @@ begin
       chtAx.AxisValuesFormat := ax.Format;
       chtAx.Title.Caption := ax.Title;
       ax.ChartAxis := chtAx;
+
+      myAxisTool := ThwTeeAxisScrollTool.Create(AChart.Parent);
+      myAxisTool.Axis := chtAx;
+      myaxistool.Active := true;
     end
     else // 其他的就是左轴和右轴了
     begin
@@ -124,6 +135,10 @@ begin
       chtAx.AxisValuesFormat := ax.Format;
       chtAx.Automatic := True;
       ax.ChartAxis := chtAx;
+
+      myAxisTool := ThwTeeAxisScrollTool.Create(achart.Parent);
+      myaxistool.Axis := chtax;
+      myaxistool.Active := True;
     end;
   end;
 

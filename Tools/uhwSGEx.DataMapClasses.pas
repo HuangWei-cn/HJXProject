@@ -78,7 +78,10 @@ type
   end;
 
     { 2018-06-14 增加仪器标签对象。本对象未来的扩展功能有：1)显示数据不一定必须使用TdmcDataItem
-      对象，本对象在ShowData之后自动创建数据标签、数据箭头；2)其他功能还没想好 }
+      对象，本对象在ShowData之后自动创建数据标签、数据箭头；2)其他功能还没想好
+      关于功能1的设想，是查询完毕后，并不直接显示数据，而是鼠标点击到仪器标签上，从标签弹出数据
+      来，鼠标移走数据消失。
+    }
   TdmcMeterLabel = class(TGPTextNode)
   private
     FDesignName: string;

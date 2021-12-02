@@ -7,6 +7,8 @@
             等功能，而fraDataLayout保留了相对纯粹的数据分布图显示功能。
  History:
     2018-06-14 增加了显示数据增量的功能，但只能显示最新增量
+    2021-11-09 调整了界面功能布局，调整了显示增量的功能，允许查询用户指定时间
+    段的数据增量。
 ----------------------------------------------------------------------------- }
 { DONE:增加显示仪器数据表功能 }
 { DONE:增加显示仪器过程线功能 }
@@ -19,6 +21,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, System.Types,
+  System.DateUtils,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufraDataLayout, Vcl.ExtCtrls,
   Vcl.ComCtrls, Vcl.StdCtrls,
   uHJX.Intf.Datas, {uHJX.Excel.Meters} uHJX.Classes.Meters, uHJX.Intf.AppServices, uHJX.Data.Types,
@@ -28,7 +31,7 @@ type
   TfraDataPresentation = class(TFrame)
     pnlFuncs: TPanel;
     fraDataLayout: TfraDataLayout;
-    btnLastDatas: TButton;
+    btnQryInc: TButton;
     dtpSpecialDate: TDateTimePicker;
     btnClearDatas: TButton;
     btnLoadLayout: TButton;
@@ -37,11 +40,21 @@ type
     popLayoutList: TPopupMenu;
     chkShowIncrement: TCheckBox;
     cbxIncOptions: TComboBox;
+    gbx01: TGroupBox;
+    gbxQueryData: TGroupBox;
+    gbxInc: TGroupBox;
+    dtpStartDate: TDateTimePicker;
+    dtpEndDate: TDateTimePicker;
+    btnFillinData: TButton;
+    btnHideData: TButton;
     procedure btnLoadLayoutClick(Sender: TObject);
     procedure btnClearDatasClick(Sender: TObject);
-    procedure btnLastDatasClick(Sender: TObject);
+    procedure btnQryIncClick(Sender: TObject);
     procedure btnSpecialDateClick(Sender: TObject);
     procedure chkShowIncrementClick(Sender: TObject);
+    procedure cbxIncOptionsClick(Sender: TObject);
+    procedure btnFillinDataClick(Sender: TObject);
+    procedure btnHideDataClick(Sender: TObject);
   private
         { Private declarations }
     FDataOpts: integer; // 0-last; 1-special;
@@ -69,6 +82,7 @@ type
   end;
 
 implementation
+
 USES uHJX.EnvironmentVariables;
 {$R *.dfm}
 
@@ -99,10 +113,31 @@ begin
   fraDataLayout.ClearDatas;
 end;
 
-procedure TfraDataPresentation.btnLastDatasClick(Sender: TObject);
+{ -----------------------------------------------------------------------------
+  Procedure  : btnQryIncClick
+  Description: btnQryInc前身是btnLastData。原本用于查询最新数据或者查询最新
+  增量，现在修改为专门查询数据增量
+----------------------------------------------------------------------------- }
+procedure TfraDataPresentation.btnQryIncClick(Sender: TObject);
 begin
-  FDataOpts := 0;
-  fraDataLayout.Play(chkShowIncrement.Checked);
+  // FDataOpts := 0; //0-Now
+  // fraDataLayout.Play(chkShowIncrement.Checked);
+  fraDataLayout.Play(True); // 查询增量
+  { 具体增量的查询方式，则在本单元中实现，fraDataLayout只负责显示结果。
+    在本功能中，增量的查询方式有：最新增量、周增量、月增量、年增量、指定时间段内增量。
+    其中，前4种，均和查询数据功能中的那个日期有关，即以那个日期为时间点查询一定间隔内
+    的增量。
+    只有“指定时间段内增量”功能，采用的是增量查询GroupBox中的两个日期选择。 }
+end;
+
+procedure TfraDataPresentation.btnFillinDataClick(Sender: TObject);
+begin
+  fraDataLayout.PopupEditorWindow;
+end;
+
+procedure TfraDataPresentation.btnHideDataClick(Sender: TObject);
+begin
+  fraDataLayout.PopupGraphObjList;
 end;
 
 procedure TfraDataPresentation.btnLoadLayoutClick(Sender: TObject);
@@ -112,17 +147,42 @@ begin
       fraDataLayout.LoadDataLayout(dlgOpenDataLayout.FileName);
 end;
 
+{ -----------------------------------------------------------------------------
+  Procedure  : btnSpecialDateClick
+  Description: btnSpecialDate查询指定日期的观测数据，或最新观测数据（不查询增量）
+  要查询最新数据，只要将日期设置为今天即可。
+----------------------------------------------------------------------------- }
 procedure TfraDataPresentation.btnSpecialDateClick(Sender: TObject);
 begin
-  FDataOpts := 1;
+  // 检查日期设置是否是今天，如果是今天则将FDataOpts设置为0，即查询最新数据，否则按照日期来查
+  if DateOf(dtpSpecialDate.Date) = DateOf(now) then
+      FDataOpts := 0
+  else
+      FDataOpts := 1;
+  // 1-指定日期。通常程序加载的时候已经自动将日期设置为当天了
   fraDataLayout.Play;
 end;
 
+procedure TfraDataPresentation.cbxIncOptionsClick(Sender: TObject);
+begin
+  dtpStartDate.Enabled := cbxIncOptions.ItemIndex = 4;
+  dtpEndDate.Enabled := cbxIncOptions.ItemIndex = 4;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : chkShowIncrementClick
+  Description: 这个方法作废了
+----------------------------------------------------------------------------- }
 procedure TfraDataPresentation.chkShowIncrementClick(Sender: TObject);
 begin
+  // 取消了chkShowIncrement控件，因此这个方法作废
   cbxIncOptions.Visible := chkShowIncrement.Checked;
 end;
 
+{ -----------------------------------------------------------------------------
+  Procedure  : OnNeedData
+  Description:
+----------------------------------------------------------------------------- }
 procedure TfraDataPresentation.OnNeedData(AID: string; ADataName: string; var Data: Variant;
   var DT: TDateTime);
 var
@@ -214,15 +274,20 @@ end;
 { -----------------------------------------------------------------------------
   Procedure  : OnNeedIncrement
   Description: 2018-06-14 增加了相应显示增量事件的方法
+  此处采用的增量查询方法是直接调用IClientDatas中的方法，而不是速览功能中对不同
+  日期各查询一次，再计算增量的方法。
 ----------------------------------------------------------------------------- }
 procedure TfraDataPresentation.OnNeedIncrement(AID: string; ADataName: string; var Data: Variant;
   var DT: TDateTime);
 var
-  Datas   : TVariantDynArray;
-  sType   : string;
-  i       : integer;
-  iIncDays: integer;
-  GetData : Boolean;
+  Datas       : TVariantDynArray;
+  sType       : string;
+  i           : integer;
+  iIncDays    : integer;
+  iInteralDays: integer;   // 实际查询的两次时间间隔
+  dt0         : TDateTime; // 实际查询到的起始日期
+  sDT         : String;    // 显示数据起止时间和间隔天数
+  GetData     : Boolean;
   function FormatData(D: Variant): String;
   begin
     if (VarIsEmpty(D)) or (VarIsNull(D)) or (vartostr(D) = '') then
@@ -245,12 +310,14 @@ begin
   case cbxIncOptions.ItemIndex of
     0: { 最新增量 }
       GetData := IHJXClientFuncs.GetDataIncrement(AID, DT, Datas);
+    // 4: { 指定起止日期 };
   else
     begin
       case cbxIncOptions.ItemIndex of
         1: iIncDays := 7;
         2: iIncDays := 30;
         3: iIncDays := 365;
+        4: iIncDays := DaysBetween(dtpStartDate.Date, dtpEndDate.Date)
       end;
       GetData := IHJXClientFuncs.GetDataIncrement2(AID, DT, iIncDays, Datas);
     end;
@@ -264,6 +331,12 @@ begin
       begin
         sType := ExcelMeters.Meter[AID].Params.MeterType;
         DT := Datas[i][1];
+
+        iInteralDays := Datas[i][2];      // 实际间隔天数
+        dt0 := IncDay(DT, -iInteralDays); // 实际起始日期
+        sDT := '#数据起止日期: ' + formatdatetime('yyyy-mm-dd', dt0) + ' ~ ' + formatdatetime('yyyy-mm-dd',
+          DT) + #13#10 + '间隔天数: ' + FormatData(iInteralDays);
+
         Data := FormatData(Datas[i][3]);
         if Datas[i][4] > 0 then
             Data := Data + '；↑' + FormatData(Datas[i][4])
@@ -271,6 +344,8 @@ begin
             Data := Data + '；↓' + FormatData(Datas[i][4])
         else
             Data := Data + '；△' + FormatData(Datas[i][4]);
+        //2021-11-09 注意：在这里添加了增量数据特有的起止时间和间隔天数，用来作为Hint
+        Data := Data + sDT;
       end;
     end;
   end;

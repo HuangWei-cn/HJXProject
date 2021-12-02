@@ -12,6 +12,8 @@ object fraBasicTrendLine: TfraBasicTrendLine
     BackWall.Color = clWhite
     Border.Visible = True
     Legend.Alignment = laTop
+    Legend.CheckBoxes = True
+    Legend.DrawBehind = True
     Legend.LegendStyle = lsSeries
     Legend.TextStyle = ltsPlain
     MarginLeft = 20
@@ -118,12 +120,15 @@ object fraBasicTrendLine: TfraBasicTrendLine
       YValues.Order = loNone
     end
     object ctScrollLeft: TAxisScrollTool
+      Active = False
       AxisID = 2
     end
     object ctScrollBottom: TAxisScrollTool
+      Active = False
       AxisID = 0
     end
     object ctScrollRight: TAxisScrollTool
+      Active = False
       AxisID = 0
     end
   end

@@ -250,7 +250,9 @@ end;
 
 procedure TfraBasicTrendLine.piCopyAsEMFClick(Sender: TObject);
 begin
+  chtLine.Legend.CheckBoxes := False;
   chtLine.CopyToClipboardMetafile(True);
+  chtline.Legend.CheckBoxes := True;
     // chtLine.CopyToClipboardBitmap;
 end;
 
@@ -266,10 +268,12 @@ var
 begin
   JPG := TJPEGExportFormat.Create;
   try
+    chtline.Legend.CheckBoxes := false;
     JPG.Panel := chtLine;
     JPG.CopyToClipboard;
   finally
     JPG.Free;
+    chtline.Legend.CheckBoxes := true;
   end;
     // chtLine.CopyToClipboardBitmap;
     // chtLine.CopyToClipboardMetafile(True);
@@ -277,17 +281,23 @@ end;
 
 procedure TfraBasicTrendLine.piSaveAsEMFClick(Sender: TObject);
 begin
+  chtline.Legend.CheckBoxes := false;
   TeeExport(nil, chtLine);
+  chtline.Legend.CheckBoxes := true;
 end;
 
 procedure TfraBasicTrendLine.piSaveAsBitmapClick(Sender: TObject);
 begin
+  chtline.Legend.CheckBoxes := false;
   TeeExport(nil, chtLine);
+  chtline.Legend.CheckBoxes := true;
 end;
 
 procedure TfraBasicTrendLine.piSaveAsTeeChartClick(Sender: TObject);
 begin
+  chtline.Legend.CheckBoxes := false;
   TeeExport(nil, chtLine);
+  chtline.Legend.CheckBoxes := true;
 end;
 
 procedure TfraBasicTrendLine.piSetupChartClick(Sender: TObject);

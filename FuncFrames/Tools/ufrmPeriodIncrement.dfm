@@ -74,14 +74,14 @@ object frmPeriodIncrement: TfrmPeriodIncrement
       TabOrder = 1
       object Label3: TLabel
         Left = 17
-        Top = 46
+        Top = 52
         Width = 60
         Height = 13
         Caption = #21608#26399#36215#22987#26085
       end
       object edtStartDay: TEdit
         Left = 83
-        Top = 43
+        Top = 49
         Width = 39
         Height = 21
         NumbersOnly = True
@@ -90,7 +90,7 @@ object frmPeriodIncrement: TfrmPeriodIncrement
       end
       object updStartDay: TUpDown
         Left = 122
-        Top = 43
+        Top = 49
         Width = 16
         Height = 21
         Associate = edtStartDay
@@ -99,7 +99,7 @@ object frmPeriodIncrement: TfrmPeriodIncrement
         TabOrder = 1
       end
       object radMonth: TRadioButton
-        Left = 12
+        Left = 60
         Top = 20
         Width = 69
         Height = 17
@@ -109,12 +109,20 @@ object frmPeriodIncrement: TfrmPeriodIncrement
         TabStop = True
       end
       object radYear: TRadioButton
-        Left = 87
+        Left = 135
         Top = 20
         Width = 69
         Height = 17
         Caption = #24180#22686#37327
         TabOrder = 3
+      end
+      object radWeak: TRadioButton
+        Left = 6
+        Top = 20
+        Width = 49
+        Height = 17
+        Caption = #21608#22686
+        TabOrder = 4
       end
     end
     object btnQuery: TButton

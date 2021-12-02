@@ -17,7 +17,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VclTee.TeeGDIPlus, VclTee.TeEngine,
   VclTee.Series, VclTee.ArrowCha, Vcl.ExtCtrls, VclTee.TeeProcs, VclTee.Chart, Vcl.Menus,
-  VclTee.TeeChineseSimp;
+  VclTee.TeeChineseSimp, Vcl.ComCtrls, uMyTeeAxisScrollTool;
 
 type
   TfraBasePlaneDisplacementChart = class(TFrame)
@@ -32,19 +32,37 @@ type
     ssCumulative: TArrowSeries;
     N2: TMenuItem;
     piChartSetup: TMenuItem;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+    chtTrendLine: TChart;
+    srsX: TLineSeries;
+    srsY: TLineSeries;
+    chtXY: TChart;
+    srsXY: TLineSeries;
+    TeeGDIPlus1: TTeeGDIPlus;
     procedure piCopyAsBitmapClick(Sender: TObject);
     procedure piCopyAsMetafileClick(Sender: TObject);
     procedure piSaveAsClick(Sender: TObject);
     procedure FrameResize(Sender: TObject);
     procedure piChartSetupClick(Sender: TObject);
+    procedure TabSheet1Resize(Sender: TObject);
   private
-        { Private declarations }
+    { Private declarations }
+    FAxisToolY : ThwTeeAxisScrollTool;
+    FAxisToolX : ThwTeeAxisScrollTool;
+    FAxisToolY1: ThwTeeAxisScrollTool;
+    FAxistoolX1: ThwTeeAxisScrollTool;
   public
-        { Public declarations }
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    destructor Destroy; override;
     procedure ClearDatas;
     procedure ShowSampleDatas;
     // show diaplacement trace
-    procedure AddData(X0, Y0, X1, Y1: Double; ALabel: string = '');
+    procedure AddData(X0, Y0, X1, Y1: Double; ALabel: string = ''); overload;
+    procedure AddData(DTScale: TDateTime; X, Y: Double); overload;
     procedure SetChartTitle(ATitle: string);
   end;
 
@@ -52,9 +70,39 @@ implementation
 
 uses
   VclTee.TeExport, VclTee.TeePrevi, VclTee.EditChar, VclTee.TeePoEdi {, TeCanvas} ,
-  VclTee.TeePenDlg,  VclTee.TeeStore, VclTee.TeePNG, VclTee.TeeJPEG, VclTee.TeeGIF;
+  VclTee.TeePenDlg, VclTee.TeeStore, VclTee.TeePNG, VclTee.TeeJPEG, VclTee.TeeGIF;
 {$R *.dfm}
 
+
+constructor TfraBasePlaneDisplacementChart.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  TeeSetChineseSimp;
+  FAxisToolY := ThwTeeAxisScrollTool.Create(Self);
+  FAxisToolY.Axis := chtTrendLine.LeftAxis;
+  FAxisToolY.Active := True;
+  FAxisToolX := ThwTeeAxisScrollTool.Create(Self);
+  FAxisToolX.Axis := chtTrendLine.BottomAxis;
+  FAxisToolX.Active := True;
+
+  FAxisToolY1 := ThwTeeAxisScrollTool.Create(Self);
+  FAxisToolY1.Axis := chtXY.LeftAxis;
+  FAxisToolY1.Active := True;
+  FAxisToolX1 := ThwTeeAxisScrollTool.Create(Self);
+  FAxisToolX1.Axis := chtXY.BottomAxis;
+  FAxisToolX1.Active := True;
+
+end;
+
+destructor TfraBasePlaneDisplacementChart.Destroy;
+begin
+  //TTeeCustomToolAxis is a component, it will be free by Frame.
+  //FAxisToolY.Free;
+  //FAxisToolX.Free;
+  //FAxisToolY1.Free;
+  //FAxistoolX1.Free;
+  inherited;
+end;
 
 procedure TfraBasePlaneDisplacementChart.ClearDatas;
 begin
@@ -64,8 +112,8 @@ end;
 
 procedure TfraBasePlaneDisplacementChart.FrameResize(Sender: TObject);
 begin
-  chtDisplacement.Width := chtDisplacement.Height;
-  chtCumulativeDeform.Width := chtCumulativeDeform.Height;
+  // chtDisplacement.Width := chtDisplacement.Height;
+  // chtCumulativeDeform.Width := chtCumulativeDeform.Height;
 end;
 
 procedure TfraBasePlaneDisplacementChart.piChartSetupClick(Sender: TObject);
@@ -76,13 +124,23 @@ end;
 procedure TfraBasePlaneDisplacementChart.piCopyAsBitmapClick(Sender: TObject);
 begin
   // chtDisplacement.CopyToClipboardBitmap;
-  (popChart.PopupComponent as TChart).CopyToClipboardBitmap;
+  with (popChart.PopupComponent as TChart) do
+  begin
+    Legend.CheckBoxes := False;
+    CopyToClipboardBitmap;
+    Legend.CheckBoxes := True;
+  end;
 end;
 
 procedure TfraBasePlaneDisplacementChart.piCopyAsMetafileClick(Sender: TObject);
 begin
   // chtDisplacement.CopyToClipboardMetafile(True);
-  (popChart.PopupComponent as TChart).CopyToClipboardBitmap;
+  with (popChart.PopupComponent as TChart) do
+  begin
+    Legend.CheckBoxes := False;
+    CopyToClipboardBitmap;
+    legend.CheckBoxes := True;
+  end;
 end;
 
 procedure TfraBasePlaneDisplacementChart.piSaveAsClick(Sender: TObject);
@@ -118,6 +176,12 @@ begin
     Y0 := Y1;
     R := R + 0.2;
   until R > 10;
+end;
+
+procedure TfraBasePlaneDisplacementChart.TabSheet1Resize(Sender: TObject);
+begin
+  chtDisplacement.Width := chtDisplacement.Height;
+  chtCumulativeDeform.Width := chtCumulativeDeform.Height;
 end;
 
 function MaxValue(D: array of Double): Double;
@@ -183,10 +247,22 @@ begin
 
 end;
 
+procedure TfraBasePlaneDisplacementChart.AddData(DTScale: TDateTime; X: Double; Y: Double);
+var
+  D: Double;
+begin
+  srsX.AddXY(DTScale, X);
+  srsY.AddXY(DTScale, Y);
+  D := Sqrt(X * X + Y * Y);
+  srsXY.AddXY(DTScale, D);
+end;
+
 procedure TfraBasePlaneDisplacementChart.SetChartTitle(ATitle: string);
 begin
-  chtDisplacement.Title.Caption := ATitle;
+  chtDisplacement.Title.Caption := ATitle + '位移轨迹图';
   chtCumulativeDeform.Title.Caption := ATitle + '(累积位移)';
+  chtTrendLine.Title.Caption := ATitle + '测值过程线';
+  chtXY.Title.Caption := ATitle + '水平合位移过程线';
 end;
 
 end.

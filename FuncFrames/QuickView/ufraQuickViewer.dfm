@@ -5,14 +5,14 @@ object fraQuickViewer: TfraQuickViewer
   Height = 522
   TabOrder = 0
   object wbViewer: TWebBrowser
-    Left = 8
-    Top = 324
+    Left = 23
+    Top = 0
     Width = 300
-    Height = 150
+    Height = 66
     TabOrder = 3
     OnBeforeNavigate2 = wbViewerBeforeNavigate2
     ControlData = {
-      4C000000021F0000810F00000000000000000000000000000000000000000000
+      4C000000021F0000D20600000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
       2B2E126208000000000000004C0000000114020000000000C000000000000046
       8000000000000000000000000000000000000000000000000000000000000000
@@ -368,16 +368,16 @@ object fraQuickViewer: TfraQuickViewer
   object dlgPrint: TPrintDialog
     MaxPage = 1
     Options = [poPrintToFile, poPageNums, poSelection]
-    Left = 244
-    Top = 452
+    Left = 624
+    Top = 184
   end
   object dlgSave: TSaveDialog
     DefaultExt = 'htm'
     Filter = 'HTML'#25991#20214'(*.htm)|*.htm'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Title = #20445#23384#32467#26524
-    Left = 164
-    Top = 452
+    Left = 568
+    Top = 184
   end
   object MemTableEh1: TMemTableEh
     FetchAllOnOpen = True
@@ -415,13 +415,49 @@ object fraQuickViewer: TfraQuickViewer
     object N3: TMenuItem
       Caption = '-'
     end
+    object piOpenDataSheet: TMenuItem
+      Action = actOpenDataSheet
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object N5: TMenuItem
+      Action = actCopytoClipboard
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
     object piSetFont: TMenuItem
-      Caption = #35774#32622#23383#20307
+      Action = actSetGridFont
+    end
+    object piIncFontSize: TMenuItem
+      Action = actIncFontSize
+    end
+    object piDecFontSize: TMenuItem
+      Action = actDecFontSize
+    end
+    object N6: TMenuItem
+      Caption = '-'
+    end
+    object piCollapse: TMenuItem
+      Caption = #25910#36215
+      object piCollapseThisLevel: TMenuItem
+        Caption = #25910#36215#26412#32423
+        OnClick = piCollapseThisLevelClick
+      end
+      object piCollapseSubLevels: TMenuItem
+        Caption = #25910#36215#23376#32423
+        OnClick = piCollapseSubLevelsClick
+      end
+      object piCollapseAllLevel: TMenuItem
+        Caption = #20840#37096#25910#36215
+        OnClick = piCollapseAllLevelClick
+      end
     end
   end
   object ActionList1: TActionList
-    Left = 588
-    Top = 440
+    Left = 692
+    Top = 132
     object actShowTrendLine: TAction
       Caption = #26174#31034#36807#31243#32447
       OnExecute = actShowTrendLineExecute
@@ -431,8 +467,36 @@ object fraQuickViewer: TfraQuickViewer
       OnExecute = actShowDatasExecute
     end
     object actSetGridFont: TAction
+      Category = 'Font'
       Caption = #35774#32622#23383#20307
       OnExecute = actSetGridFontExecute
     end
+    object actIncFontSize: TAction
+      Category = 'Font'
+      Caption = #22686#22823#23383#21495
+      OnExecute = actIncFontSizeExecute
+    end
+    object actDecFontSize: TAction
+      Category = 'Font'
+      Caption = #20943#23567#23383#21495
+      OnExecute = actDecFontSizeExecute
+    end
+    object actOpenDataSheet: TAction
+      Caption = #25171#24320#21407#22987#35745#31639#34920
+      OnExecute = actOpenDataSheetExecute
+    end
+    object actCopytoClipboard: TAction
+      Caption = #25335#36125#34920#26684
+      OnExecute = actCopytoClipboardExecute
+    end
+  end
+  object dlgFont: TFontDialog
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Left = 688
+    Top = 188
   end
 end
