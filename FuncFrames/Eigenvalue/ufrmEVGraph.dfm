@@ -11,6 +11,8 @@ object frmEVGraph: TfrmEVGraph
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnClose = FormClose
+  OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object Chart: TChart
@@ -92,14 +94,11 @@ object frmEVGraph: TfrmEVGraph
     Color = clWhite
     PopupMenu = PopupMenu1
     TabOrder = 0
-    ExplicitLeft = 148
-    ExplicitTop = 100
-    ExplicitWidth = 400
-    ExplicitHeight = 250
     DefaultCanvas = 'TGDIPlusCanvas'
     ColorPaletteIndex = 13
     object srsMax: TLineSeries
       Title = #26368#22823#20540
+      Brush.BackColor = clDefault
       LinePen.Color = clBlue
       LinePen.Style = psDash
       LinePen.Width = 2
@@ -113,6 +112,7 @@ object frmEVGraph: TfrmEVGraph
     object srsLast: TLineSeries
       SeriesColor = 8388863
       Title = #24403#21069#20540
+      Brush.BackColor = clDefault
       LinePen.Color = 8388863
       Pointer.Brush.Style = bsClear
       Pointer.HorizSize = 3
@@ -129,6 +129,7 @@ object frmEVGraph: TfrmEVGraph
     object srsMin: TLineSeries
       SeriesColor = 54528
       Title = #26368#23567#20540
+      Brush.BackColor = clDefault
       LinePen.Color = 55552
       LinePen.Style = psDot
       LinePen.Width = 2

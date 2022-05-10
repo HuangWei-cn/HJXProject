@@ -887,6 +887,7 @@ var
   k     : Integer;     // 特征值项的序号；
   kIdx  : set of Byte; // 特征值序号集合，假设特征值项不超过127个。
   gl    : TGridDataGroupLevelEh;
+  ErrMsg: String;
   procedure ClearValues;
   var
     ii: Integer;
@@ -1010,6 +1011,8 @@ begin
   end;
 
   IHJXClientFuncs.SessionBegin;
+  IAppServices.ClientDatas.ClearErrMsg;
+  ErrMsg := '';
 
   try
     Screen.Cursor := crHourGlass;
@@ -1126,6 +1129,9 @@ begin
 
     end;
 
+    ErrMsg := IAppServices.ClientDatas.ErrorMsg;
+    if ErrMsg <> '' then showmessage('查询过程中发现以下错误:'#13#10 + ErrMsg);
+
     if rdgPresentType.ItemIndex = 0 then
     begin
       Body := Body + WCV.CrossGrid;
@@ -1191,6 +1197,7 @@ var
 
   dt1, dt2, d1, d2         : Double;
   sPage, sBody, sType, sPos: string;
+  ErrMsg                   : String;
 
   procedure _ClearValues;
   var
@@ -1316,6 +1323,8 @@ begin
 
   // 准备表格对象
   IAppServices.ClientDatas.SessionBegin;
+  IAppServices.ClientDatas.ClearErrMsg;
+  ErrMsg := '';
   // 如果采用WebGrid表现，则
   if rdgPresentType.ItemIndex = 0 then
   begin
@@ -1383,63 +1392,69 @@ begin
       if j > 0 then
       begin
         // 查询数据
-        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V);
-        IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V1);
-        if V[0] = 0 then Continue;
-        dt1 := V[0];
-        dt2 := V1[0];
-        // 如果采用WebGrid，则
-        if rdgPresentType.ItemIndex = 0 then
+        if IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V) and
+          IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V1) then
         begin
-          vH[0] := '<a href="PopGraph:' + Meter.DesignName + '">' + Meter.DesignName + '</a>';
-          if not chkSimpleSDGrid.Checked then
+          if (Length(V) = 0) or (V[0] = 0) or (Length(V1) = 0) or (V1[0] = 0) then Continue;
+          dt1 := V[0];
+          dt2 := V1[0];
+          // 如果采用WebGrid，则
+          if rdgPresentType.ItemIndex = 0 then
           begin
-            vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
-            vH[3] := FormatDateTime('yyyy-mm-dd', dt2);
-            vH[7] := dt2 - dt1; // 日期间隔
-          end;
-        end;
-
-        for j in kIdx do // 逐个添加特征值数据行
-        begin
-          if rdgPresentType.ItemIndex = 0 then // 采用WebGrid
-          begin
-            vH[1] := Meter.PDName(j);
-            if chkSimpleSDGrid.Checked then
+            vH[0] := '<a href="PopGraph:' + Meter.DesignName + '">' + Meter.DesignName + '</a>';
+            if not chkSimpleSDGrid.Checked then
             begin
-              vH[2] := V[j + 1];
-              vH[3] := V1[j + 1];
-              vH[4] := V1[j + 1] - V[j + 1];
-            end
-            else
-            begin
-              vH[4] := V[j + 1];
-              vH[5] := V1[j + 1];
-              vH[6] := V1[j + 1] - V[j + 1];
-              if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+              vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
+              vH[3] := FormatDateTime('yyyy-mm-dd', dt2);
+              vH[7] := dt2 - dt1; // 日期间隔
             end;
-            WCV.AddRow(vH);
-          end
-          else // 采用EhGrid
-          begin
-            cdsDatas.Append;
-            cdsDatas.FieldByName('Position').Value := Meter.PrjParams.Position;
-            cdsDatas.FieldByName('MeterType').Value := Meter.Params.MeterType;
-            cdsDatas.FieldByName('DesignName').Value := Meter.DesignName;
-            cdsDatas.FieldByName('PDName').Value := Meter.PDName(j);
-            cdsDatas.FieldByName('StartDate').Value := dt1;
-            cdsDatas.FieldByName('EndDate').Value := dt2;
-            cdsDatas.FieldByName('Data1').Value := V[j + 1];
-            cdsDatas.FieldByName('Data2').Value := V1[j + 1];
-            cdsDatas.FieldByName('IntralDays').Value := dt2 - dt1;
-            cdsDatas.FieldByName('Increment').Value := V1[j + 1] - V[j + 1];
-            if dt2 - dt1 <> 0 then
-                cdsDatas.FieldByName('Rate').Value := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
-            cdsDatas.Post;
           end;
-        end;
+
+          for j in kIdx do // 逐个添加特征值数据行
+          begin
+            if rdgPresentType.ItemIndex = 0 then // 采用WebGrid
+            begin
+              vH[1] := Meter.PDName(j);
+              if chkSimpleSDGrid.Checked then
+              begin
+                vH[2] := V[j + 1];
+                vH[3] := V1[j + 1];
+                vH[4] := V1[j + 1] - V[j + 1];
+              end
+              else
+              begin
+                vH[4] := V[j + 1];
+                vH[5] := V1[j + 1];
+                vH[6] := V1[j + 1] - V[j + 1];
+                if dt2 - dt1 <> 0 then vH[8] := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+              end;
+              WCV.AddRow(vH);
+            end
+            else // 采用EhGrid
+            begin
+              cdsDatas.Append;
+              cdsDatas.FieldByName('Position').Value := Meter.PrjParams.Position;
+              cdsDatas.FieldByName('MeterType').Value := Meter.Params.MeterType;
+              cdsDatas.FieldByName('DesignName').Value := Meter.DesignName;
+              cdsDatas.FieldByName('PDName').Value := Meter.PDName(j);
+              cdsDatas.FieldByName('StartDate').Value := dt1;
+              cdsDatas.FieldByName('EndDate').Value := dt2;
+              cdsDatas.FieldByName('Data1').Value := V[j + 1];
+              cdsDatas.FieldByName('Data2').Value := V1[j + 1];
+              cdsDatas.FieldByName('IntralDays').Value := dt2 - dt1;
+              cdsDatas.FieldByName('Increment').Value := V1[j + 1] - V[j + 1];
+              if dt2 - dt1 <> 0 then
+                  cdsDatas.FieldByName('Rate').Value := (V1[j + 1] - V[j + 1]) / (dt2 - dt1);
+              cdsDatas.Post;
+            end;
+          end;
+        end
       end;
     end;
+
+    // 如果查询过程中存在错误，在这里显示一下
+    ErrMsg := IAppServices.ClientDatas.ErrorMsg;
+    if ErrMsg <> '' then showmessage('查询过程发现以下错误：'#13#10 + ErrMsg);
 
     if rdgPresentType.ItemIndex = 0 then
     begin
@@ -1503,6 +1518,7 @@ var
   Page   : String;
   sType  : string;
   sPos   : String;
+  ErrMsg : String;
 
   procedure ClearValues;
   var
@@ -1595,6 +1611,8 @@ begin
   sType := '';
   sPos := '';
   IHJXClientFuncs.SessionBegin;
+  IHJXClientFuncs.ClearErrMsg;
+  ErrMsg := '';
 
   try
     Screen.Cursor := crHourGlass;
@@ -1655,7 +1673,7 @@ begin
       end;
 
       if IHJXClientFuncs.GetLastPDDatas(Meter.DesignName, V) then
-        if V[0] <> 0 then // 若观测日期为0，则表明该仪器没有观测数据
+        if (Length(V) <> 0) and (V[0] <> 0) then // 若观测日期为0，则表明该仪器没有观测数据
         begin
           WCV.AddRow;
           iRow := WCV.RowCount - 1;
@@ -1682,6 +1700,10 @@ begin
     IHJXClientFuncs.SessionEnd;
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
+
+    ErrMsg := IHJXClientFuncs.ErrorMsg;
+    if ErrMsg <> '' then showmessage('查询过程中发现以下错误：'#13#10 + ErrMsg);
+    IHJXClientFuncs.ClearErrMsg;
   end;
 end;
 

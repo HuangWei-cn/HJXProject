@@ -128,14 +128,15 @@ object frmDataItemsList: TfrmDataItemsList
   object lstItems: TCheckListBox
     Left = 16
     Top = 85
-    Width = 361
+    Width = 341
     Height = 456
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -12
     Font.Name = 'Tahoma'
     Font.Style = []
+    ItemHeight = 14
     ParentFont = False
     TabOrder = 0
   end
@@ -160,5 +161,16 @@ object frmDataItemsList: TfrmDataItemsList
     Caption = #36864#20986
     ModalResult = 2
     TabOrder = 2
+  end
+  object radgrpOperation: TRadioGroup
+    Left = 372
+    Top = 108
+    Width = 129
+    Height = 61
+    Caption = #23545#36873#20013#30340#25805#20316
+    ItemIndex = 0
+    Items.Strings = (
+      #38544#34255#26410#21246#36873)
+    TabOrder = 3
   end
 end

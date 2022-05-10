@@ -1,3 +1,11 @@
+{-----------------------------------------------------------------------------
+ Unit Name: ufrmDataItemsList
+ Author:    黄伟
+ Date:      10-五月-2022
+ Purpose:   弹出窗口显示当前图纸中仪器标签和数据标签，取消勾选的隐藏
+ History:
+-----------------------------------------------------------------------------}
+
 unit ufrmDataItemsList;
 
 interface
@@ -5,7 +13,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, Vcl.CheckLst,
-  ufraDataLayout, SimpleGraph, uhwSGEx, uhwSGEx.DataMapClasses;
+  ufraDataLayout, SimpleGraph, uhwSGEx, uhwSGEx.DataMapClasses, Vcl.ExtCtrls;
 
 type
   TfrmDataItemsList = class(TForm)
@@ -16,6 +24,7 @@ type
     btnOK: TButton;
     btnCancel: TButton;
     Label1: TLabel;
+    radgrpOperation: TRadioGroup;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnSelectAllClick(Sender: TObject);
     procedure btnSelectNoneClick(Sender: TObject);

@@ -62,7 +62,7 @@ var
   i: Integer;
 begin
   cbxMeterTypes.Clear;
-  for i := 0 to PG_MeterTypes.Count - 1 do
+  //for i := 0 to PG_MeterTypes.Count - 1 do
       cbxMeterTypes.Items.AddStrings(PG_MeterTypes);
 end;
 

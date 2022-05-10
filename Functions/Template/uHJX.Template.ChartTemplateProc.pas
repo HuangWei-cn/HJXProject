@@ -252,6 +252,12 @@ var
       // 这里暂时不处理Auto的情况，权当都是Always类型
       { TODO -oCharmer -cChartTemplateProc : 编写处理sptAuto类型的代码 }
       NewLine.Pointer.Visible := True;
+      { 2022-02-22 设置Pointer的样式，无填充，边框颜色与曲线颜色一致，但略深 }
+      with NewLine.Pointer do
+      begin
+        Brush.Style := bsClear;
+        DarkPen := 80;
+      end;
     end;
 
     // 2019-10-11 设置线型

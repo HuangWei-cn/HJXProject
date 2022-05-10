@@ -370,10 +370,10 @@ begin
     if IAppServices.GetDispatcher('GraphDispatcher') <> nil then
       if Supports(IAppServices.GetDispatcher('GraphDispatcher'), IGraphDispatcher, IGD) then
       begin
-                { 2018-07-26 现在具备了根据预定义的Style绘图的功能，理论上讲，只要一个仪器有对应的
-                  Style，则无论仪器类型都可以绘图，这种根据仪器类型进行绘图注册的方式已经落后于时代
-                  了，需要改进 }
-                { TODO -ohw -cDrawGraph : 注册方法应该改进，根据模板中仪器类型和图形类型注册，而非代码中写死 }
+        { 2018-07-26 现在具备了根据预定义的Style绘图的功能，理论上讲，只要一个仪器有对应的
+          Style，则无论仪器类型都可以绘图，这种根据仪器类型进行绘图注册的方式已经落后于时代
+          了，需要改进 }
+        { TODO -ohw -cDrawGraph : 注册方法应该改进，根据模板中仪器类型和图形类型注册，而非代码中写死 }
         IGD.RegistDrawFuncs('多点位移计', DrawTrendLine);
         IGD.RegistDrawFuncs('锚索测力计', DrawTrendLine);
         IGD.RegistDrawFuncs('锚杆应力计', DrawTrendLine);
@@ -391,6 +391,8 @@ begin
         IGD.RegistDrawFuncs('温度计', DrawTrendLine);
         IGD.RegistDrawFuncs('水位', DrawTrendLine);
         IGD.RegistDrawFuncs('量水堰', DrawTrendLine);
+        IGD.RegistDrawFuncs('水位观测孔', DrawTrendLine);
+        IGD.RegistDrawFuncs('环境量', DrawTrendLine);
 
         IGD.RegistExportFunc('多点位移计', ExportGraphToFile);
         IGD.RegistExportFunc('锚索测力计', ExportGraphToFile);
@@ -409,6 +411,8 @@ begin
         IGD.RegistExportFunc('温度计', ExportGraphToFile);
         IGD.RegistExportFunc('水位', ExportGraphToFile);
         IGD.RegistExportFunc('量水堰', ExportGraphToFile);
+        IGD.RegistExportFunc('水位观测孔', ExportGraphToFile);
+        IGD.RegistExportFunc('环境量', ExportGraphToFile);
 
         IGD.RegistSaveStreamFunc('多点位移计', ExportGraphToStream);
         IGD.RegistSaveStreamFunc('锚索测力计', ExportGraphToStream);
@@ -427,6 +431,8 @@ begin
         IGD.RegistSaveStreamFunc('无应力计', ExportGraphToStream);
         IGD.RegistSaveStreamFunc('水位', ExportGraphToStream);
         IGD.RegistSaveStreamFunc('量水堰', ExportGraphToStream);
+        IGD.RegistSaveStreamFunc('水位观测孔', ExportGraphToStream);
+        IGD.RegistSaveStreamFunc('环境量', ExportGraphToStream);
       end;
 
 // uFuncDataGraph.RegistDrawFuncs('多点位移计', DrawTrendLine);

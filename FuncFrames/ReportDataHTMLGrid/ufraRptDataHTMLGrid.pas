@@ -29,188 +29,188 @@ unit ufraRptDataHTMLGrid;
 interface
 
 uses
-    Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
-    Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.OleCtrls,
-    SHDocVw, Datasnap.DBClient, Vcl.FileCtrl,
-    uHJX.Data.Types, uHJX.Intf.Datas, uHJX.Classes.Meters, uHJX.Intf.AppServices,
-    Vcl.ComCtrls, HTMLUn2, HtmlView, Vcl.Menus, Vcl.Buttons;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.OleCtrls,
+  SHDocVw, Datasnap.DBClient, Vcl.FileCtrl,
+  uHJX.Data.Types, uHJX.Intf.Datas, uHJX.Classes.Meters, uHJX.Intf.AppServices,
+  Vcl.ComCtrls, HTMLUn2, HtmlView, Vcl.Menus, Vcl.Buttons;
 
 type
-    TfraRptDataHTMLGrid = class(TFrame)
-        Panel1: TPanel;
-        GroupBox1: TGroupBox;
-        rbAllDatas: TRadioButton;
-        rdDataRange: TRadioButton;
-        btnCreateReport: TButton;
-        pnlProgress: TPanel;
-        Progress: TProgressBar;
-        lblProgress: TLabel;
-        lblMeterName: TLabel;
-        dtpStart: TDateTimePicker;
-        dtpEnd: TDateTimePicker;
-        lblBreak: TLabel;
-        hvReport: THtmlViewer;
-        PopupMenu1: TPopupMenu;
-        miCopyAll: TMenuItem;
-        miCopySelected: TMenuItem;
-        N1: TMenuItem;
-        miPrint: TMenuItem;
-        dlgPrint: TPrintDialog;
-        miPrintPreview: TMenuItem;
-        N2: TMenuItem;
-        miSave: TMenuItem;
-        dlgSave: TSaveDialog;
-        rdgMeterOption: TRadioGroup;
-        pnlSetup: TPanel;
-        pnlCloseSetupPanel: TSpeedButton;
-        btnShowSetupPanel: TSpeedButton;
-        rdgDTRangeOption: TRadioGroup;
-        GroupBox3: TGroupBox;
-        optSheetAndChart: TRadioButton;
-        optSheetOnly: TRadioButton;
-        optChartOnly: TRadioButton;
-        chkIDTitle: TCheckBox;
-        chkExportChart: TCheckBox;
-        GroupBox2: TGroupBox;
-        Label1: TLabel;
-        Label2: TLabel;
-        Edit1: TEdit;
-        Edit2: TEdit;
-        udChartWidth: TUpDown;
-        udChartHeight: TUpDown;
-        wbReport: TWebBrowser;
-        procedure btnCreateReportClick(Sender: TObject);
-        procedure FrameResize(Sender: TObject);
-        procedure lblBreakClick(Sender: TObject);
-        procedure dtpStartClick(Sender: TObject);
-        procedure miCopyAllClick(Sender: TObject);
-        procedure hvReportImageRequest(Sender: TObject; const SRC: string; var Stream: TStream);
-        procedure miCopySelectedClick(Sender: TObject);
-        procedure miPrintClick(Sender: TObject);
-        procedure miPrintPreviewClick(Sender: TObject);
-        procedure miSaveClick(Sender: TObject);
-        procedure btnShowSetupPanelClick(Sender: TObject);
-        procedure pnlCloseSetupPanelClick(Sender: TObject);
-    private
+  TfraRptDataHTMLGrid = class(TFrame)
+    Panel1: TPanel;
+    GroupBox1: TGroupBox;
+    rbAllDatas: TRadioButton;
+    rdDataRange: TRadioButton;
+    btnCreateReport: TButton;
+    pnlProgress: TPanel;
+    Progress: TProgressBar;
+    lblProgress: TLabel;
+    lblMeterName: TLabel;
+    dtpStart: TDateTimePicker;
+    dtpEnd: TDateTimePicker;
+    lblBreak: TLabel;
+    hvReport: THtmlViewer;
+    PopupMenu1: TPopupMenu;
+    miCopyAll: TMenuItem;
+    miCopySelected: TMenuItem;
+    N1: TMenuItem;
+    miPrint: TMenuItem;
+    dlgPrint: TPrintDialog;
+    miPrintPreview: TMenuItem;
+    N2: TMenuItem;
+    miSave: TMenuItem;
+    dlgSave: TSaveDialog;
+    rdgMeterOption: TRadioGroup;
+    pnlSetup: TPanel;
+    pnlCloseSetupPanel: TSpeedButton;
+    btnShowSetupPanel: TSpeedButton;
+    rdgDTRangeOption: TRadioGroup;
+    GroupBox3: TGroupBox;
+    optSheetAndChart: TRadioButton;
+    optSheetOnly: TRadioButton;
+    optChartOnly: TRadioButton;
+    chkIDTitle: TCheckBox;
+    chkExportChart: TCheckBox;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    udChartWidth: TUpDown;
+    udChartHeight: TUpDown;
+    wbReport: TWebBrowser;
+    procedure btnCreateReportClick(Sender: TObject);
+    procedure FrameResize(Sender: TObject);
+    procedure lblBreakClick(Sender: TObject);
+    procedure dtpStartClick(Sender: TObject);
+    procedure miCopyAllClick(Sender: TObject);
+    procedure hvReportImageRequest(Sender: TObject; const SRC: string; var Stream: TStream);
+    procedure miCopySelectedClick(Sender: TObject);
+    procedure miPrintClick(Sender: TObject);
+    procedure miPrintPreviewClick(Sender: TObject);
+    procedure miSaveClick(Sender: TObject);
+    procedure btnShowSetupPanelClick(Sender: TObject);
+    procedure pnlCloseSetupPanelClick(Sender: TObject);
+  private
         { Private declarations }
-        FIDList         : TStrings; // 用于仪器组，避免重复处理组中仪器
-        FMeterList      : TStrings; // 用户选择的要处理的仪器
-        FDataSet        : TClientDataSet;
-        FGenBreak       : boolean; // 是否中断生成
-        FChartExportPath: string;
-        FStream         : TMemoryStream;
-        procedure GenRptGrid;
-        function GenMeterGrid(AMeter: TMeterDefine): string;
-        function GenMeterGridByTempalte(ADsnName: string): string; // 2018-09-17根据模板创建表格
+    FIDList         : TStrings; // 用于仪器组，避免重复处理组中仪器
+    FMeterList      : TStrings; // 用户选择的要处理的仪器
+    FDataSet        : TClientDataSet;
+    FGenBreak       : boolean; // 是否中断生成
+    FChartExportPath: string;
+    FStream         : TMemoryStream;
+    procedure GenRptGrid;
+    function GenMeterGrid(AMeter: TMeterDefine): string;
+    function GenMeterGridByTempalte(ADsnName: string): string; // 2018-09-17根据模板创建表格
         // 各类仪器分别生成表格
-        function GenMeterGridDDWY(AMeter: TMeterDefine): string;
-        function GenMeterGridMS(AMeter: TMeterDefine): string;
-        function GenMeterGridMG(AMeter: TMeterDefine): string;
-        function GenMeterGridMGGroup(AMeter: TMeterDefine): string;
-    public
+    function GenMeterGridDDWY(AMeter: TMeterDefine): string;
+    function GenMeterGridMS(AMeter: TMeterDefine): string;
+    function GenMeterGridMG(AMeter: TMeterDefine): string;
+    function GenMeterGridMGGroup(AMeter: TMeterDefine): string;
+  public
         { Public declarations }
-        constructor Create(AOwner: TComponent); override;
-        destructor Destroy; override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
-    end;
+  end;
 
 implementation
 
 uses
-    uWBLoadHTML, uWebGridCross, uWeb_DataSet2HTML, uHJX.Intf.GraphDispatcher,
-    uHJX.Intf.FunctionDispatcher, uHJX.EnvironmentVariables, uHJX.Classes.Templates,
+  uWBLoadHTML, uWebGridCross, uWeb_DataSet2HTML, uHJX.Intf.GraphDispatcher,
+  uHJX.Intf.FunctionDispatcher, uHJX.EnvironmentVariables, uHJX.Classes.Templates,
     {todo:将模板处理功能迁移到模板调度器中，各功能件从调度器调用模板粗粒}
-    uHJX.Template.WebGridProc {用模板替代代码生成} ,
-    PreviewForm;
+  uHJX.Template.WebGridProc {用模板替代代码生成} ,
+  PreviewForm;
 
 const
     { 注：这里的CSS设置使得表格呈现细线边框 }
     { 针对表格的表头、单元格使用了CSS定义 }
-    htmPageCode2 = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">'#13#10
-        + '<html>'#13#10
-        + '<head>'#13#10
-        + '<meta http-equiv="Content-Type" content="text/html; charset=GB2312" />'#13#10
-        + '<style type="text/css">'#13#10
-        + '.DataGrid {border:1px solid #1F4E79;border-width:1px 1px 1px 1px;margin:0px 0px 0px 0px;border-collapse:collapse}'#13#10
-        + '.thStyle {font-size: 8pt; font-family: Consolas; color: #000000; padding:2px;border:1px solid #1F4E79}'#13#10
-        + '.tdStyle {font-size: 8pt; font-family: Consolas; color: #000000; background-color:#FFFFFF;empty-cells:show;'
+  htmPageCode2 = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">'#13#10
+    + '<html>'#13#10
+    + '<head>'#13#10
+    + '<meta http-equiv="Content-Type" content="text/html; charset=GB2312" />'#13#10
+    + '<style type="text/css">'#13#10
+    + '.DataGrid {border:1px solid #1F4E79;border-width:1px 1px 1px 1px;margin:0px 0px 0px 0px;border-collapse:collapse}'#13#10
+    + '.thStyle {font-size: 8pt; font-family: Consolas; color: #000000; padding:2px;border:1px solid #1F4E79}'#13#10
+    + '.tdStyle {font-size: 8pt; font-family: Consolas; color: #000000; background-color:#FFFFFF;empty-cells:show;'
     // #F7F7F7
-        + '          border:1px solid #1F4E79; padding:2px}'#13#10
-        + '.CaptionStyle {font-family:黑体;font-size: 9pt;color: #000000; padding:2px;border:1px solid #1F4E79; background-color:#FFFF99}'#13#10
-        + '</style>'#13#10
-        + '</head>'#13#10
-        + '<body>'#13#10
-        + '@PageContent@'#13#10
-        + '</body>'#13#10
-        + '</html>';
+    + '          border:1px solid #1F4E79; padding:2px}'#13#10
+    + '.CaptionStyle {font-family:黑体;font-size: 9pt;color: #000000; padding:2px;border:1px solid #1F4E79; background-color:#FFFF99}'#13#10
+    + '</style>'#13#10
+    + '</head>'#13#10
+    + '<body>'#13#10
+    + '@PageContent@'#13#10
+    + '</body>'#13#10
+    + '</html>';
 
-    defWidth  = 600;
-    defHeight = 300;
+  defWidth  = 600;
+  defHeight = 300;
 {$R *.dfm}
 
 
 var
-    IGD: IGraphDispatcher;
-    IFD: IFunctionDispatcher;
+  IGD: IGraphDispatcher;
+  IFD: IFunctionDispatcher;
 
 procedure TfraRptDataHTMLGrid.btnCreateReportClick(Sender: TObject);
 var
-    i: integer;
+  i: integer;
 begin
-    if rdgMeterOption.ItemIndex = 1 then
-        if IFD.HasProc('PopupMeterSelector') then
-            IFD.CallFunction('PopupMeterSelector', FMeterList)
-        else
-            ShowMessage('没有提供弹出式仪器选择窗功能')
+  if rdgMeterOption.ItemIndex = 1 then
+    if IFD.HasProc('PopupMeterSelector') then
+        IFD.CallFunction('PopupMeterSelector', FMeterList)
     else
-    begin // 若是生成全部仪器的，就将整个仪器列表都添加进去
-        FMeterList.Clear;
-        ExcelMeters.SortByPosition;
-        for i := 0 to ExcelMeters.Count - 1 do
-            FMeterList.Add(ExcelMeters.Items[i].DesignName);
-    end;
+        ShowMessage('没有提供弹出式仪器选择窗功能')
+  else
+  begin // 若是生成全部仪器的，就将整个仪器列表都添加进去
+    FMeterList.Clear;
+    ExcelMeters.SortByPosition;
+    for i := 0 to ExcelMeters.Count - 1 do
+        FMeterList.Add(ExcelMeters.Items[i].DesignName);
+  end;
 
-    GenRptGrid;
+  GenRptGrid;
 end;
 
 procedure TfraRptDataHTMLGrid.btnShowSetupPanelClick(Sender: TObject);
 begin
-    pnlSetup.Visible := True;
+  pnlSetup.Visible := True;
 end;
 
 constructor TfraRptDataHTMLGrid.Create(AOwner: TComponent);
 begin
-    inherited;
-    FIDList := TStringList.Create;
-    FMeterList := TStringList.Create;
-    FDataSet := TClientDataSet.Create(Self);
-    dtpEnd.Date := now;
-    dtpStart.Date := IncMonth(now, -1);
-    FStream := TMemoryStream.Create;
-    FChartExportPath := ENV_TempPath;
-    if not Supports(IAppServices.getdispatcher('GraphDispatcher'), IGraphDispatcher, IGD) then
-        IGD := nil;
-    IFD := IAppServices.FuncDispatcher as IFunctionDispatcher;
+  inherited;
+  FIDList := TStringList.Create;
+  FMeterList := TStringList.Create;
+  FDataSet := TClientDataSet.Create(Self);
+  dtpEnd.Date := now;
+  dtpStart.Date := IncMonth(now, -1);
+  FStream := TMemoryStream.Create;
+  FChartExportPath := ENV_TempPath;
+  if not Supports(IAppServices.getdispatcher('GraphDispatcher'), IGraphDispatcher, IGD) then
+      IGD := nil;
+  IFD := IAppServices.FuncDispatcher as IFunctionDispatcher;
 end;
 
 destructor TfraRptDataHTMLGrid.Destroy;
 begin
-    FIDList.Free;
-    FMeterList.Free;
-    FDataSet.Free;
-    FStream.Free;
-    inherited;
+  FIDList.Free;
+  FMeterList.Free;
+  FDataSet.Free;
+  FStream.Free;
+  inherited;
 end;
 
 procedure TfraRptDataHTMLGrid.dtpStartClick(Sender: TObject);
 begin
-    rdDataRange.Checked := True;
+  rdDataRange.Checked := True;
 end;
 
 procedure TfraRptDataHTMLGrid.FrameResize(Sender: TObject);
 begin
-    pnlProgress.Left := (Self.ClientWidth - pnlProgress.Width) div 2;
-    pnlProgress.Top := (Self.ClientHeight - pnlProgress.Height) div 2;
+  pnlProgress.Left := (Self.ClientWidth - pnlProgress.Width) div 2;
+  pnlProgress.Top := (Self.ClientHeight - pnlProgress.Height) div 2;
 end;
 
 { -----------------------------------------------------------------------------
@@ -220,235 +220,244 @@ end;
 { DONE:将这里的iMeter用实际的Meter对象替代，相关的处理方法的iMeter同样处理。 }
 procedure TfraRptDataHTMLGrid.GenRptGrid;
 const
-    SImgLink = '<img src="%s">';
+  SImgLink = '<img src="%s">';
 var
-    sDsnName          : string;
-    sPage, sContent   : string;
-    sType, sPos, s, s1: string;
-    sImg              : string;
-    sImgFile          : string;
-    AMeter            : TMeterDefine;
-    GI                : TMeterGroupItem;
-    iMeter            : integer;
-    i, iCount         : integer;
+  sDsnName          : string;
+  sPage, sContent   : string;
+  sType, sPos, s, s1: string;
+  sImg              : string;
+  sImgFile          : string;
+  AMeter            : TMeterDefine;
+  GI                : TMeterGroupItem;
+  iMeter            : integer;
+  i, iCount         : integer;
+  ErrMsg            : String;
 begin
     { 很诡异的事情，如果设置了PageTile，则拷贝到Word中的表格线是双线，去掉这个就正常了 }
-    sPage := StringReplace(htmPageCode2, '@PageTitle@', '', [rfReplaceAll]);
-    sContent := '';
-    sType := '';
-    sPos := '';
+  sPage := StringReplace(htmPageCode2, '@PageTitle@', '', [rfReplaceAll]);
+  sContent := '';
+  sType := '';
+  sPos := '';
 
-    if FChartExportPath = '' then
-        FChartExportPath := ENV_TempPath;
+  if FChartExportPath = '' then
+      FChartExportPath := ENV_TempPath;
 
     // if chkCreateChart.Checked then
-    if optSheetAndChart.Checked or optChartOnly.Checked then
-        if chkExportChart.Checked then
-            if SelectDirectory('选择保存数据图形的文件夹', '', FChartExportPath) then
-                if Trim(FChartExportPath) <> '' then
-                    if Copy(FChartExportPath, Length(FChartExportPath) - 1, 1) <> '\' then
-                        FChartExportPath := FChartExportPath + '\';
+  if optSheetAndChart.Checked or optChartOnly.Checked then
+    if chkExportChart.Checked then
+      if SelectDirectory('选择保存数据图形的文件夹', '', FChartExportPath) then
+        if Trim(FChartExportPath) <> '' then
+          if Copy(FChartExportPath, Length(FChartExportPath) - 1, 1) <> '\' then
+              FChartExportPath := FChartExportPath + '\';
 
-    FIDList.Clear; // 这里用FIDList保存已经在处理仪器组时生成过数据的仪器，遇到这些仪器跳过
+  FIDList.Clear; // 这里用FIDList保存已经在处理仪器组时生成过数据的仪器，遇到这些仪器跳过
     { DONE:应跳过仪器组中已经生成过数据表的仪器 }
-    Screen.Cursor := crHourGlass;
-    lblProgress.Caption := '';
-    lblMeterName.Caption := '';
-    pnlProgress.Visible := True;
-    iCount := FMeterList.Count; // ExcelMeters.Count;
-    Progress.Min := 1;
-    Progress.Max := iCount;
-    FGenBreak := False;
+  Screen.Cursor := crHourGlass;
+  lblProgress.Caption := '';
+  lblMeterName.Caption := '';
+  pnlProgress.Visible := True;
+  iCount := FMeterList.Count; // ExcelMeters.Count;
+  Progress.Min := 1;
+  Progress.Max := iCount;
+  FGenBreak := False;
     // Progress.Position := 1;
-    IHJXClientFuncs.SessionBegin;
+  IHJXClientFuncs.SessionBegin;
+  IHJXClientFuncs.ClearErrMsg;
+  ErrMsg := '';
+  try
     for iMeter := 0 to FMeterList.Count - 1 { ExcelMeters.Count - 1 } do
     begin
-        AMeter := ExcelMeters.Meter[FMeterList.Strings[iMeter]];
-        Progress.Position := iMeter + 1;
-        sDsnName := AMeter.DesignName; // ExcelMeters.Items[iMeter].DesignName;
-        lblMeterName.Caption := '正在处理' + sDsnName + '的数据...';
-        lblProgress.Caption := Format('正在处理第%d支，共有%d', [iMeter + 1, iCount]);
-        Application.ProcessMessages;
+      AMeter := ExcelMeters.Meter[FMeterList.Strings[iMeter]];
+      Progress.Position := iMeter + 1;
+      sDsnName := AMeter.DesignName; // ExcelMeters.Items[iMeter].DesignName;
+      lblMeterName.Caption := '正在处理' + sDsnName + '的数据...';
+      lblProgress.Caption := Format('正在处理第%d支，共有%d', [iMeter + 1, iCount]);
+      Application.ProcessMessages;
 
         // 如果仪器没有指定数据表，则下一个
-        if (AMeter.DataBook = '') or (AMeter.DataSheet = '') then
-            Continue;
+      if (AMeter.DataBook = '') or (AMeter.DataSheet = '') then
+          Continue;
 
-        if FIDList.IndexOf(sDsnName) <> -1 then
-            Continue;
+      if FIDList.IndexOf(sDsnName) <> -1 then
+          Continue;
 
-        s1 := AMeter.PrjParams.Position; // ExcelMeters.Items[iMeter].PrjParams.Position;
-        if sPos <> s1 then
-        begin
-            sPos := s1;
-            sContent := sContent + '<h2>' + sPos + '</h2>';
-        end;
+      s1 := AMeter.PrjParams.Position; // ExcelMeters.Items[iMeter].PrjParams.Position;
+      if sPos <> s1 then
+      begin
+        sPos := s1;
+        sContent := sContent + '<h2>' + sPos + '</h2>';
+      end;
 
-        s := AMeter.Params.MeterType; // ExcelMeters.Items[iMeter].Params.MeterType;
-        if s <> sType then
-        begin
-            sType := s;
-            sContent := sContent + '<h3>' + sType + '</h3>';
-        end;
+      s := AMeter.Params.MeterType; // ExcelMeters.Items[iMeter].Params.MeterType;
+      if s <> sType then
+      begin
+        sType := s;
+        sContent := sContent + '<h3>' + sType + '</h3>';
+      end;
 
         { 2018-09-13 有模板的仪器，根据模板生成表格，没有模板的用代码生成通用表格 }
         { 2018-09-18 允许生成图表、仅表、仅图三种，若仅图，则可选加仪器名标题或不加 }
-        if optSheetAndChart.Checked or optSheetOnly.Checked then
-        begin
-            if AMeter.DataSheetStru.WGTemplate <> '' then
-                sContent := sContent + GenMeterGridByTempalte(AMeter.DesignName) { 根据模板生成 }
-            else
-                sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
-        end
-        else if chkIDTitle.Checked then
-            sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>';
+      if optSheetAndChart.Checked or optSheetOnly.Checked then
+      begin
+        if AMeter.DataSheetStru.WGTemplate <> '' then
+            sContent := sContent + GenMeterGridByTempalte(AMeter.DesignName) { 根据模板生成 }
+        else
+            sContent := sContent + GenMeterGrid(AMeter { ExcelMeters.Items[iMeter] } );
+      end
+      else if chkIDTitle.Checked then
+          sContent := sContent + '<h4>' + AMeter.DesignName + '</h4>';
 
         // 添加图形链接
         // if chkCreateChart.Checked then
-        if optSheetAndChart.Checked or optChartOnly.Checked then
+      if optSheetAndChart.Checked or optChartOnly.Checked then
+      begin
+        if chkExportChart.Checked then
         begin
-            if chkExportChart.Checked then
-            begin
-                if Assigned(IGD) then
-                begin
-                    if rdgDTRangeOption.ItemIndex = 0 then
-                        sImgFile := IGD.ExportChartToFile(sDsnName, 0, 0,
-                            FChartExportPath, { 600, 300 } udChartWidth.Position,
-                            udChartHeight.Position)
-                    else
-                        sImgFile := IGD.ExportChartToFile(sDsnName, dtpStart.DateTime,
-                            dtpEnd.DateTime, FChartExportPath, { 600, 300 } udChartWidth.Position,
-                            udChartHeight.Position);
-
-                    if sImgFile <> '' then
-                    begin
-                        sImg := Format(SImgLink, [sImgFile]);
-                        sContent := sContent + sImg;
-                    end;
-                end;
-            end
+          if Assigned(IGD) then
+          begin
+            if rdgDTRangeOption.ItemIndex = 0 then
+                sImgFile := IGD.ExportChartToFile(sDsnName, 0, 0,
+                FChartExportPath, { 600, 300 } udChartWidth.Position,
+                udChartHeight.Position)
             else
-            begin
-                sContent := sContent + Format('<img src="GETCHART:%s">', [sDsnName]);
-            end;
-            // 处理组成员，由于现在ThjxTemplate没有ApplyGroup属性，权当已经按组处理了
-            if AMeter.PrjParams.GroupID <> '' then
-            begin
-                {TODO -ohw -c观测数据报表 : 这里需要判断绘图模板是否支持组}
-                GI := MeterGroup.ItemByName[AMeter.PrjParams.GroupID];
-                // 将组成员添加到FIDList中
-                for i := 0 to GI.Count - 1 do
-                    FIDList.Add(GI.Items[i]);
-            end;
-        end;
+                sImgFile := IGD.ExportChartToFile(sDsnName, dtpStart.DateTime,
+                dtpEnd.DateTime, FChartExportPath, { 600, 300 } udChartWidth.Position,
+                udChartHeight.Position);
 
-        Application.ProcessMessages;
-        if FGenBreak then
-            break;
+            if sImgFile <> '' then
+            begin
+              sImg := Format(SImgLink, [sImgFile]);
+              sContent := sContent + sImg;
+            end;
+          end;
+        end
+        else
+        begin
+          sContent := sContent + Format('<img src="GETCHART:%s">', [sDsnName]);
+        end;
+            // 处理组成员，由于现在ThjxTemplate没有ApplyGroup属性，权当已经按组处理了
+        if AMeter.PrjParams.GroupID <> '' then
+        begin
+                { TODO -ohw -c观测数据报表 : 这里需要判断绘图模板是否支持组 }
+          GI := MeterGroup.ItemByName[AMeter.PrjParams.GroupID];
+                // 将组成员添加到FIDList中
+          for i := 0 to GI.Count - 1 do
+              FIDList.Add(GI.Items[i]);
+        end;
+      end;
+
+      Application.ProcessMessages;
+      if FGenBreak then
+          break;
     end;
+  finally
     IHJXClientFuncs.SessionEnd;
     sPage := StringReplace(sPage, '@PageContent@', sContent, [rfReplaceAll]);
     hvReport.Clear;
-    { 用WebBrowser替代了HTMLViewer，因为前者在靠背方面更易于使用 }
-    //hvReport.LoadFromString(sPage);
-    wb_loadhtml(wbreport, spage);
+      { 用WebBrowser替代了HTMLViewer，因为前者在靠背方面更易于使用 }
+      // hvReport.LoadFromString(sPage);
+    wb_loadhtml(wbReport, sPage);
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
+    ErrMsg := IHJXClientFuncs.ErrorMsg;
+    if ErrMsg <> '' then ShowMessage('查询过程中发现以下错误：'#13#10 + ErrMsg);
+    IHJXClientFuncs.ClearErrMsg;
+  end;
 end;
 
 procedure TfraRptDataHTMLGrid.hvReportImageRequest(Sender: TObject; const SRC: string;
-    var Stream: TStream);
+  var Stream: TStream);
 var
-    sName: string;
-    i    : integer;
+  sName: string;
+  i    : integer;
     // AStream:TMemoryStream;
 begin
-    i := Pos('GETCHART', SRC);
-    if i > 0 then // 有这个，说明不是外部链接
-    begin
-        if not Assigned(IGD) then
-            Exit;
-        i := Pos(':', SRC); // 该类型链接为：GETCHART:DesignName
-        sName := Copy(SRC, i + 1, Length(SRC) - i);
+  i := Pos('GETCHART', SRC);
+  if i > 0 then // 有这个，说明不是外部链接
+  begin
+    if not Assigned(IGD) then
+        Exit;
+    i := Pos(':', SRC); // 该类型链接为：GETCHART:DesignName
+    sName := Copy(SRC, i + 1, Length(SRC) - i);
         { DONE:需要考虑释放Stream的问题，否则反复使用后，内存会被占用太多 }
-        if FStream = nil then
-            FStream := TMemoryStream.Create;
-        FStream.Clear;
-        if rdgDTRangeOption.ItemIndex = 0 then
-            IGD.SaveChartToStream(sName, 0, 0, FStream, { 600, 300 } udChartWidth.Position,
-                udChartHeight.Position)
-        else
-            IGD.SaveChartToStream(sName, dtpStart.DateTime, dtpEnd.DateTime, FStream,
+    if FStream = nil then
+        FStream := TMemoryStream.Create;
+    FStream.Clear;
+    if rdgDTRangeOption.ItemIndex = 0 then
+        IGD.SaveChartToStream(sName, 0, 0, FStream, { 600, 300 } udChartWidth.Position,
+        udChartHeight.Position)
+    else
+        IGD.SaveChartToStream(sName, dtpStart.DateTime, dtpEnd.DateTime, FStream,
                 { 600, 300 } udChartWidth.Position, udChartHeight.Position);
-        Stream := FStream;
-    end;
+    Stream := FStream;
+  end;
 end;
 
 procedure TfraRptDataHTMLGrid.lblBreakClick(Sender: TObject);
 begin
-    FGenBreak := True;
+  FGenBreak := True;
 end;
 
 procedure TfraRptDataHTMLGrid.miCopyAllClick(Sender: TObject);
 begin
-    hvReport.SelectAll;
-    hvReport.CopyToClipboard;
-    hvReport.SelLength := 0;
+  hvReport.SelectAll;
+  hvReport.CopyToClipboard;
+  hvReport.SelLength := 0;
 end;
 
 procedure TfraRptDataHTMLGrid.miCopySelectedClick(Sender: TObject);
 begin
     { HTMLViewer貌似不能只拷贝文档中间部分的内容，即使只选择了中间某部分，拷贝后都是从文档开头一直
       拷贝到选中部分的末尾，这是个缺陷啊~~ }
-    if hvReport.SelLength <> 0 then
-        hvReport.CopyToClipboard;
+  if hvReport.SelLength <> 0 then
+      hvReport.CopyToClipboard;
 end;
 
 procedure TfraRptDataHTMLGrid.miPrintClick(Sender: TObject);
 begin
     // hvReport.Print(1, 2);
-    with dlgPrint do
-        if Execute then
-            if PrintRange = prAllPages then
-                hvReport.Print(1, 9999)
-            else
-                hvReport.Print(FromPage, ToPage);
+  with dlgPrint do
+    if Execute then
+      if PrintRange = prAllPages then
+          hvReport.Print(1, 9999)
+      else
+          hvReport.Print(FromPage, ToPage);
 end;
 
 procedure TfraRptDataHTMLGrid.miPrintPreviewClick(Sender: TObject);
 var
-    frm  : TPreviewForm;
-    Abort: boolean;
+  frm  : TPreviewForm;
+  Abort: boolean;
 begin
-    frm := TPreviewForm.CreateIt(Self, hvReport, Abort);
-    try
-        if not Abort then
-            frm.ShowModal
-    finally
-        frm.Release;
-    end;
+  frm := TPreviewForm.CreateIt(Self, hvReport, Abort);
+  try
+    if not Abort then
+        frm.ShowModal
+  finally
+    frm.Release;
+  end;
 end;
 
 procedure TfraRptDataHTMLGrid.miSaveClick(Sender: TObject);
 var
-    Strs: TStrings;
+  Strs: TStrings;
 begin
-    with dlgSave do
-        if Execute then
-        begin
-            Strs := TStringList.Create;
-            try
-                Strs.Text := hvReport.DocumentSource;
-                Strs.SaveToFile(dlgSave.FileName);
-            finally
-                Strs.Free;
-            end;
-        end;
+  with dlgSave do
+    if Execute then
+    begin
+      Strs := TStringList.Create;
+      try
+        Strs.Text := hvReport.DocumentSource;
+        Strs.SaveToFile(dlgSave.FileName);
+      finally
+        Strs.Free;
+      end;
+    end;
 end;
 
 procedure TfraRptDataHTMLGrid.pnlCloseSetupPanelClick(Sender: TObject);
 begin
-    pnlSetup.Visible := False;
+  pnlSetup.Visible := False;
 end;
 
 { -----------------------------------------------------------------------------
@@ -457,32 +466,32 @@ end;
 ----------------------------------------------------------------------------- }
 function TfraRptDataHTMLGrid.GenMeterGrid(AMeter: TMeterDefine): string;
 var
-    sType, sGrid: string;
+  sType, sGrid: string;
 begin
-    Result := '';
+  Result := '';
     // 如果没有数据表则不生成
-    if AMeter.DataSheet = '' then
-        Exit;
+  if AMeter.DataSheet = '' then
+      Exit;
 
     // 生成标题
-    Result := '<h4>' + AMeter.DesignName + '</h4>';
+  Result := '<h4>' + AMeter.DesignName + '</h4>';
     // 根据仪器类型调用不同的表格方法
-    sType := AMeter.Params.MeterType;
-    if sType = '多点位移计' then
-        sGrid := GenMeterGridDDWY(AMeter)
-    else if sType = '锚索测力计' then
-        sGrid := GenMeterGridMS(AMeter)
-    else if sType = '锚杆应力计' then
+  sType := AMeter.Params.MeterType;
+  if sType = '多点位移计' then
+      sGrid := GenMeterGridDDWY(AMeter)
+  else if sType = '锚索测力计' then
+      sGrid := GenMeterGridMS(AMeter)
+  else if sType = '锚杆应力计' then
+  begin
+    if AMeter.PrjParams.GroupID <> '' then
     begin
-        if AMeter.PrjParams.GroupID <> '' then
-        begin
-            Result := '<h4>' + AMeter.PrjParams.GroupID + '</h4>';
-            sGrid := GenMeterGridMGGroup(AMeter);
-        end
-        else
-            sGrid := GenMeterGridMG(AMeter);
-    end;
-    Result := Result + sGrid + '<p> </p>';
+      Result := '<h4>' + AMeter.PrjParams.GroupID + '</h4>';
+      sGrid := GenMeterGridMGGroup(AMeter);
+    end
+    else
+        sGrid := GenMeterGridMG(AMeter);
+  end;
+  Result := Result + sGrid + '<p> </p>';
 end;
 
 { -----------------------------------------------------------------------------
@@ -491,35 +500,35 @@ end;
 ----------------------------------------------------------------------------- }
 procedure _SetDDWYGridHead(WCV: TWebCrossView; mt: TMeterDefine; V: array of Variant);
 var
-    i: integer;
+  i: integer;
 begin
     // 第一行
-    V[0] := '设计编号';
-    for i := 1 to 5 do
-        V[i] := mt.DesignName;
+  V[0] := '设计编号';
+  for i := 1 to 5 do
+      V[i] := mt.DesignName;
     // v[4] := '监测断面';
     // v[5] := mt.PrjParams.Profile;
-    WCV.AddRow(V);
+  WCV.AddRow(V);
     // 第二行
-    V[0] := '桩号';
-    V[1] := mt.PrjParams.Stake;
-    V[2] := '安装高程';
-    V[3] := mt.PrjParams.Elevation;
-    V[4] := '监测断面';
-    V[5] := mt.PrjParams.Profile;
-    WCV.AddRow(V);
+  V[0] := '桩号';
+  V[1] := mt.PrjParams.Stake;
+  V[2] := '安装高程';
+  V[3] := mt.PrjParams.Elevation;
+  V[4] := '监测断面';
+  V[5] := mt.PrjParams.Profile;
+  WCV.AddRow(V);
     // 第三行
-    V[0] := '观测日期';
-    for i := 1 to 4 do
-        V[i] := '区间位移';
-    V[5] := '备注';
-    WCV.AddRow(V);
+  V[0] := '观测日期';
+  for i := 1 to 4 do
+      V[i] := '区间位移';
+  V[5] := '备注';
+  WCV.AddRow(V);
     // 第四行
-    V[0] := '观测日期';
-    for i := 0 to 3 do
-        V[i + 1] := mt.PDDefine[i].Name;
-    V[5] := '备注';
-    WCV.AddRow(V);
+  V[0] := '观测日期';
+  for i := 0 to 3 do
+      V[i + 1] := mt.PDDefine[i].Name;
+  V[5] := '备注';
+  WCV.AddRow(V);
 end;
 
 { -----------------------------------------------------------------------------
@@ -528,27 +537,27 @@ end;
 ----------------------------------------------------------------------------- }
 procedure _SetMSGridHead(WCV: TWebCrossView; mt: TMeterDefine; V: array of Variant);
 var
-    i: integer;
+  i: integer;
 begin
     // 第一行
-    V[0] := '设计编号';
-    for i := 1 to 4 do
-        V[i] := mt.DesignName;
-    WCV.AddRow(V);
+  V[0] := '设计编号';
+  for i := 1 to 4 do
+      V[i] := mt.DesignName;
+  WCV.AddRow(V);
     // 第二行
-    V[0] := '桩号';
-    V[1] := mt.PrjParams.Stake;
-    V[2] := mt.PrjParams.Stake;
-    V[3] := '安装高程';
-    V[4] := mt.PrjParams.Elevation;
-    WCV.AddRow(V);
+  V[0] := '桩号';
+  V[1] := mt.PrjParams.Stake;
+  V[2] := mt.PrjParams.Stake;
+  V[3] := '安装高程';
+  V[4] := mt.PrjParams.Elevation;
+  WCV.AddRow(V);
     // 第三行
-    V[0] := '观测日期';
-    V[2] := '温度℃';
-    V[1] := '拉力(kN)';
-    V[3] := '预应力损失率(%)';
-    V[4] := '备注';
-    WCV.AddRow(V);
+  V[0] := '观测日期';
+  V[2] := '温度℃';
+  V[1] := '拉力(kN)';
+  V[3] := '预应力损失率(%)';
+  V[4] := '备注';
+  WCV.AddRow(V);
 end;
 
 { -----------------------------------------------------------------------------
@@ -556,43 +565,43 @@ end;
   Description: 锚杆组表格表头设置
 ----------------------------------------------------------------------------- }
 procedure _SetMGGroupGridHead(WCV: TWebCrossView; mt: TMeterDefine; mg: TMeterGroupItem;
-    V: array of Variant);
+  V: array of Variant);
 var
-    i, nCol : integer;
-    mt1, mt2: string;
+  i, nCol : integer;
+  mt1, mt2: string;
 begin
-    nCol := 2 + mg.Count * 2;
+  nCol := 2 + mg.Count * 2;
     // 第一行
-    mt1 := ExcelMeters.Meter[mg.Items[0]].DesignName;
-    mt2 := ExcelMeters.Meter[mg.Items[1]].DesignName;
-    if mg = nil then
-        Exit;
-    V[0] := '设计编号';
-    V[1] := mg.Name; // 这里编号使用组名
-    V[2] := '桩   号';
-    V[3] := mt.PrjParams.Stake;
-    V[4] := '安装高程';
-    V[5] := mt.PrjParams.Elevation;
-    WCV.AddRow(V);
+  mt1 := ExcelMeters.Meter[mg.Items[0]].DesignName;
+  mt2 := ExcelMeters.Meter[mg.Items[1]].DesignName;
+  if mg = nil then
+      Exit;
+  V[0] := '设计编号';
+  V[1] := mg.Name; // 这里编号使用组名
+  V[2] := '桩   号';
+  V[3] := mt.PrjParams.Stake;
+  V[4] := '安装高程';
+  V[5] := mt.PrjParams.Elevation;
+  WCV.AddRow(V);
     // 第二行
-    V[0] := '观测日期';
-    for i := 0 to mg.Count - 1 do
-    begin
-        V[i * 2 + 1] := ExcelMeters.Meter[mg.Items[i]].DesignName;
-        V[i * 2 + 2] := V[i * 2 + 1];
-    end;
-    V[nCol - 1] := '备注';
-    WCV.AddRow(V);
+  V[0] := '观测日期';
+  for i := 0 to mg.Count - 1 do
+  begin
+    V[i * 2 + 1] := ExcelMeters.Meter[mg.Items[i]].DesignName;
+    V[i * 2 + 2] := V[i * 2 + 1];
+  end;
+  V[nCol - 1] := '备注';
+  WCV.AddRow(V);
     // 第三行
-    for i := 0 to mg.Count - 1 do
-    begin
-        V[i * 2 + 1] := '荷载(kN)';
+  for i := 0 to mg.Count - 1 do
+  begin
+    V[i * 2 + 1] := '荷载(kN)';
         // V[i * 2 + 2] := '应力(MPa)';
-        V[i * 2 + 2] := '温度(℃)';
-    end;
-    V[0] := '观测日期';
-    V[nCol - 1] := '备注';
-    WCV.AddRow(V);
+    V[i * 2 + 2] := '温度(℃)';
+  end;
+  V[0] := '观测日期';
+  V[nCol - 1] := '备注';
+  WCV.AddRow(V);
 end;
 
 { -----------------------------------------------------------------------------
@@ -601,55 +610,55 @@ end;
 ----------------------------------------------------------------------------- }
 function TfraRptDataHTMLGrid.GenMeterGridDDWY(AMeter: TMeterDefine): string;
 var
-    WCV     : TWebCrossView;
-    iCol    : integer;
-    V       : array of Variant;
-    bGetData: boolean;
+  WCV     : TWebCrossView;
+  iCol    : integer;
+  V       : array of Variant;
+  bGetData: boolean;
 begin
-    Result := '';
-    WCV := TWebCrossView.Create;
-    WCV.TitleRows := 4;
-    WCV.ColCount := 6;
-    for iCol := 1 to 5 do
-    begin
-        WCV.ColHeader[iCol].Align := taRightJustify;
-        WCV.ColHeader[iCol].AllowRowSpan := False;
+  Result := '';
+  WCV := TWebCrossView.Create;
+  WCV.TitleRows := 4;
+  WCV.ColCount := 6;
+  for iCol := 1 to 5 do
+  begin
+    WCV.ColHeader[iCol].Align := taRightJustify;
+    WCV.ColHeader[iCol].AllowRowSpan := False;
         // WCV.ColHeader[iRow].AllowColSpan := True;
-    end;
-    WCV.ColHeader[0].AllowColSpan := True;
-    WCV.ColHeader[0].Align := taCenter;
+  end;
+  WCV.ColHeader[0].AllowColSpan := True;
+  WCV.ColHeader[0].Align := taCenter;
 
-    SetLength(V, 6);
-    _SetDDWYGridHead(WCV, AMeter, V);
+  SetLength(V, 6);
+  _SetDDWYGridHead(WCV, AMeter, V);
 
-    try
-        bGetData := False;
-        if rbAllDatas.Checked then
-            bGetData := IHJXClientFuncs.GetAllPDDatas(AMeter.DesignName, FDataSet)
-        else
-            bGetData := IHJXClientFuncs.GetPDDatasInPeriod(AMeter.DesignName, dtpStart.DateTime,
-                dtpEnd.DateTime, FDataSet);
+  try
+    bGetData := False;
+    if rbAllDatas.Checked then
+        bGetData := IHJXClientFuncs.GetAllPDDatas(AMeter.DesignName, FDataSet)
+    else
+        bGetData := IHJXClientFuncs.GetPDDatasInPeriod(AMeter.DesignName, dtpStart.DateTime,
+        dtpEnd.DateTime, FDataSet);
 
-        if bGetData then
-            if FDataSet.RecordCount > 0 then
-            begin
-                FDataSet.First;
-                while not FDataSet.Eof do
-                begin
-                    V[0] := FormatDateTime('yyyy-mm-dd', FDataSet.Fields[0].AsDateTime);
-                    V[1] := FDataSet.Fields[1].Value;
-                    V[2] := FDataSet.Fields[2].Value;
-                    V[3] := FDataSet.Fields[3].Value;
-                    V[4] := FDataSet.Fields[4].Value;
-                    WCV.AddRow(V);
-                    FDataSet.Next;
-                end;
-            end;
-        Result := WCV.CrossGrid;
-    finally
-        WCV.Free;
-        SetLength(V, 0);
-    end;
+    if bGetData then
+      if FDataSet.RecordCount > 0 then
+      begin
+        FDataSet.First;
+        while not FDataSet.Eof do
+        begin
+          V[0] := FormatDateTime('yyyy-mm-dd', FDataSet.Fields[0].AsDateTime);
+          V[1] := FDataSet.Fields[1].Value;
+          V[2] := FDataSet.Fields[2].Value;
+          V[3] := FDataSet.Fields[3].Value;
+          V[4] := FDataSet.Fields[4].Value;
+          WCV.AddRow(V);
+          FDataSet.Next;
+        end;
+      end;
+    Result := WCV.CrossGrid;
+  finally
+    WCV.Free;
+    SetLength(V, 0);
+  end;
 end;
 
 { -----------------------------------------------------------------------------
@@ -658,55 +667,55 @@ end;
 ----------------------------------------------------------------------------- }
 function TfraRptDataHTMLGrid.GenMeterGridMS(AMeter: TMeterDefine): string;
 var
-    WCV     : TWebCrossView;
-    iCol    : integer;
-    V       : array of Variant;
-    bGetData: boolean;
+  WCV     : TWebCrossView;
+  iCol    : integer;
+  V       : array of Variant;
+  bGetData: boolean;
 begin
-    Result := '';
-    WCV := TWebCrossView.Create;
-    WCV.TitleRows := 3;
-    WCV.ColCount := 5;
-    for iCol := 1 to 4 do
-    begin
-        WCV.ColHeader[iCol].Align := taRightJustify;
-        WCV.ColHeader[iCol].AllowRowSpan := False;
+  Result := '';
+  WCV := TWebCrossView.Create;
+  WCV.TitleRows := 3;
+  WCV.ColCount := 5;
+  for iCol := 1 to 4 do
+  begin
+    WCV.ColHeader[iCol].Align := taRightJustify;
+    WCV.ColHeader[iCol].AllowRowSpan := False;
         // WCV.ColHeader[iRow].AllowColSpan := True;
-    end;
-    WCV.ColHeader[0].AllowColSpan := True;
-    WCV.ColHeader[0].Align := taCenter;
+  end;
+  WCV.ColHeader[0].AllowColSpan := True;
+  WCV.ColHeader[0].Align := taCenter;
 
-    SetLength(V, 5);
-    _SetMSGridHead(WCV, AMeter, V);
+  SetLength(V, 5);
+  _SetMSGridHead(WCV, AMeter, V);
 
-    try
-        bGetData := False;
-        if rbAllDatas.Checked then
-            bGetData := IHJXClientFuncs.GetAllPDDatas(AMeter.DesignName, FDataSet)
-        else
-            bGetData := IHJXClientFuncs.GetPDDatasInPeriod(AMeter.DesignName, dtpStart.DateTime,
-                dtpEnd.DateTime, FDataSet);
-        if bGetData then
-            if FDataSet.RecordCount > 0 then
-            begin
-                FDataSet.First;
-                while not FDataSet.Eof do
-                begin
+  try
+    bGetData := False;
+    if rbAllDatas.Checked then
+        bGetData := IHJXClientFuncs.GetAllPDDatas(AMeter.DesignName, FDataSet)
+    else
+        bGetData := IHJXClientFuncs.GetPDDatasInPeriod(AMeter.DesignName, dtpStart.DateTime,
+        dtpEnd.DateTime, FDataSet);
+    if bGetData then
+      if FDataSet.RecordCount > 0 then
+      begin
+        FDataSet.First;
+        while not FDataSet.Eof do
+        begin
                     // V[0] := FDataSet.Fields[0].Value;
-                    V[0] := FormatDateTime('yyyy-mm-dd', FDataSet.Fields[0].AsDateTime);
-                    V[1] := FDataSet.Fields[1].Value;
-                    V[2] := FDataSet.Fields[2].Value;
+          V[0] := FormatDateTime('yyyy-mm-dd', FDataSet.Fields[0].AsDateTime);
+          V[1] := FDataSet.Fields[1].Value;
+          V[2] := FDataSet.Fields[2].Value;
                     // 预应力损失率
-                    V[3] := FormatFloat('0.00', FDataSet.Fields[3].AsFloat * 100) + '%';
-                    WCV.AddRow(V);
-                    FDataSet.Next;
-                end;
-            end;
-        Result := WCV.CrossGrid;
-    finally
-        WCV.Free;
-        SetLength(V, 0);
-    end;
+          V[3] := FormatFloat('0.00', FDataSet.Fields[3].AsFloat * 100) + '%';
+          WCV.AddRow(V);
+          FDataSet.Next;
+        end;
+      end;
+    Result := WCV.CrossGrid;
+  finally
+    WCV.Free;
+    SetLength(V, 0);
+  end;
 
 end;
 
@@ -725,89 +734,89 @@ end;
 ----------------------------------------------------------------------------- }
 function TfraRptDataHTMLGrid.GenMeterGridMGGroup(AMeter: TMeterDefine): string;
 var
-    WCV       : TWebCrossView;
-    mg        : TMeterGroupItem;
-    i, nCol   : integer;
-    iRow, iCol: integer;
-    V         : array of Variant;
-    bGetData  : boolean;
+  WCV       : TWebCrossView;
+  mg        : TMeterGroupItem;
+  i, nCol   : integer;
+  iRow, iCol: integer;
+  V         : array of Variant;
+  bGetData  : boolean;
 begin
-    Result := '';
-    WCV := TWebCrossView.Create;
-    mg := MeterGroup.ItemByName[AMeter.PrjParams.GroupID];
+  Result := '';
+  WCV := TWebCrossView.Create;
+  mg := MeterGroup.ItemByName[AMeter.PrjParams.GroupID];
     // 看组里有多少仪器
-    i := mg.Count;
+  i := mg.Count;
     // 每支锚杆需要两列，则
-    nCol := 2 + i * 2; // 日期，(荷载、应力)* i, 备注
+  nCol := 2 + i * 2; // 日期，(荷载、应力)* i, 备注
 
-    WCV.TitleRows := 3;
-    WCV.ColCount := nCol;
-    for iCol := 1 to nCol - 1 do
-    begin
-        WCV.ColHeader[iCol].AllowRowSpan := False;
-        WCV.ColHeader[iCol].Align := taRightJustify;
+  WCV.TitleRows := 3;
+  WCV.ColCount := nCol;
+  for iCol := 1 to nCol - 1 do
+  begin
+    WCV.ColHeader[iCol].AllowRowSpan := False;
+    WCV.ColHeader[iCol].Align := taRightJustify;
         // WCV.ColHeader[iRow].AllowColSpan := True;
-    end;
-    WCV.ColHeader[0].Align := taCenter;
-    WCV.ColHeader[0].AllowColSpan := True;
-    WCV.ColHeader[nCol - 1].AllowColSpan := True;
+  end;
+  WCV.ColHeader[0].Align := taCenter;
+  WCV.ColHeader[0].AllowColSpan := True;
+  WCV.ColHeader[nCol - 1].AllowColSpan := True;
 
-    SetLength(V, nCol);
-    _SetMGGroupGridHead(WCV, AMeter, mg, V);
-    bGetData := False;
-    try
-        if rbAllDatas.Checked then
-            bGetData := IHJXClientFuncs.GetGroupAllPDDatas(mg.Name, FDataSet)
-        else
-            bGetData := IHJXClientFuncs.GetGroupPDDatasInPeriod(mg.Name, dtpStart.DateTime,
-                dtpEnd.DateTime, FDataSet);
+  SetLength(V, nCol);
+  _SetMGGroupGridHead(WCV, AMeter, mg, V);
+  bGetData := False;
+  try
+    if rbAllDatas.Checked then
+        bGetData := IHJXClientFuncs.GetGroupAllPDDatas(mg.Name, FDataSet)
+    else
+        bGetData := IHJXClientFuncs.GetGroupPDDatasInPeriod(mg.Name, dtpStart.DateTime,
+        dtpEnd.DateTime, FDataSet);
 
-        if bGetData then
-            if FDataSet.RecordCount > 0 then
-            begin
-                FDataSet.First;
-                while not FDataSet.Eof do
-                begin
-                    V[0] := FormatDateTime('yyyy-mm-dd', FDataSet.Fields[0].AsDateTime);
-                    for i := 1 to FDataSet.Fields.Count - 1 do
-                        V[i] := FDataSet.Fields[i].Value;
-                    WCV.AddRow(V);
-                    FDataSet.Next;
-                end;
-            end;
+    if bGetData then
+      if FDataSet.RecordCount > 0 then
+      begin
+        FDataSet.First;
+        while not FDataSet.Eof do
+        begin
+          V[0] := FormatDateTime('yyyy-mm-dd', FDataSet.Fields[0].AsDateTime);
+          for i := 1 to FDataSet.Fields.Count - 1 do
+              V[i] := FDataSet.Fields[i].Value;
+          WCV.AddRow(V);
+          FDataSet.Next;
+        end;
+      end;
 
-        Result := WCV.CrossGrid;
+    Result := WCV.CrossGrid;
         // 向fidlist中添加已经处理过的仪器名
-        for i := 0 to mg.Count - 1 do
-            FIDList.Add(mg.Items[i]);
-    finally
-        WCV.Free;
-        SetLength(V, 0);
-    end;
+    for i := 0 to mg.Count - 1 do
+        FIDList.Add(mg.Items[i]);
+  finally
+    WCV.Free;
+    SetLength(V, 0);
+  end;
 end;
 
 function TfraRptDataHTMLGrid.GenMeterGridByTempalte(ADsnName: string): string;
 var
-    s : string;
-    mt: TMeterDefine;
-    tp: ThjxTemplate;
-    GI: TMeterGroupItem;
-    i : integer;
+  s : string;
+  mt: TMeterDefine;
+  tp: ThjxTemplate;
+  GI: TMeterGroupItem;
+  i : integer;
 begin
-    Result := '';
-    if rbAllDatas.Checked then
-        s := GenWebGrid(ADsnName)
-    else
-        s := GenWebGrid(ADsnName, dtpStart.Date, dtpEnd.Date);
+  Result := '';
+  if rbAllDatas.Checked then
+      s := GenWebGrid(ADsnName)
+  else
+      s := GenWebGrid(ADsnName, dtpStart.Date, dtpEnd.Date);
 
     // 处理仪器组问题，判断是否按照仪器组处理
-    mt := ExcelMeters.Meter[ADsnName];
-    if mt.PrjParams.GroupID = '' then
-        Result := '<H4>' + ADsnName + '</H4>' + s + '<p> </p>'
-    else // 是仪器组成员
-    begin
+  mt := ExcelMeters.Meter[ADsnName];
+  if mt.PrjParams.GroupID = '' then
+      Result := '<H4>' + ADsnName + '</H4>' + s + '<p> </p>'
+  else // 是仪器组成员
+  begin
         // 判断模板是否是组模板，若是则将组内成员全部加入到FIDList中
-        tp := (IAppServices.Templates as TTemplates).ItemByName[mt.DataSheetStru.WGTemplate];
+    tp := (IAppServices.Templates as TTemplates).ItemByName[mt.DataSheetStru.WGTemplate];
 
         // if tp.ApplyGroup then
         // else
@@ -816,13 +825,13 @@ begin
           模板是否支持组。仪器组成员可以用组模板，也可以用单支仪器模板，后者就不应将其他组成员
           列出跳过表 }
         { TODO -ohw -c观测数据报表 : 需要ThjxTemplate对象有ApplyGroup属性可查 }
-        GI := MeterGroup.ItemByName[mt.PrjParams.GroupID];
-        for i := 0 to GI.Count - 1 do
-            FIDList.Add(GI.Items[i]);
+    GI := MeterGroup.ItemByName[mt.PrjParams.GroupID];
+    for i := 0 to GI.Count - 1 do
+        FIDList.Add(GI.Items[i]);
 
         // 返回结果
-        Result := Format('<H4>%s</H4>%s<P> </P>', [GI.Name, s]);
-    end;
+    Result := Format('<H4>%s</H4>%s<P> </P>', [GI.Name, s]);
+  end;
 
 end;
 

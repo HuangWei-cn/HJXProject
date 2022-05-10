@@ -58,16 +58,18 @@ type
     FDesignName: string;
     FDataName  : string;
     FDataUnit  : string;
+    FMeterType : string;
     FData      : Variant;
     FDTScale   : TDateTime;
     procedure SetData(v: Variant);
     procedure SetDTScale(dt: TDateTime);
-    //function GetShowBorder: Boolean;
-    //procedure SetShowBorder(b: Boolean);
+    // function GetShowBorder: Boolean;
+    // procedure SetShowBorder(b: Boolean);
   public
     procedure ShowData(AData: string; dt: TDateTime);
     procedure ClearData;
   published
+    property MeterType : string read FMeterType write FMeterType; //2022-05-10 增加仪器类型，便于应用样式
     property DesignName: string read FDesignName write FDesignName;
     property DataName  : string read FDataName write FDataName;
     property DataUnit  : string read FDataUnit write FDataUnit;
@@ -81,7 +83,7 @@ type
       对象，本对象在ShowData之后自动创建数据标签、数据箭头；2)其他功能还没想好
       关于功能1的设想，是查询完毕后，并不直接显示数据，而是鼠标点击到仪器标签上，从标签弹出数据
       来，鼠标移走数据消失。
-    }
+ }
   TdmcMeterLabel = class(TGPTextNode)
   private
     FDesignName: string;
@@ -205,7 +207,7 @@ begin
     SetBoundsRect(rc);
   end
   else
-    FRatio := 0;
+      FRatio := 0;
 end;
 
 procedure TdmcMap.SetLockRatio(b: Boolean);
@@ -247,10 +249,10 @@ begin
   if b then
   begin
     if not(gnoMovable in Self.NodeOptions) then
-      NodeOptions := NodeOptions + [gnoMovable];
+        NodeOptions := NodeOptions + [gnoMovable];
   end
   else if gnoMovable in NodeOptions then
-    NodeOptions := NodeOptions - [gnoMovable];
+      NodeOptions := NodeOptions - [gnoMovable];
 end;
 
 procedure TdmcMap.SetSelectable(b: Boolean);
@@ -258,10 +260,10 @@ begin
   if b then
   begin
     if not(goSelectable in Options) then
-      Options := Options + [goSelectable];
+        Options := Options + [goSelectable];
   end
   else if goSelectable in Options then
-    Options := Options - [goSelectable];
+      Options := Options - [goSelectable];
 end;
 
 procedure TdmcMap.SetResizable(b: Boolean);
@@ -269,10 +271,10 @@ begin
   if b then
   begin
     if not(gnoResizable in Self.NodeOptions) then
-      NodeOptions := NodeOptions + [gnoResizable];
+        NodeOptions := NodeOptions + [gnoResizable];
   end
   else if gnoMovable in NodeOptions then
-    NodeOptions := NodeOptions - [gnoResizable];
+      NodeOptions := NodeOptions - [gnoResizable];
 end;
 
 procedure TdmcDataItem.SetData(v: Variant);
@@ -371,7 +373,7 @@ var
   pt0, pt1: TPoint;
 begin
   if not Visible then
-    Exit;
+      Exit;
 
   FDTScale := dt;
   { 这里AData参数没什么用，这个对象使用SetData设置数据 }

@@ -354,6 +354,7 @@ var
   sType  : string;
   bGet   : Boolean;
   S      : string;
+  ErrMsg:string;
 begin
   FIDList.Text := IDList;
   if FIDList.Count = 0 then
@@ -363,6 +364,10 @@ begin
   ProgressBar1.Max := FIDList.Count;
   ProgressBar1.Position := 1;
   ProgressBar1.Visible := True;
+
+  IHJXClientFuncs.SessionBegin;
+  IHJXClientFuncs.ClearErrMsg;
+  errmsg:='';
 
   WCV := TWebCrossView.Create;
 
@@ -503,6 +508,10 @@ begin
       SetLength(EVDatas, 0);
     end;
     ProgressBar1.Visible := False;
+
+    ErrMsg := IHJXClientFuncs.ErrorMsg;
+    if ErrMsg <> '' then showmessage('查询过程中发现以下错误：'#13#10 + ErrMsg);
+    IHJXClientFuncs.ClearErrMsg;
   end;
 
 end;

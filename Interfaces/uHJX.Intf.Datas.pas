@@ -83,6 +83,8 @@ type
  }
     function GetPeriodIncrement(ADsnName: String; APDIndex: Integer; StartDate, EndDate: TDateTime;
       var Values: TVariantDynArray; StartDay: Integer = 20; Period: Integer = 0): Boolean;
+    function ErrorMsg:String;
+    procedure ClearErrMsg;
   end;
 
 var

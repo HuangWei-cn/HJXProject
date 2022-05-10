@@ -45,5 +45,19 @@ object fraMeterSelector: TfraMeterSelector
       Caption = #20840#36873
       OnClick = piSelectAllClick
     end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object piGroupByPosition: TMenuItem
+      Caption = #25353#37096#20301#20998#32452
+      Checked = True
+      RadioItem = True
+      OnClick = piGroupByPositionClick
+    end
+    object piGroupByType: TMenuItem
+      Caption = #25353#20202#22120#31867#22411#20998#32452
+      RadioItem = True
+      OnClick = piGroupByTypeClick
+    end
   end
 end

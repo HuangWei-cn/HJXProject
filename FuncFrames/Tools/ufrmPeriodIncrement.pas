@@ -137,25 +137,38 @@ var
     ii: Integer;
   begin
     WCV.ColCount := Length(V) + 4; // 2021-11-22 原本是增加1列，现在增加了起始截至测值和总增量3列;
-    WCV.TitleRows := 1;
+    WCV.TitleRows := 2;
     WCV.AddRow;
-    // 横向表格表头的第一单元格为观测量
+    // 横向表格表头的第一单元格为观测量，第一列
     WCV.Cells[0, 0].Value := '观测量';
-    // 2021-11-22 新加
-    WCV.Cells[1, 0].Value := '起始测值';
-    WCV.Cells[2, 0].Value := '截止测值';
+    WCV.Cells[1, 0].Value := '观测值';
+    WCV.Cells[2, 0].Value := '观测值';
+    for ii := Low(V) to High(V) do
+        WCV.Cells[ii + 3, 0].Value := '增量';
     WCV.Cells[High(V) + 4, 0].Value := '期间总增量';
+
+    // 横向表格表头第二行
+    WCV.AddRow;
+    // 2021-11-22 新加
+    WCV.Cells[0, 1].Value := '观测量';
+    WCV.Cells[1, 1].Value := FormatDateTime('yyyy-mm-dd', VarToDateTime(V[Low(V)][1])); // '起始日期';
+    WCV.Cells[2, 1].Value := FormatDateTime('yyyy-mm-dd', VarToDateTime(V[high(V)][2])); // '截止截止';
+    WCV.Cells[High(V) + 4, 1].Value := '期间总增量';
 
     WCV.ColHeader[1].Align := taRightJustify;
     WCV.ColHeader[2].Align := taRightJustify;
     WCV.ColHeader[High(V) + 4].Align := taRightJustify;
     WCV.ColHeader[0].ColumnFormat.BGColor := clGreen;
+    WCV.ColHeader[1].ColumnFormat.BGColor := clWebKhaki;
+    WCV.ColHeader[2].ColumnFormat.BGColor := clWebKhaki;
+    wcv.ColHeader[High(v)+4].ColumnFormat.BGColor :=clWebForestGreen;
 
     // 横向表格的表头其余表格为时间段
     for ii := Low(V) to High(V) do
     begin
-      WCV.Cells[ii + 3, 0].Value := V[ii][0];
+      WCV.Cells[ii + 3, 1].Value := V[ii][0];
       WCV.ColHeader[ii + 3].Align := taRightJustify;
+      WCV.ColHeader[ii + 1].ColumnFormat.BGColor := clWebLightGreen;
     end;
   end;
 

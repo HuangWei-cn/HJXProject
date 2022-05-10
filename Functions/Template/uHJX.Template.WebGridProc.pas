@@ -117,7 +117,8 @@ begin
   bGroup := False;
     // 检查仪器类型是否对应
   if grdTemp.MeterType <> '' then
-    if grdTemp.MeterType <> AMeter.Params.MeterType then
+    { if grdTemp.MeterType <> AMeter.Params.MeterType then } { 存在一个模板同时支持多种仪器，比如应变计组支持应变计和无应力计的情况 }
+    if pos(AMeter.Params.MeterType, grdTemp.MeterType) = 0 then
         raise Exception.CreateFmt('"%s"不支持%s的仪器类型。模板仪器类型为%s，当前仪器类型为%s',
         [grdTemp.TemplateName, AMeter.DesignName, grdTemp.MeterType,
         AMeter.Params.MeterType]);
@@ -188,7 +189,7 @@ begin
       until DS.Eof;
     end;
     // Result := wcv.CrossPage; // 如果使用CrossPage，则当需要获得多个独立表格时，将造成页面代码重复
-    Result := wcv.CrossGrid; //2020-05-22
+    Result := wcv.CrossGrid; // 2020-05-22
   finally
     wcv.Free;
     SetLength(v, 0);
@@ -226,7 +227,8 @@ begin
   bGroup := False;
     // 检查仪器类型是否对应
   if grdTemp.MeterType <> '' then
-    if grdTemp.MeterType <> AMeter.Params.MeterType then
+    { if grdTemp.MeterType <> AMeter.Params.MeterType then }
+    if pos(AMeter.Params.MeterType, grdTemp.MeterType) = 0 then
         raise Exception.CreateFmt('"%s"不支持%s的仪器类型。模板仪器类型为%s，当前仪器类型为%s',
         [grdTemp.TemplateName, AMeter.DesignName, grdTemp.MeterType,
         AMeter.Params.MeterType]);
@@ -309,7 +311,7 @@ begin
         DS.Next;
       until DS.Eof;
     end;
-    //Result := wcv.CrossPage;
+    // Result := wcv.CrossPage;
     Result := wcv.CrossGrid;
   finally
     wcv.Free;

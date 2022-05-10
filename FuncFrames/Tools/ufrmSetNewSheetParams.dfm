@@ -139,6 +139,7 @@ object frmSetNewSheetParam: TfrmSetNewSheetParam
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
+    Sorted = True
     TabOrder = 3
     Text = 'cbxMeterTypes'
   end

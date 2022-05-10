@@ -86,6 +86,8 @@ type
     piInputMeterData: TMenuItem;
     N2: TMenuItem;
     piPopupDataWindow: TMenuItem;
+    btnListObjects: TToolButton;
+    ToolButton14: TToolButton;
     procedure sgDataLayoutObjectMouseEnter(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectMouseLeave(Graph: TSimpleGraph; GraphObject: TGraphObject);
     procedure sgDataLayoutObjectClick(Graph: TSimpleGraph; GraphObject: TGraphObject);
@@ -125,6 +127,7 @@ type
     procedure sgDataLayoutDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure piInputMeterDataClick(Sender: TObject);
     procedure piPopupDataWindowClick(Sender: TObject);
+    procedure btnListObjectsClick(Sender: TObject);
   private
         { Private declarations }
     FOnNeedDataEvent      : TOnNeedDataEvent;
@@ -182,6 +185,7 @@ type
   end;
 
 implementation
+
 uses ufrmInputLayoutData, ufrmDataItemsList;
 {$R *.dfm}
 
@@ -533,6 +537,11 @@ begin
   actZoomOut.Enabled := (sgDataLayout.Zoom > Low(tzoom));
 end;
 
+procedure TfraDataLayout.btnListObjectsClick(Sender: TObject);
+begin
+  PopupGraphObjList;
+end;
+
 procedure TfraDataLayout.chkViewOnlyClick(Sender: TObject);
 begin
   if chkViewOnly.Checked then
@@ -614,10 +623,11 @@ begin
   S := InputBox('输入数据', '请输入需要显示的数据：', S);
   (FSelectedObj as TdmcDataItem).Text := S;
 end;
-{-----------------------------------------------------------------------------
+
+{ -----------------------------------------------------------------------------
   Procedure  : piPopupDataWindowClick
   Description: 弹出数据输入窗口
------------------------------------------------------------------------------}
+----------------------------------------------------------------------------- }
 procedure TfraDataLayout.piPopupDataWindowClick(Sender: TObject);
 begin
   PopupEditorWindow;
@@ -801,12 +811,19 @@ begin
   // AnItem.East := Y;
   AnItem.ShowData('', DT);
 end;
-
+{-----------------------------------------------------------------------------
+  Procedure  : GraphEndDragging
+  Description: 拖拽图元，判断是否需要自动对齐
+-----------------------------------------------------------------------------}
 procedure TfraDataLayout.GraphEndDragging(Graph: TSimpleGraph; GraphObject: TGraphObject;
   HT: Cardinal;
   Cancelled: Boolean);
 var
-  Obj: TGraphObject;
+  Obj       : TGraphObject;
+  drpSide   : Integer;
+  coLT, coBR: TPoint; // Covered object top-left point & bottom-right point
+  goLT      : TPoint; // graphobject top-left point
+  dW, dH    : Integer;
 begin
   // 只有TdmcDataItem和TdmcMeterLabel才享受本过程的处理
   if not((GraphObject is TdmcDataItem) or (GraphObject is TdmcMeterLabel)) then
@@ -818,14 +835,85 @@ begin
   // 只有当GraphObject盖在其他东西上面的时候才进行处理
   with GraphObject as TGraphNode do
   begin
-    Obj := Graph.FindObjectAt(Left - 4, Top - 4);
-    if Obj is TGPTextNode then
+    Obj := Graph.FindObjectAt(GraphObject.BoundsRect.Left - 4, GraphObject.BoundsRect.Top - 4);
+    { todo:再斟酌是否针对所有TextNode都执行自动对齐 }
+    if Obj is TGPTextNode { (Obj is TdmcDataItem) or (Obj is TdmcMeterLabel) } then
     begin
 {$IFDEF DEBUG}
       OutputDebugString(PChar('覆盖了这个东西：' + (Obj as TGPTextNode).Text + #13#10));
 {$ENDIF}
+      // 取坐标
+      // coLT := Point((Obj as TGPTextNode).Left, (Obj as TGPTextNode).Top);
+      coLT := Obj.BoundsRect.TopLeft;
+      coBR := Obj.BoundsRect.BottomRight;
+      goLT := GraphObject.BoundsRect.TopLeft;
+      dW := (coBR.X - coLT.X) div 3; // 取判断的范围，基本上是三分之一吧
+      dH := (coBR.Y - coLT.Y) div 3;
+      drpSide := 0;
+      // 下面将Snap到Obj的下方，并且根据拖放的位置自动设置对齐
+      // 判断是放置到左侧还是右侧
+      if (goLT.X >= coLT.X) and (goLT.X <= coLT.X + dW) then
+          drpSide := 10
+      else if (goLT.X >= coBR.X - dW) and (goLT.X <= coBR.X) then
+          drpSide := 20;
+
+      // 判断放置到顶还是底，抑或两侧
+      if (goLT.Y >= coLT.Y) and (goLT.Y <= coLT.Y + dH) then
+          drpSide := drpSide + 0
+      else if (goLT.Y >= coBR.Y - dH) and (goLT.Y <= coBR.Y) then
+          drpSide := drpSide + 2
+      else
+          drpSide := drpSide + 1;
+          // auto align graph object
+      case drpSide of
+        10: // top and left align
+          with (GraphObject as TGPTextNode) do
+          begin
+            DataAlignRight := False;
+            Left := Obj.BoundsRect.Left;
+            Top := Obj.BoundsRect.Top - Height - 2;
+          end;
+        11: // left side and right align
+          with (GraphObject as TGPTextNode) do
+          begin
+            DataAlignRight := True;
+            Left := Obj.BoundsRect.Left - Width - 2;
+            Top := Obj.BoundsRect.Top;
+          end;
+        12: // bottom side and left align
+          with (GraphObject as TGPTextNode) do
+          begin
+            DataAlignRight := False;
+            Left := Obj.BoundsRect.Left;
+            Top := Obj.BoundsRect.Bottom + 2;
+          end;
+        20: // top side and right align
+          with (GraphObject as TGPTextNode) do
+          begin
+            DataAlignRight := True;
+            Left := coBR.X - Width;
+            Top := Obj.BoundsRect.Top - Height - 2;
+          end;
+        21: // right side and left align
+          with (GraphObject as TGPTextNode) do
+          begin
+            DataAlignRight := False;
+            Left := coBR.X + 2;
+            Top := Obj.BoundsRect.Top;
+          end;
+        22: // bottom side and right align
+          with (GraphObject as TGPTextNode) do
+          begin
+            DataAlignRight := True;
+            Left := coBR.X - Width;
+            Top := Obj.BoundsRect.Bottom + 2;
+          end;
+      else
+              // do nothing;
+      end;
       // 下面将Snap到Obj的下方，并且对齐
       // align right side
+      (*
       if (GraphObject as TGPTextNode).DataAlignRight then
         with GraphObject as TGraphNode do
         begin
@@ -838,27 +926,31 @@ begin
           Left := (Obj as TGraphNode).Left;
           Top := (Obj as TGraphNode).BoundsRect.Bottom + 2;
         end;
+ *)
     end;
   end;
 end;
-{-----------------------------------------------------------------------------
+
+{ -----------------------------------------------------------------------------
   Procedure  : PopupEditorWindow
   Description: 弹出数据编辑窗口，方便手工输入数据
------------------------------------------------------------------------------}
+----------------------------------------------------------------------------- }
 procedure TfraDataLayout.PopupEditorWindow;
-var frm: TfrmInputLayoutData;
+var
+  frm: TfrmInputLayoutData;
 begin
   frm := TfrmInputLayoutData.Create(Self);
-  frm.Layout := self;
+  frm.Layout := Self;
   frm.ShowModal;
   frm.Release;
 end;
 
 procedure TfraDataLayout.PopupGraphObjList;
-var frm: TfrmDataItemsList;
+var
+  frm: TfrmDataItemsList;
 begin
   frm := TfrmDataItemsList.Create(Self);
-  frm.SGraph := self.sgDataLayout;
+  frm.SGraph := Self.sgDataLayout;
   frm.ShowModal;
   frm.Release;
 end;

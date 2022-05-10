@@ -116,7 +116,7 @@ begin
           nit.Caption := nBK.WorkSheets[j].Name;
           nit.SubItems.Add(wbks.Strings[i]);
           Application.ProcessMessages;
-          //lvwNewSheets.Invalidate;
+          // lvwNewSheets.Invalidate;
         end;
     end;
 
@@ -147,10 +147,14 @@ end;
 /// </summary>
 procedure TfrmFindNewSheets.AppendNewSheet;
 var
-  Ret: Integer;
+  Ret     : Integer;
+  i, n    : Integer;
+  S, sName: string;
 begin
   with frmSetNewSheetParam do
   begin
+    // 这里仅仅添加了弹出菜单的那个仪器
+    (*
     Ret := uHJX.Excel.InitParams.AppendDataSheet(DesignName, sheetname, bookname, MeterType,
       Position);
     if Ret = 1 then
@@ -158,6 +162,29 @@ begin
       ShowMessage('保存成功，已将' + MeterType + DesignName + '的工作表添加到数据文件列表中了。');
       lvwNewSheets.Selected.Delete;
     end;
+ *)
+    { 下面的代码将选中的所有仪器都添加进去 }
+    n := 0;
+    S := '';
+    for i := Self.lvwNewSheets.Items.Count - 1 downto 0 do
+      if lvwNewSheets.Items[i].Checked then
+      begin
+        sName := lvwNewSheets.Items[i].Caption;
+        Ret := uHJX.Excel.InitParams.AppendDataSheet(sName, SheetName, BookName, MeterType,
+          Position);
+        if Ret = 1 then
+        begin
+          inc(n);
+          lvwNewSheets.Items.Delete(i);
+          S := S + '已将' + sName + '添加到数据文件列表' + #13#10;
+        end
+        else
+            S := S + '未能将' + sName + '添加到数据文件列表' + #13#10;
+      end;
+    if n > 0 then
+        ShowMessage(S)
+    else
+        ShowMessage('未能将仪器添加进数据文件列表，请检查原因。');
   end;
 end;
 

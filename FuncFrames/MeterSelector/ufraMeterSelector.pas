@@ -21,12 +21,17 @@ type
     piUnSelectAll: TMenuItem;
     N1: TMenuItem;
     piSelectAll: TMenuItem;
+    N2: TMenuItem;
+    piGroupByPosition: TMenuItem;
+    piGroupByType: TMenuItem;
     procedure tvwMetersCreateNodeClass(Sender: TCustomTreeView; var NodeClass: TTreeNodeClass);
     procedure tvwMetersClick(Sender: TObject);
     procedure tvwMetersCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
       State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure piSelectAllClick(Sender: TObject);
     procedure piUnSelectAllClick(Sender: TObject);
+    procedure piGroupByPositionClick(Sender: TObject);
+    procedure piGroupByTypeClick(Sender: TObject);
   private
         { Private declarations }
     function IsChecked(Node: TTreeNode): Boolean;
@@ -125,6 +130,18 @@ begin
   TvItem.hItem := Node.ItemId;
   TreeView_GetItem(Node.TreeView.Handle, TvItem);
   Result := (TvItem.State and TVIS_CHECKED) = TVIS_CHECKED;
+end;
+
+procedure TfraMeterSelector.piGroupByPositionClick(Sender: TObject);
+begin
+  piGroupByPosition.Checked := True;
+  AppendMeterList;
+end;
+
+procedure TfraMeterSelector.piGroupByTypeClick(Sender: TObject);
+begin
+  piGroupByType.Checked := True;
+  AppendMeterList;
 end;
 
 procedure TfraMeterSelector.piSelectAllClick(Sender: TObject);
@@ -241,41 +258,85 @@ begin
       Exit;
   if ExcelMeters.count = 0 then
       Exit;
-  ExcelMeters.SortByPosition;
   sPos := '';
   sType := '';
   nPos := nil;
   nType := nil;
-  for i := 0 to ExcelMeters.count - 1 do
+  { 2022-05-02 增加按照仪器类型分组的功能。下面的代码可以更精简 }
+  if piGroupByPosition.Checked then
   begin
-    AMeter := ExcelMeters.Items[i];
-    if AMeter.DataSheet = '' then Continue;
+    ExcelMeters.SortByPosition;
+    for i := 0 to ExcelMeters.count - 1 do
+    begin
+      AMeter := ExcelMeters.Items[i];
+      if AMeter.DataSheet = '' then Continue;
 
-    if AMeter.PrjParams.Position <> sPos then
-    begin
-      sPos := AMeter.PrjParams.Position;
-      sType := AMeter.Params.MeterType;
-      nPos := tvwMeters.Items.Add(nil, sPos);
-      nType := tvwMeters.Items.AddChild(nPos, sType);
-      TmeterNode(nPos).NodeType := ntClass;
-      TmeterNode(nType).NodeType := ntClass;
+      if AMeter.PrjParams.Position <> sPos then
+      begin
+        sPos := AMeter.PrjParams.Position;
+        sType := AMeter.Params.MeterType;
+        nPos := tvwMeters.Items.Add(nil, sPos);
+        nType := tvwMeters.Items.AddChild(nPos, sType);
+        TmeterNode(nPos).NodeType := ntClass;
+        TmeterNode(nType).NodeType := ntClass;
+      end;
+      if AMeter.Params.MeterType <> sType then
+      begin
+        sType := AMeter.Params.MeterType;
+        nType := tvwMeters.Items.AddChild(nPos, sType);
+        TmeterNode(nType).NodeType := ntClass;
+      end;
+      nMeter := tvwMeters.Items.AddChild(nType, AMeter.DesignName);
+      if nMeter is TmeterNode then
+      begin
+        TmeterNode(nMeter).MeterName := AMeter.DesignName;
+        TmeterNode(nMeter).NodeType := ntMeter;
+        if AMeter.DataBook = '' then
+            TmeterNode(nMeter).Valid := False
+        else
+            TmeterNode(nMeter).Valid := True;
+      end;
     end;
-    if AMeter.Params.MeterType <> sType then
+  end
+  else // 不按照部位分组，就是按照类型进行分组
+  begin
+    ExcelMeters.SortByMeterType;
+    for i := 0 to ExcelMeters.count - 1 do
     begin
-      sType := AMeter.Params.MeterType;
-      nType := tvwMeters.Items.AddChild(nPos, sType);
-      TmeterNode(nType).NodeType := ntClass;
+      AMeter := ExcelMeters.Items[i];
+      if AMeter.DataSheet = '' then Continue;
+
+      if AMeter.Params.MeterType { .PrjParams.Position } <> sType { sPos } then
+      begin
+        sPos := AMeter.PrjParams.Position;
+        sType := AMeter.Params.MeterType;
+        nType := tvwMeters.Items.Add(nil, sType); { Child(nPos, sType) };
+        nPos := tvwMeters.Items.AddChild(nType, sPos); // (nil, sPos);
+        TmeterNode(nPos).NodeType := ntClass;
+        TmeterNode(nType).NodeType := ntClass;
+      end;
+      if AMeter.PrjParams.Position { .Params.MeterType } <> sPos { sType } then
+      begin
+        // sType := AMeter.Params.MeterType;
+        // nType := tvwMeters.Items.AddChild(nPos, sType);
+        sPos := AMeter.PrjParams.Position;
+        nPos := tvwMeters.Items.AddChild(nType, sPos);
+        // TmeterNode(nType).NodeType := ntClass;
+        TmeterNode(nPos).NodeType := ntClass;
+      end;
+      // nMeter := tvwMeters.Items.AddChild(nType, AMeter.DesignName);
+      nMeter := tvwMeters.Items.AddChild(nPos, AMeter.DesignName);
+      if nMeter is TmeterNode then
+      begin
+        TmeterNode(nMeter).MeterName := AMeter.DesignName;
+        TmeterNode(nMeter).NodeType := ntMeter;
+        if AMeter.DataBook = '' then
+            TmeterNode(nMeter).Valid := False
+        else
+            TmeterNode(nMeter).Valid := True;
+      end;
     end;
-    nMeter := tvwMeters.Items.AddChild(nType, AMeter.DesignName);
-    if nMeter is TmeterNode then
-    begin
-      TmeterNode(nMeter).MeterName := AMeter.DesignName;
-      TmeterNode(nMeter).NodeType := ntMeter;
-      if AMeter.DataBook = '' then
-          TmeterNode(nMeter).Valid := False
-      else
-          TmeterNode(nMeter).Valid := True;
-    end;
+
   end;
 end;
 

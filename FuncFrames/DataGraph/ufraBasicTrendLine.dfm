@@ -43,27 +43,30 @@ object fraBasicTrendLine: TfraBasicTrendLine
         Grid.Visible = False
         Horizontal = True
         OtherSide = False
+        Title.Font.Name = 'Times New Roman'
         Visible = False
       end
       item
         Grid.Visible = False
         Horizontal = True
         OtherSide = False
+        Title.Font.Name = 'Times New Roman'
         Visible = False
       end>
     BottomAxis.Title.Caption = #35266#27979#26085#26399
-    BottomAxis.Title.Font.Name = #40657#20307
+    BottomAxis.Title.Font.Name = 'Times New Roman'
     BottomAxis.Title.Font.Quality = fqNormal
+    DepthAxis.Title.Font.Name = 'Times New Roman'
     LeftAxis.AxisValuesFormat = '#,##0.00#'
     LeftAxis.Grid.Color = 14671839
     LeftAxis.Grid.Style = psDot
     LeftAxis.Grid.Width = 0
     LeftAxis.Title.Caption = #24038#36724
-    LeftAxis.Title.Font.Name = #40657#20307
+    LeftAxis.Title.Font.Name = 'Times New Roman'
     Panning.MouseWheel = pmwNone
     RightAxis.Grid.Visible = False
     RightAxis.Title.Caption = #21491#36724
-    RightAxis.Title.Font.Name = #40657#20307
+    RightAxis.Title.Font.Name = 'Times New Roman'
     Shadow.Visible = False
     View3D = False
     Zoom.MouseWheel = pmwNormal
@@ -90,12 +93,14 @@ object fraBasicTrendLine: TfraBasicTrendLine
       DrawStyle = dsCurve
       LinePen.Color = clDefault
       Pointer.Brush.Style = bsClear
+      Pointer.DarkPen = 80
       Pointer.HorizSize = 2
       Pointer.InflateMargins = True
       Pointer.Pen.Color = clDefault
       Pointer.Style = psRectangle
       Pointer.VertSize = 2
       Pointer.Visible = True
+      PointerBehind = True
       XValues.DateTime = True
       XValues.Name = 'X'
       XValues.Order = loAscending
@@ -113,6 +118,24 @@ object fraBasicTrendLine: TfraBasicTrendLine
       Pointer.Style = psCircle
       Pointer.VertSize = 3
       Pointer.Visible = True
+      XValues.DateTime = True
+      XValues.Name = 'X'
+      XValues.Order = loAscending
+      YValues.Name = 'Y'
+      YValues.Order = loNone
+    end
+    object Series3: TPointSeries
+      Legend.Visible = False
+      Marks.Emboss.Clip = True
+      Marks.Shadow.Clip = True
+      Marks.Clip = True
+      DataSource = Series1
+      ShowInLegend = False
+      ClickableLine = False
+      Pointer.Brush.Style = bsClear
+      Pointer.DarkPen = 67
+      Pointer.InflateMargins = True
+      Pointer.Style = psRectangle
       XValues.DateTime = True
       XValues.Name = 'X'
       XValues.Order = loAscending
@@ -173,8 +196,35 @@ object fraBasicTrendLine: TfraBasicTrendLine
       OnClick = piSetupChartClick
     end
     object piSetupSeries: TMenuItem
-      Caption = #26354#32447#35774#32622
+      Caption = #20943#23569#26354#32447#28857#20026'20'#20010
+      Visible = False
       OnClick = piSetupSeriesClick
+    end
+    object N3: TMenuItem
+      Caption = #20943#23569#26354#32447#28857#25968
+      object piShow20Pointers: TMenuItem
+        Caption = #21482#26174#31034'20'#20010
+        OnClick = piShow20PointersClick
+      end
+      object piShowPointersStep2: TMenuItem
+        Caption = #38388#38548'1'#20010#26174#31034
+        OnClick = piShowPointersStep2Click
+      end
+      object piShowPointersStep3: TMenuItem
+        Caption = #38388#38548'2'#20010#26174#31034
+        OnClick = piShowPointersStep3Click
+      end
+      object piShowPointersStep5: TMenuItem
+        Caption = #38388#38548'4'#20010#26174#31034
+        OnClick = piShowPointersStep5Click
+      end
+      object N4: TMenuItem
+        Caption = '-'
+      end
+      object piRestoreLinePointer: TMenuItem
+        Caption = #22797#21407
+        OnClick = piRestoreLinePointerClick
+      end
     end
     object N1: TMenuItem
       Caption = '-'

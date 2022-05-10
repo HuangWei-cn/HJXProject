@@ -99,11 +99,15 @@ begin
     Exit;
   end;
 
+  (* )
   frm := TfrmEVGraph.Create(self);
   frm.DrawEVGraph(mtEV.FieldByName('Position').AsString,
     mtEV.FieldByName('MeterType').AsString, mtEV.FieldByName('PDName').AsString, mtEV);
   frm.ShowModal;
   frm.Release;
+ *)
+  popupevgraph(mtEV.FieldByName('Position').AsString,
+    mtEV.FieldByName('MeterType').AsString, mtEV.FieldByName('PDName').AsString, mtEV);
 end;
 
 procedure TfraEigenvalueGrid.btnQueryClick(Sender: TObject);
@@ -151,7 +155,7 @@ begin
     grdEV.StartLoadingStatus('正在加载数据，请稍后......');
     GetEVDatas(S);
   finally
-    grdev.FinishLoadingStatus;
+    grdEV.FinishLoadingStatus;
     Screen.Cursor := crDefault;
     prgBar.Visible := False;
   end;
@@ -303,6 +307,7 @@ var
   Meter  : TMeterDefine;
   bGet   : Boolean;
   j      : Integer;
+  ErrMsg : String;
 begin
   FIDList.Text := IDList;
   mtEV.Close;
@@ -312,6 +317,10 @@ begin
   prgBar.Max := FIDList.Count;
   prgBar.Position := 0;
   prgBar.Visible := True;
+
+  IHJXClientFuncs.SessionBegin;
+  IHJXClientFuncs.ClearErrMsg;
+  ErrMsg := '';
 
   SetFields;
   for iMT := 0 to FIDList.Count - 1 do
@@ -366,6 +375,10 @@ begin
   cdsEV.Open;
   mtEV.Open;
   SetDisplay;
+
+  ErrMsg := IHJXClientFuncs.ErrorMsg;
+  if ErrMsg <> '' then ShowMessage('查询过程中发现以下错误：'#13#10 + ErrMsg);
+  IHJXClientFuncs.ClearErrMsg
 end;
 
 procedure TfraEigenvalueGrid.piCopyAsHTMLClick(Sender: TObject);

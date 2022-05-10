@@ -3,7 +3,7 @@ object frmMeterSelector: TfrmMeterSelector
   Top = 0
   BorderStyle = bsToolWindow
   Caption = #36873#25321#30417#27979#20202#22120
-  ClientHeight = 379
+  ClientHeight = 383
   ClientWidth = 290
   Color = clBtnFace
   Font.Charset = GB2312_CHARSET
@@ -18,10 +18,11 @@ object frmMeterSelector: TfrmMeterSelector
   PixelsPerInch = 96
   TextHeight = 12
   object lblSelNum: TLabel
-    Left = 8
-    Top = 352
-    Width = 6
+    Left = 12
+    Top = 360
+    Width = 36
     Height = 12
+    Caption = 'Number'
   end
   inline fraMS: TfraMeterSelector
     Left = 0
@@ -44,7 +45,7 @@ object frmMeterSelector: TfrmMeterSelector
     end
   end
   object Button1: TButton
-    Left = 121
+    Left = 130
     Top = 347
     Width = 75
     Height = 25
@@ -54,7 +55,7 @@ object frmMeterSelector: TfrmMeterSelector
     TabOrder = 1
   end
   object Button2: TButton
-    Left = 202
+    Left = 211
     Top = 347
     Width = 75
     Height = 25

@@ -31,7 +31,7 @@ interface
 
 uses
   System.Classes, System.Types, System.SysUtils, System.Variants, System.StrUtils, Data.DB,
-  Datasnap.DBClient, System.DateUtils, {MidasLib,} vcl.dialogs,
+  Datasnap.DBClient, System.DateUtils, {MidasLib,} vcl.dialogs, nexcel,
   uHJX.Intf.Datas, uHJX.Excel.IO, uHJX.Data.Types, uHJX.Intf.AppServices;
 
 type
@@ -39,6 +39,9 @@ type
   ThjxDataQuery = class(TInterfacedObject, IClientFuncs)
   private
     FUseSession: Boolean;
+    FErrorMsg  : String;
+    function _GetBookAndSheet(ADsnName: String; var AWBK: IXLSWorkBook;
+      var ASht: IXLSWorkSheet; UseSession: Boolean = True): Boolean;
   public
     destructor Destroy; override;
         { 启动会话 }
@@ -125,6 +128,10 @@ type
     /// <returns>查询成功为True，否则为False</returns>
     function GetPeriodIncrement(ADsnName: String; APDIndex: Integer; StartDate, EndDate: TDateTime;
       var Values: TVariantDynArray; StartDay: Integer = 20; Period: Integer = 0): Boolean;
+
+    function ErrorMsg: String;
+    procedure ClearErrMsg;
+    procedure AddErrMsg(Msg: String);
   end;
 
 procedure RegistClientDatas;
@@ -132,7 +139,7 @@ procedure RegistClientDatas;
 implementation
 
 uses
-    {uHJX.Excel.Meters} uHJX.Classes.Meters, nExcel;
+    {uHJX.Excel.Meters} uHJX.Classes.Meters;
 
 type
   TDateLocateOption = (dloEqual, dloBefore, dloAfter, dloClosest); // 日期查询定位选项：等于，之前，之后，最接近
@@ -144,7 +151,7 @@ var
   Procedure  : _GetFloatOrNull
   Description: 返回浮点数，或NULL
 ----------------------------------------------------------------------------- }
-function _GetFloatOrNull(ASht: IXLSWorksheet; ARow, ACol: Integer): Variant;
+function _GetFloatOrNull(ASht: IXLSWorkSheet; ARow, ACol: Integer): Variant;
 begin
   Result := Null;
   if VarIsNumeric(ASht.Cells[ARow, ACol].Value) then
@@ -152,8 +159,8 @@ begin
 end;
 
 { 返回仪器的工作簿及工作表对象 }
-function _GetMeterSheet(ADsnName: string; var AWBK: IXLSWorkBook; var ASht: IXLSWorksheet;
-  UseSession: Boolean = True): Boolean;
+function ThjxDataQuery._GetBookAndSheet(ADsnName: string; var AWBK: IXLSWorkBook;
+  var ASht: IXLSWorkSheet; UseSession: Boolean = True): Boolean;
 var
   Meter: TMeterDefine;
 begin
@@ -162,9 +169,16 @@ begin
     // ASHT := nil;
   Meter := ExcelMeters.Meter[ADsnName];
   if Meter = nil then
-      Exit;
+  begin
+    AddErrMsg('未找到' + ADsnName);
+    Exit;
+  end;
+
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
+  begin
+    AddErrMsg('未找到' + ADsnName + '的数据表');
+    Exit;
+  end;
     { todo:这里增加判断，如果AWBK就是仪器的工作簿，则无需再经过打开的步骤了 }
   if UseSession then
   begin
@@ -176,11 +190,17 @@ begin
 
   if TMyWorkbook(AWBK).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(AWBK, Meter.DataBook) then
-        Exit;
+    begin
+      AddErrMsg('未能打开' + ADsnName + '的数据工作簿' + Meter.DataBook);
+      Exit;
+    end;
 
   ASht := ExcelIO.GetSheet(AWBK, Meter.DataSheet);
   if ASht = nil then
-      Exit;
+  begin
+    AddErrMsg('打开' + ADsnName + '的数据表' + Meter.DataSheet + '出错');
+    Exit;
+  end;
 
     { 走到这里，可以返回True了 }
   Result := True;
@@ -191,7 +211,7 @@ end;
     StartRow:       仪器数据起始行，也是查找的起始行；
     LacateOption:   0:必须等于该日期；1:该日期的前一个；2:最接近该日期，无论前后。
 }
-function _LocateDTRow(Sheet: IXLSWorksheet; DT: TDateTime; DTStartRow: Integer;
+function _LocateDTRow(Sheet: IXLSWorkSheet; DT: TDateTime; DTStartRow: Integer;
   LocateOption: TDateLocateOption = dloEqual): Integer;
 var
   DT1, DT2    : TDateTime;
@@ -463,14 +483,16 @@ function ThjxDataQuery.GetLastPDDatas(ADsnName: string; var Values: TDoubleDynAr
 var
   Meter    : TMeterDefine;
   wbk      : IXLSWorkBook;
-  sht      : IXLSWorksheet;
+  sht      : IXLSWorkSheet;
   iCount, i: Integer;
   iRow     : Integer;
   S        : String;
 begin
   Result := False;
   SetLength(Values, 0);
+
   Meter := ExcelMeters.Meter[ADsnName];
+(*
   if Meter = nil then Exit;
 
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
@@ -483,13 +505,15 @@ begin
 
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then Exit;
+*)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
   iCount := Meter.PDDefines.Count + 1; // 物理量+观测日期
   SetLength(Values, iCount);
   Values[0] := 0; // 观测日期设置为0，若没有数据，则不填入，调用者通过观测日期是否为0判断是否有观测数据。
 
     // 下面开始倒序查找数据
-  for iRow := sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.DTStartRow do
+  for iRow := sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(sht.Cells[iRow, 1].Value));
@@ -519,7 +543,7 @@ function ThjxDataQuery.GetLastPDDatas(ADsnName: string; var Values: TVariantDynA
 var
   Meter    : TMeterDefine;
   wbk      : IXLSWorkBook;
-  sht      : IXLSWorksheet;
+  sht      : IXLSWorkSheet;
   iCount, i: Integer;
   iRow     : Integer;
   S        : String;
@@ -529,6 +553,7 @@ begin
   SetLength(Values, 0);
 
   Meter := ExcelMeters.Meter[ADsnName];
+(*
   if Meter = nil then Exit;
 
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
@@ -541,13 +566,15 @@ begin
 
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then Exit;
+*)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
   iCount := Meter.PDDefines.Count + 1; // 物理量+观测日期
   SetLength(Values, iCount);
   Values[0] := 0; // 观测日期设置为0，若没有数据，则不填入，调用者通过观测日期是否为0判断是否有观测数据。
 
     // 下面开始倒序查找数据
-  for iRow := sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.DTStartRow do
+  for iRow := sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(sht.Cells[iRow, 1].Value));
@@ -578,7 +605,7 @@ function ThjxDataQuery.GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
 var
   Meter    : TMeterDefine;
   wbk      : IXLSWorkBook;
-  sht      : IXLSWorksheet;
+  sht      : IXLSWorkSheet;
   iCount, i: Integer;
   iRow     : Integer;
 // S        : String;
@@ -586,7 +613,9 @@ var
 begin
   Result := False;
   SetLength(Values, 0);
+
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
 
@@ -605,12 +634,14 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
   iCount := Meter.PDDefines.Count + 1; // 物理量+观测日期+备注
   SetLength(Values, iCount);
   Values[0] := 0; // 观测日期设置为0，若没有数据，则不填入，调用者通过观测日期是否为0判断是否有观测数据。
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.DTStartRow, dloBefore);
-  if (iRow <> -1) and (iRow > Meter.DataSheetStru.DTStartRow) then
+  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloBefore);
+  if (iRow <> -1) and (iRow > Meter.DataSheetStru.BaseLine{.DTStartRow}) then
   begin
     Dec(iRow); // 早一行
     Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
@@ -651,7 +682,7 @@ function ThjxDataQuery.GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
 var
   Meter    : TMeterDefine;
   wbk      : IXLSWorkBook;
-  sht      : IXLSWorksheet;
+  sht      : IXLSWorkSheet;
   iCount, i: Integer;
   iRow     : Integer;
 // S        : String;
@@ -660,7 +691,9 @@ begin
   Result := False;
   for i := Low(Values) to High(Values) do VarClear(Values[i]);
   SetLength(Values, 0);
+
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
 
@@ -679,12 +712,14 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
   iCount := Meter.PDDefines.Count + 1; // 物理量+观测日期+备注
   SetLength(Values, iCount);
   Values[0] := 0; // 观测日期设置为0，若没有数据，则不填入，调用者通过观测日期是否为0判断是否有观测数据。
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.DTStartRow, dloBefore);
-  if (iRow <> -1) and (iRow > Meter.DataSheetStru.DTStartRow) then
+  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloBefore);
+  if (iRow <> -1) and (iRow > Meter.DataSheetStru.BaseLine{.DTStartRow}) then
   begin
     Dec(iRow); // 早一行
     Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
@@ -709,7 +744,7 @@ function ThjxDataQuery.GetNearestPDDatas(ADsnName: string; DT: TDateTime;
 var
   Meter      : TMeterDefine;
   wbk        : IXLSWorkBook;
-  sht        : IXLSWorksheet;
+  sht        : IXLSWorkSheet;
   iCount     : Integer;
   iRow, iLRow: Integer;
 // S           : String;
@@ -732,7 +767,9 @@ var
 begin
   Result := False;
   SetLength(Values, 0);
+
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
 
@@ -751,6 +788,8 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
   iCount := Meter.PDDefines.Count + 1; // 物理量+观测日期+备注
   SetLength(Values, iCount);
@@ -760,7 +799,7 @@ begin
   dThis := 10000;
   iLRow := 0;
 
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.DTStartRow, dloClosest);
+  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloClosest);
   if iRow = -1 then
       Exit;
 
@@ -782,7 +821,7 @@ function ThjxDataQuery.GetNearestPDDatas(ADsnName: string; DT: TDateTime;
 var
   Meter      : TMeterDefine;
   wbk        : IXLSWorkBook;
-  sht        : IXLSWorksheet;
+  sht        : IXLSWorkSheet;
   iCount, i  : Integer;
   iRow, iLRow: Integer;
 // S           : String;
@@ -806,7 +845,9 @@ begin
   Result := False;
   for i := low(Values) to high(Values) do VarClear(Values[i]);
   SetLength(Values, 0);
+
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
 
@@ -825,6 +866,8 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
   iCount := Meter.PDDefines.Count + 1; // 物理量+观测日期+备注
   SetLength(Values, iCount);
@@ -834,7 +877,7 @@ begin
   dThis := 10000;
   iLRow := 0;
 
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.DTStartRow, dloClosest);
+  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloClosest);
   if iRow = -1 then
       Exit;
 
@@ -859,7 +902,7 @@ function ThjxDataQuery.GetPDDatasInPeriod(ADsnName: string; DT1: TDateTime; DT2:
   DS: TDataSet): Boolean;
 var
   wbk    : IXLSWorkBook;
-  sht    : IXLSWorksheet;
+  sht    : IXLSWorkSheet;
   Meter  : TMeterDefine;
   S      : string;
   iRow, i: Integer;
@@ -868,6 +911,7 @@ var
 begin
   Result := False;
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then
@@ -883,6 +927,9 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+
     // 运行到这里，可以尝试创建DataSet、读取数据了
     // 如果DS为空，则创建之
   if DS = nil then
@@ -903,7 +950,7 @@ begin
       AnnoCol := Meter.DataSheetStru.AnnoCol
   else AnnoCol := 0;
 
-  for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 1 do
+  for iRow := Meter.DataSheetStru.BaseLine{.DTStartRow} to sht.UsedRange.LastRow + 1 do
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(sht.Cells[iRow, 1].Value));
@@ -937,7 +984,7 @@ end;
 function ThjxDataQuery.GetAllPDDatas(ADsnName: string; DS: TDataSet): Boolean;
 var
   wbk    : IXLSWorkBook;
-  sht    : IXLSWorksheet;
+  sht    : IXLSWorkSheet;
   Meter  : TMeterDefine;
   S      : string;
   iRow, i: Integer;
@@ -955,6 +1002,7 @@ var
 begin
   Result := False;
   Meter := ExcelMeters.Meter[ADsnName];
+(*
   if Meter = nil then
       Exit;
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then
@@ -970,6 +1018,9 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+
     // 运行到这里，可以尝试创建DataSet、读取数据了
     // 如果DS为空，则创建之
   if DS = nil then
@@ -991,7 +1042,9 @@ begin
   else AnnoCol := 0;
 
     // 查询、添加数据
-  for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 2 do
+  //for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 2 do
+  //首行从初值行开始2022-05-01
+  for iRow := Meter.DataSheetStru.BaseLine to sht.UsedRange.LastRow + 2 do
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(sht.Cells[iRow, 1].Value));
@@ -1028,7 +1081,7 @@ function ThjxDataQuery.GetEVData(ADsnName: string; EVData: PEVDataStru): Boolean
 var
   Meter  : TMeterDefine;
   wbk    : IXLSWorkBook;
-  sht    : IXLSWorksheet;
+  sht    : IXLSWorkSheet;
   chkDate: TevCheckDate;
   iRow   : Integer;
   S      : String;
@@ -1051,6 +1104,7 @@ begin
   chkDate.dtYear1 := 0;
   chkDate.dtMon1 := 0;
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then
@@ -1066,10 +1120,12 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
     { set date for check }
   EVData.ID := Meter.DesignName;
-  for iRow := sht.UsedRange.LastRow + 2 downto Meter.DataSheetStru.DTStartRow do
+  for iRow := sht.UsedRange.LastRow + 2 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(sht.Cells[iRow, 1].Value));
@@ -1160,7 +1216,7 @@ var
   Meter  : TMeterDefine;
   i, n   : Integer;
   wbk    : IXLSWorkBook;
-  sht    : IXLSWorksheet;
+  sht    : IXLSWorkSheet;
   chkDate: TevCheckDate;
   iRow   : Integer;
   S      : String;
@@ -1216,6 +1272,7 @@ begin
   chkDate.theMon := 0;
     // 必要的检查和初始化
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
 
@@ -1232,6 +1289,8 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
     // 对EVDatas数组初始化，释放多余的内存
   ReleaseEVDatas;
@@ -1248,7 +1307,7 @@ begin
       EVDatas[n - 1].ID := ADsnName;
     end;
 
-  for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
+  for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(sht.Cells[iRow, 1].Value));
@@ -1298,7 +1357,7 @@ var
   Meter     : TMeterDefine;
   i, n      : Integer;
   wbk       : IXLSWorkBook;
-  sht       : IXLSWorksheet;
+  sht       : IXLSWorkSheet;
   chkDate   : TevCheckDate;
   iRow      : Integer;
   Row1, Row2: Integer; // 指定日期起止行
@@ -1356,6 +1415,7 @@ begin
   chkDate.theMon := 0;
     // 必要的检查和初始化
   Meter := ExcelMeters.Meter[ADsnName];
+  (*
   if Meter = nil then
       Exit;
 
@@ -1376,6 +1436,8 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
     // 对EVDatas数组初始化，释放多余的内存
   ReleaseEVDatas;
@@ -1393,8 +1455,8 @@ begin
     end;
 
     { 与GetEVDatas不同的地方在这里： }
-  Row1 := _LocateDTRow(sht, DT1, Meter.DataSheetStru.DTStartRow, dloClosest);
-  Row2 := _LocateDTRow(sht, DT2, Meter.DataSheetStru.DTStartRow, dloBefore);
+  Row1 := _LocateDTRow(sht, DT1, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloClosest);
+  Row2 := _LocateDTRow(sht, DT2, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloBefore);
     // for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
   for iRow := Row2 downto Row1 do
   begin
@@ -1464,7 +1526,7 @@ function ThjxDataQuery.GetDataCount(ADsnName: string; DT1: TDateTime; DT2: TDate
 var
   Meter  : TMeterDefine;
   wbk    : IXLSWorkBook;
-  sht    : IXLSWorksheet;
+  sht    : IXLSWorkSheet;
   iRow   : Integer;
   S      : String;
   dtScale: TDateTime;
@@ -1472,6 +1534,7 @@ begin
   Result := 0;
   Meter := ExcelMeters.Meter[ADsnName];
     // 前期准备工作-----------------------------
+  (*
   if Meter = nil then
       Exit;
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then
@@ -1487,8 +1550,11 @@ begin
   sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
   if sht = nil then
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+
     // -------------------------------------------
-  for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 1 do
+  for iRow := Meter.DataSheetStru.BaseLine{.DTStartRow} to sht.UsedRange.LastRow + 1 do
   begin
     IAppServices.ProcessMessages;
     S := trim(VarToStr(sht.Cells[iRow, Meter.DataSheetStru.DTStartCol].Value));
@@ -1521,7 +1587,7 @@ type
     DsnName: string;
     Meter: TMeterDefine;
     WbkBook: IXLSWorkBook;
-    Sheet: IXLSWorksheet;
+    Sheet: IXLSWorkSheet;
   end;
 
   PGroupMeterSheet = ^TGroupMeterSheet;
@@ -1605,7 +1671,7 @@ var
   Group      : TMeterGroupItem;
   i, j, iRow : Integer;
   k, n       : Integer;
-  S, msg     : String;
+  S, Msg     : String;
   DT         : TDateTime;
 begin
   Result := False;
@@ -1619,7 +1685,9 @@ begin
     { todo:考虑仪器不同工作表、不同工作簿、观测日期可能有差异的情况 }
     // 2018-05-29 为加快导出观测数据表的功能，目前假设仪器组的仪器全部处于相同的工作表中，
     // 并共有相同的观测日期。这个处理方式目前针对锚杆应力计组有效
-  for iRow := GroupSheets[0].Meter.DataSheetStru.DTStartRow to GroupSheets[0]
+  {for iRow := GroupSheets[0].Meter.DataSheetStru.DTStartRow to GroupSheets[0]
+    .Sheet.UsedRange.LastRow + 2 do}
+  for iRow := GroupSheets[0].Meter.DataSheetStru.BaseLine to GroupSheets[0]
     .Sheet.UsedRange.LastRow + 2 do
   begin
     IAppServices.ProcessMessages;
@@ -1628,9 +1696,9 @@ begin
     // 判断S是否是合法的日期字符串，若不是合法的日期格式，则提示用户后继续，但放弃本行的处理
     if TryStrToDateTime(S, DT) = False then
     begin
-      msg := GroupSheets[0].Sheet.Name;
-      msg := Format('工作表%s的第%d行第%d列的内容“%s”不是合法的日期格式，请检查。', [msg, iRow, 1, S]);
-      ShowMessage(msg);
+      Msg := GroupSheets[0].Sheet.Name;
+      Msg := Format('工作表%s的第%d行第%d列的内容“%s”不是合法的日期格式，请检查。', [Msg, iRow, 1, S]);
+      ShowMessage(Msg);
       Continue;
     end;
 
@@ -1697,7 +1765,7 @@ begin
     // 2018-05-29 为加快导出观测数据表的功能，目前假设仪器组的仪器全部处于相同的工作表中，
     // 并共有相同的观测日期
     { todo:需考虑不同工作簿、不同工作表的情况 }
-  for iRow := GroupSheets[0].Meter.DataSheetStru.DTStartRow to GroupSheets[0]
+  for iRow := GroupSheets[0].Meter.DataSheetStru.BaseLine{.DTStartRow} to GroupSheets[0]
     .Sheet.UsedRange.LastRow + 2 do
   begin
     IAppServices.ProcessMessages;
@@ -1758,7 +1826,7 @@ function ThjxDataQuery.GetDataIncrement(ADsnName: string; DT: TDateTime;
   var Values: TVariantDynArray): Boolean;
 var
   wbk        : IXLSWorkBook;
-  sht        : IXLSWorksheet;
+  sht        : IXLSWorkSheet;
   Meter      : TMeterDefine;
   i, iDTStart: Integer;
   iRow, iDays: Integer; // 行号，间隔日期
@@ -1783,9 +1851,9 @@ begin
   ClearValues;                         // 清理Values
   sType := GetMeterTypeName(ADsnName); // 获取仪器类型
   Meter := ExcelMeters.Meter[ADsnName];
-  iDTStart := Meter.DataSheetStru.DTStartRow;
+  iDTStart := Meter.DataSheetStru.BaseLine{.DTStartRow};
 
-  if _GetMeterSheet(ADsnName, wbk, sht) = False then // 返回仪器的数据表
+  if _GetBookAndSheet(ADsnName, wbk, sht) = False then // 返回仪器的数据表
       Exit;
 
   iRow := _LocateDTRow(sht, DT, iDTStart, dloClosest); // 找到指定日期，或最接近的日期所在的行
@@ -1946,7 +2014,7 @@ function ThjxDataQuery.GetDataIncrement2(ADsnName: string; DT: TDateTime; Intera
   var Values: TVariantDynArray): Boolean;
 var
   wbk        : IXLSWorkBook;
-  sht        : IXLSWorksheet;
+  sht        : IXLSWorkSheet;
   Meter      : TMeterDefine;
   i, iDTStart: Integer;
   iRow, iDays: Integer; // 行号，间隔日期
@@ -1972,10 +2040,12 @@ begin
 
   sType := GetMeterTypeName(ADsnName); // 获取仪器类型
   Meter := ExcelMeters.Meter[ADsnName];
-  iDTStart := Meter.DataSheetStru.DTStartRow;
+  iDTStart := Meter.DataSheetStru.BaseLine{.DTStartRow};
 
-  if _GetMeterSheet(ADsnName, wbk, sht) = False then // 返回仪器的数据表
+  (* if _GetBookAndSheet(ADsnName, wbk, sht) = False then // 返回仪器的数据表
       Exit;
+ *)
+  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
 
   iRow := _LocateDTRow(sht, DT, iDTStart, dloClosest); // 找到指定日期，或最接近的日期所在的行
   if iRow = -1 then Exit;
@@ -2064,13 +2134,20 @@ begin
       end;
     1:
       begin
-          /// 对年的周期，如果StartDay=1，则从本年度1月1日~12月31日，否则
+          /// 对年的周期，如果StartDay=1，则从本年度1月1日~来年1月1日，否则
           /// 暂定为从前一年12月某日到本年度12月某日。如2018年的年度测值取时范围为2017年
           /// 12月20日~2018年12月20日。
-        if NextPeriod then
-            Result := EncodeDate(iiYear + 1, 12, StartDay)
+        if StartDay = 1 then
+        begin
+          Result := EncodeDate(iiYear + 1, 1, 1);
+        end
         else
-            Result := EncodeDate(iiYear, 12, StartDay);
+        begin
+          if NextPeriod then
+              Result := EncodeDate(iiYear + 1, 12, StartDay)
+          else
+              Result := EncodeDate(iiYear, 12, StartDay);
+        end;
       end;
     2:
       // 季度周期暂时不考虑
@@ -2095,7 +2172,7 @@ function ThjxDataQuery.GetPeriodIncrement(ADsnName: String; APDIndex: Integer;
   Period: Integer = 0): Boolean;
 var
   wbk  : IXLSWorkBook;
-  sht  : IXLSWorksheet;
+  sht  : IXLSWorkSheet;
   Meter: TMeterDefine;
   sType: String;
 
@@ -2132,11 +2209,11 @@ begin
   __ClearValues;
   sType := GetMeterTypeName(ADsnName);
   Meter := ExcelMeters.Meter[ADsnName];
-  iStartRow := Meter.DataSheetStru.DTStartRow; // 数据表中的第一行，即数据起始行
+  iStartRow := Meter.DataSheetStru.BaseLine{.DTStartRow}; // 数据表中的第一行，即数据起始行
   if iStartRow = -1 then Exit;
 
   iDataCol := Meter.PDColumn(APDIndex);
-  if _GetMeterSheet(ADsnName, wbk, sht) = False then Exit;
+  if _GetBookAndSheet(ADsnName, wbk, sht) = False then Exit;
 
   { 为降低代码复杂度，目前只考虑取回月增量，其他间隔以后再说。很久不写代码了，都快忘记编程了 }
   n := 0; // 数组长度
@@ -2145,6 +2222,7 @@ begin
   iEndRow := _LocateDTRow(sht, EndDate, iStartRow, dloClosest); // 截止日期对应的行
   dtStart := ExcelIO.GetDateTimeValue(sht, iStartRow, 1); // 首行日期
   dStart := ExcelIO.GetFloatValue(sht, iStartRow, iDataCol); // 第一个周期的起始数据
+  dtPeriodDate := dtStart;
   /// 对于起始日期所在的第一个周期的判断，遵循如下逻辑：
   /// 1、若DayOf(dtStart)<StartDay，则本周期起始日期=dtStart，截止日期=周期的StartDay，如周期为月，
   /// StartDay=20，dtStart=2018-7-12，则本周为2018-7-12 ~ 2018-7-20。
@@ -2185,7 +2263,8 @@ begin
 
   // 重复查询，直到iEndRow的日期超出EndDate
   repeat
-    dtPeriodDate := _GetPeriodDay(dtStart, Period, StartDay);
+    // dtPeriodDate := _GetPeriodDay(dtStart, Period, StartDay);
+    dtPeriodDate := _GetPeriodDay(dtPeriodDate, Period, StartDay);
     /// 取周期截止日期所在的行号
     iLastRow := _LocateDTRow(sht, dtPeriodDate, iStartRow, dloClosest);
     if iLastRow = -1 then Break;
@@ -2199,12 +2278,13 @@ begin
     case Period of
       0: // 月增量
         if StartDay = 1 then
-            Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart)
+            // Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart)
+            Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate - 1)
         else
             Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate); // 以结束日期的月份作为本周期增量的时段名
       1: // 年增量
         if StartDay = 1 then
-            Values[n - 1][0] := FormatDateTime('yyyy', dtStart) + '年'
+            Values[n - 1][0] := FormatDateTime('yyyy', dtPeriodDate - 1) + '年'
         else
             Values[n - 1][0] := FormatDateTime('yyyy', dtPeriodDate) + '年'; // 以结束日期的月份作为本周期增量的时段名
       2: // 季度增量，这个麻烦一点，干脆显示日期的了，回头有时间再处理
@@ -2221,6 +2301,11 @@ begin
     Values[n - 1][5] := __GetInc(Values[n - 1][3], Values[n - 1][4]);
 
     /// 准备查询下一个周期
+    /// 2022-02-14 这里有问题了：假设查询月增量，如果StartDay=1，假设8月1日最近的数据
+    /// 是7月29日，则程序会用7月29日作为8月1日的数据，但是在查找下一个数据的时候，
+    /// _GetPeriodDay在增加1个月，下一个数据日期还是8月1日，查找对应8月1日的数据的时候
+    /// 又查到了7月29日……就变成了不停的循环。所以，问题在于最接近的数据日期月份和查询
+    /// 日期的月份不一致造成的。
     iFirstRow := iLastRow;
     dtStart := dtEnd;
 
@@ -2228,6 +2313,21 @@ begin
     if iFirstRow >= iEndRow then Break;
   until False;
   Result := True;
+end;
+
+function ThjxDataQuery.ErrorMsg: String;
+begin
+  Result := FErrorMsg;
+end;
+
+procedure ThjxDataQuery.ClearErrMsg;
+begin
+  FErrorMsg := '';
+end;
+
+procedure ThjxDataQuery.AddErrMsg(Msg: string);
+begin
+  FErrorMsg := FErrorMsg + #13#10 + Msg;
 end;
 
 { -----------------------------------------------------------------------------

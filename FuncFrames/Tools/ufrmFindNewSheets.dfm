@@ -62,8 +62,6 @@ object frmFindNewSheets: TfrmFindNewSheets
     PopupMenu = popOp
     TabOrder = 1
     ViewStyle = vsReport
-    ExplicitTop = 89
-    ExplicitHeight = 492
   end
   object popOp: TPopupMenu
     Left = 420

@@ -36,6 +36,7 @@ object fraDataLayout: TfraDataLayout
     OnObjectMouseEnter = sgDataLayoutObjectMouseEnter
     OnObjectMouseLeave = sgDataLayoutObjectMouseLeave
     PZState = 0
+    ExplicitTop = 27
     object ProgressBar1: TProgressBar
       Left = 0
       Top = 387
@@ -195,13 +196,28 @@ object fraDataLayout: TfraDataLayout
         #20202#22120#32534#21495'|'#25968#25454#21517#65306#25968#25454
         #20202#22120#32534#21495#65288#25968#25454#21517#65289'|'#35266#27979#26085#26399#65306#25968#25454)
     end
+    object ToolButton14: TToolButton
+      Left = 547
+      Top = 0
+      Width = 8
+      Caption = 'ToolButton14'
+      ImageIndex = 5
+      Style = tbsSeparator
+    end
+    object btnListObjects: TToolButton
+      Left = 555
+      Top = 0
+      Caption = 'btnListObjects'
+      ImageIndex = 20
+      OnClick = btnListObjectsClick
+    end
   end
   object ImageList: TImageList
     ColorDepth = cd32Bit
     Left = 158
     Top = 310
     Bitmap = {
-      494C0101350038008C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010135003800980010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000050101
       0106010101060101010600000005000000000000000000000000000000000000

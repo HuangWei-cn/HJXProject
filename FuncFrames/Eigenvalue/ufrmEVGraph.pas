@@ -22,8 +22,12 @@ type
     procedure piCopyAsBitmapClick(Sender: TObject);
     procedure piCopyAsMetafileClick(Sender: TObject);
     procedure piSetupChartClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     { Public declarations }
     /// <summary>
@@ -31,6 +35,8 @@ type
     /// </summary>
     procedure DrawEVGraph(APos, AType, APDName: String; ADS: TDataSet);
   end;
+
+procedure PopupEVGraph(APos, AType, APDName: String; ADS: TDataSet);
 
 implementation
 
@@ -40,6 +46,15 @@ uses
 
 {$R *.dfm}
 
+
+var
+  FrmHeight, FrmWidth: Integer;
+
+procedure TfrmEVGraph.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.WndParent := 0;
+end;
 
 procedure TfrmEVGraph.DrawEVGraph(APos: string; AType: string; APDName: String; ADS: TDataSet);
 var
@@ -76,6 +91,17 @@ begin
   until ADS.Eof;
 end;
 
+procedure TfrmEVGraph.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
+
+procedure TfrmEVGraph.FormResize(Sender: TObject);
+begin
+  FrmHeight := Self.Height;
+  FrmWidth := Self.Width;
+end;
+
 procedure TfrmEVGraph.piCopyAsBitmapClick(Sender: TObject);
 begin
   Chart.CopyToClipboardBitmap;
@@ -89,6 +115,17 @@ end;
 procedure TfrmEVGraph.piSetupChartClick(Sender: TObject);
 begin
   EditChart(Self, Chart);
+end;
+
+procedure PopupEVGraph(APos, AType, APDName: String; ADS: TDataSet);
+var
+  frm: TfrmEVGraph;
+begin
+  frm := TfrmEVGraph.Create(Application.MainForm);
+  if (FrmWidth > 0) and (FrmHeight > 0) then
+      frm.SetBounds(frm.Left, frm.Top, FrmWidth, FrmHeight);
+  frm.DrawEVGraph(APos, AType, APDName, ADS);
+  frm.Show;
 end;
 
 end.
