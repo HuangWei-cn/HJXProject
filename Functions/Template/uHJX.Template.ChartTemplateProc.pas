@@ -70,25 +70,25 @@ begin
 
     myAxisTool := ThwTeeAxisScrollTool.Create(AChart.Parent);
     myAxisTool.Axis := chtAx;
-    myaxistool.Active := true;
+    myAxisTool.Active := true;
 
-    chtAx.Visible := True;
+    chtAx.Visible := true;
     if ChtTmpl.ChartType = cttTrendLine then chtAx.DateTimeFormat := ax.Format
     else chtAx.AxisValuesFormat := ax.Format;
 
-    chtAx.Automatic := True;
+    chtAx.Automatic := true;
     if ax.BottomSide then
     begin
       chtAx.SubAxes[0].Visible := false;
       chtAx.SubAxes[1].Visible := false;
       if ax.SubAxis1.Visible then
       begin
-        chtAx.SubAxes[0].Visible := True;
+        chtAx.SubAxes[0].Visible := true;
         chtAx.SubAxes[0].DateTimeFormat := ax.Format;
       end;
       if ax.SubAxis2.Visible then
       begin
-        chtAx.SubAxes[1].Visible := True;
+        chtAx.SubAxes[1].Visible := true;
         chtAx.SubAxes[1].DateTimeFormat := ax.SubAxis2.Format;
       end;
             // 设置横轴title: sub[0]在最下面，中间是sub【1】，最上面是bottomaxis
@@ -116,7 +116,7 @@ begin
     if ax.AxisType = axCustom then
     begin
       chtAx := AChart.CustomAxes.Add;
-      chtAx.Automatic := True;
+      chtAx.Automatic := true;
       chtAx.Horizontal := false;
       chtAx.OtherSide := not ax.LeftSide;
       chtAx.AxisValuesFormat := ax.Format;
@@ -125,7 +125,7 @@ begin
 
       myAxisTool := ThwTeeAxisScrollTool.Create(AChart.Parent);
       myAxisTool.Axis := chtAx;
-      myaxistool.Active := true;
+      myAxisTool.Active := true;
     end
     else // 其他的就是左轴和右轴了
     begin
@@ -133,12 +133,12 @@ begin
       else chtAx := AChart.RightAxis;
       chtAx.Title.Caption := ax.Title;
       chtAx.AxisValuesFormat := ax.Format;
-      chtAx.Automatic := True;
+      chtAx.Automatic := true;
       ax.ChartAxis := chtAx;
 
-      myAxisTool := ThwTeeAxisScrollTool.Create(achart.Parent);
-      myaxistool.Axis := chtax;
-      myaxistool.Active := True;
+      myAxisTool := ThwTeeAxisScrollTool.Create(AChart.Parent);
+      myAxisTool.Axis := chtAx;
+      myAxisTool.Active := true;
     end;
   end;
 
@@ -232,9 +232,10 @@ var
     NewLine.Title := ATLSeries.Title;
     // 设置横轴
     NewLine.HorizAxis := aBottomAxis;
-    NewLine.XValues.DateTime := True;
+    NewLine.XValues.DateTime := true;
     NewLine.Color := AChart.GetFreeSeriesColor;
-    NewLine.DrawStyle := dsCurve;
+    // 只有使用Segments类型才能正确中断Null点处的连线
+    NewLine.DrawStyle := { dsCurve } dsSegments;
     // 设置纵轴
     if ATLSeries.VertAxis.AxisType = axLeft then NewLine.VertAxis := aLeftAxis
     else if ATLSeries.VertAxis.AxisType = axRight then NewLine.VertAxis := aRightAxis
@@ -251,7 +252,7 @@ var
     begin
       // 这里暂时不处理Auto的情况，权当都是Always类型
       { TODO -oCharmer -cChartTemplateProc : 编写处理sptAuto类型的代码 }
-      NewLine.Pointer.Visible := True;
+      NewLine.Pointer.Visible := true;
       { 2022-02-22 设置Pointer的样式，无填充，边框颜色与曲线颜色一致，但略深 }
       with NewLine.Pointer do
       begin
@@ -276,6 +277,7 @@ var
     tls    : TchtSeries;
     Fld    : TField;
     GetData: Boolean;
+    i      : Integer;
   begin
     if (DTStart = 0) and (DTEnd = 0) then
         GetData := IAppServices.ClientDatas.GetAllPDDatas(DsnName, DS)
@@ -286,35 +288,46 @@ var
         for tls in ChtTmpl.Series do
         begin
           if tls.SourceType = pdsEnv then Continue;
-                    // 如果是指定设计编号，但不等于当前仪器编号，则下一个，这里暂时不考虑从预定义中
-                    // 绘制指定编号的监测仪器
+          // 如果是指定设计编号，但不等于当前仪器编号，则下一个，这里暂时不考虑从预定义中
+          // 绘制指定编号的监测仪器
           if tls.SourceName <> '*' then
             if tls.SourceName <> ADsnName then Continue;
-                    // 如果MeterIndex既不是适用于所有仪器的0，也不是本仪器的序号Index，则不能绘图
+          // 如果MeterIndex既不是适用于所有仪器的0，也不是本仪器的序号Index，则不能绘图
           if tls.MeterIndex <> 0 then
             if tls.MeterIndex <> index then Continue;
 
-                    // 现在考虑PDIndex问题。
+          // 现在考虑PDIndex问题。
           S := 'PD' + IntToStr(tls.PDIndex);
           for Fld in DS.Fields do
             if Fld.FieldName = S then
             begin
-                            // 创建线对象
+              // 创建线对象
               AddNewLine(tls);
-                            // 处理Series.Title
+              // 处理Series.Title
               if Pos('%name%', NewLine.Title) > 0 then
                   NewLine.Title := NewLine.Title.Replace('%name%',
                   Fld.DisplayLabel)
               else if Pos('%MeterName%', NewLine.Title) > 0 then
                   NewLine.Title := NewLine.Title.Replace('%MeterName%', DsnName);
-                            // 下面填写数据
+              // 下面填写数据
               DS.First;
               repeat
-                                // newline.add
-                if not Fld.IsNull then
+                // newline.add
+                { if not Fld.IsNull then
                     NewLine.AddXY(DS.Fields[0].AsDateTime, Fld.AsFloat);
+ }
+                if not Fld.IsNull then
+                    NewLine.AddXY(DS.Fields[0].AsDateTime, Fld.Value)
+                else // 2022-05-11 允许显示Null
+                begin
+                  { i := NewLine.AddXY(DS.Fields[0].AsDateTime, -1);
+                  NewLine.SetNull(i); }
+                  NewLine.AddNullXY(DS.Fields[0].AsDateTime, -10)
+                end;
                 DS.next;
               until DS.Eof;
+
+              NewLine.TreatNulls := tnDontPaint;
 
               AChart.AddSeries(NewLine);
 

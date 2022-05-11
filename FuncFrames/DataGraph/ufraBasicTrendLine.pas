@@ -22,6 +22,8 @@
  History:   2018-01-24
             2018-07-11 双击轴，该轴自动缩放。这个自动缩放貌似不是很理想。
             2018-09-21 增加极简模式
+            2022-05-11 修改AddData方法，其中参数X类型由Double改为Variant，目的
+                       在于对付Null值
 ----------------------------------------------------------------------------- }
 { TChart自带的坐标轴拖动方法可以用，但是缺少坐标轴缩放、滚轮缩放功能。可能仍然需要自己编程实现 }
 { todo:增加双击某坐标轴，则该轴变成自动比例 }
@@ -99,14 +101,14 @@ type
     /// </summary>
     procedure SetSimPointer(ASimMethod: TSimPointerMethod = spm20); // 设置模拟点
   public
-        { Public declarations }
+    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-        // Draw a line
-    procedure AddData(ASeries: TChartSeries; X: Double; Y: Double;
-      ALabel: String = ''); overload;
-    procedure AddData(SeriesIndex: Integer; X: Double; Y: Double;
-      ALabel: string = ''); overload;
+    // Draw a line
+    procedure AddData(ASeries: TChartSeries; X: Double; Y: {Double}Variant;
+      ALabel: String = ''); overload; //2022-05-11 修改
+    procedure AddData(SeriesIndex: Integer; X: Double; Y: {Double}Variant;
+      ALabel: string = ''); overload; //2022-05-11 修改
     procedure ShowSampleDatas;
     procedure ClearDatas(ASeries: TChartSeries);
         // 删除全部创建的线
@@ -143,16 +145,34 @@ begin
   inherited;
 end;
 
-procedure TfraBasicTrendLine.AddData(ASeries: TChartSeries; X: Double; Y: Double;
+procedure TfraBasicTrendLine.AddData(ASeries: TChartSeries; X: Double; Y: { Double } Variant;
   ALabel: string = '');
+var
+  i: Integer;
 begin
-  ASeries.AddXY(X, Y, ALabel);
+  // 允许添加Y为Null值的点 2022-05-11
+  if VarIsNull(Y) then
+  begin
+    i := ASeries.AddXY(X, -100, ALabel);
+    ASeries.SetNull(i);
+  end
+  else
+      ASeries.AddXY(X, Y, ALabel);
 end;
 
-procedure TfraBasicTrendLine.AddData(SeriesIndex: Integer; X: Double; Y: Double;
+procedure TfraBasicTrendLine.AddData(SeriesIndex: Integer; X: Double; Y: { Double } Variant;
   ALabel: string = '');
+var
+  i: Integer;
 begin
-  chtLine.Series[SeriesIndex].AddXY(X, Y, ALabel)
+  // 2022-05-11 允许添加Y为Null值的点
+  if VarIsNull(Y) then
+  begin
+    i := chtLine.Series[SeriesIndex].AddXY(X, -100, ALabel);
+    chtLine.Series[SeriesIndex].SetNull(i);
+  end
+  else
+      chtLine.Series[SeriesIndex].AddXY(X, Y, ALabel)
 end;
 
 procedure TfraBasicTrendLine.ShowSampleDatas;
@@ -265,8 +285,10 @@ begin
   else
       ls.Pointer.Size := 3;
 
-    // 画线方式：曲线
-  ls.DrawStyle := dsCurve;
+  // 画线方式：线段
+  // 2022-05-11 如果使用dsCurve类型，则遇到Null点的时候，为了确保前后曲线的连续，TeeChart会保持曲线
+  // 的连接，将误导对数据的分析。为了中断连线，必须使用Segments类型。
+  ls.DrawStyle := dsSegments;
 
   Result := chtLine.SeriesList.IndexOf(ls);
 end;
@@ -447,7 +469,7 @@ var
   NewPnt  : TPointSeries;
   Line    : TLineSeries;
 begin
-  //if FSetSimPointer then Exit;
+  // if FSetSimPointer then Exit;
   piRestoreLinePointerClick(Self);
   /// 2022-02-22
   /// 目前本功能中绘制过程线的代码已经转移到uHJX.Template.ChartTemplaceProc单元中了，
@@ -466,7 +488,7 @@ begin
 
       NewPnt := TPointSeries.Create(chtLine);
       NewPnt.Clear;
-      NewPnt.Title := Line.Title ; //+ '_Pointer'; // 这里存在冲突的隐患
+      NewPnt.Title := Line.Title; // + '_Pointer'; // 这里存在冲突的隐患
       // 新点的外观特点和对应的Line Pointer完全一样
       NewPnt.SeriesColor := Line.SeriesColor;
       NewPnt.HorizAxis := Line.HorizAxis;
@@ -515,13 +537,13 @@ begin
           j := j + iStep;
         end;
 
-      //NewPnt.Legend.Visible := False; // 不在Legend上显示
+      // NewPnt.Legend.Visible := False; // 不在Legend上显示
       chtLine.AddSeries(NewPnt);
       NewPnt.Visible := Line.Pointer.Visible;
       Line.Pointer.Visible := False;
       // 减少Pointer之后，线稍粗一号会更好看
-      Line.Pen.Width := 2 {Line.Pen.Width + 1};
-      Line.Legend.Visible := False; //用点的Legend代替线的Legend。
+      Line.Pen.Width := 2 { Line.Pen.Width + 1 };
+      Line.Legend.Visible := False; // 用点的Legend代替线的Legend。
     end;
   end;
 end;

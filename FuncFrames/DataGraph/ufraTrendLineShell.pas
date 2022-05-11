@@ -165,8 +165,8 @@ var
     FfraTL.NewLine(DS.Fields[2].DisplayName, False); // 温度
     DS.First;
     repeat
-      FfraTL.AddData(0, DS.Fields[0].AsDateTime, DS.Fields[1].AsFloat);
-      FfraTL.AddData(1, DS.Fields[0].AsDateTime, DS.Fields[2].AsFloat);
+      FfraTL.AddData(0, DS.Fields[0].AsDateTime, DS.Fields[1].Value { .AsFloat } );
+      FfraTL.AddData(1, DS.Fields[0].AsDateTime, DS.Fields[2].Value { .AsFloat } );
       DS.Next;
     until DS.Eof;
   end;
@@ -204,19 +204,22 @@ begin
             else
                 NewL := FfraTL.NewLine(DS.Fields[i].DisplayName, False);
 
-                        // 由于所有的浮点字段都创建一条线，因此将Serials序号和字段对应起来
-                        // Flds集合中的Index对应着FFraTL中Serials的序号，Item对应着数据字段
+            // 由于所有的浮点字段都创建一条线，因此将Serials序号和字段对应起来
+            // Flds集合中的Index对应着FFraTL中Serials的序号，Item对应着数据字段
             Flds.Add(DS.Fields[i]);
           end;
 
         DS.First;
         repeat
-                    // fields[0]为观测日期
-                    // for i := 1 to DS.FieldCount - 1 do
-                    // FfraTL.DrawLine(i - 1, DS.Fields[0].AsDateTime, DS.Fields[i].AsFloat);
+          // fields[0]为观测日期
+          // for i := 1 to DS.FieldCount - 1 do
+          // FfraTL.DrawLine(i - 1, DS.Fields[0].AsDateTime, DS.Fields[i].AsFloat);
           for i := 0 to Flds.Count - 1 do
+              FfraTL.AddData(i, DS.Fields[0].AsDateTime, TField(Flds.Items[i]).Value);
+          (* 2022-05-11 原代码避开了Null点，将导致过程线不符合实际，比如渗压计水位曲线
             if not TField(Flds.Items[i]).IsNull then
                 FfraTL.AddData(i, DS.Fields[0].AsDateTime, TField(Flds.Items[i]).AsFloat);
+ *)
           DS.Next;
         until DS.Eof;
       end;
@@ -231,7 +234,8 @@ end;
   Procedure  : _DrawMGGroupLine
   Description: 绘制锚杆组过程线
 ----------------------------------------------------------------------------- }
-procedure TfraTrendLineShell._DrawMGGroupLine(AGrpName: string; DTStart, DTEnd: TDateTime);
+procedure TfraTrendLineShell._DrawMGGroupLine(AGrpName: string;
+  DTStart, DTEnd: TDateTime);
 var
   DS  : TClientDataSet;
   NewL: Integer;
@@ -269,8 +273,11 @@ begin
         NewL := FfraTL.NewLine(mt.DesignName + mt.PDName(0));
         DS.First;
         repeat
+          FfraTL.AddData(NewL, DS.Fields[0].AsDateTime, DS.Fields[1].Value);
+        { 2022-05-11 原代码避开了Null点，将导致过程线不符合实际
           if not DS.Fields[1].IsNull then
               FfraTL.AddData(NewL, DS.Fields[0].AsDateTime, DS.Fields[1].AsFloat);
+ }
           DS.Next;
         until DS.Eof;
       end;
@@ -344,7 +351,8 @@ end;
   Procedure  : ExportGraphToStream
   Description: 注册的导出图形到Stream方法
 ----------------------------------------------------------------------------- }
-function ExportGraphToStream(ADesignName: string; DTStart, DTEnd: TDateTime; var AStream: TStream;
+function ExportGraphToStream(ADesignName: string; DTStart, DTEnd: TDateTime;
+  var AStream: TStream;
   AWidth, AHeight: Integer): Boolean;
 begin
   if not Assigned(fraTLTool) then
