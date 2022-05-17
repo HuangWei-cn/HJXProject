@@ -25,12 +25,11 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufraDataLayout, Vcl.ExtCtrls,
   Vcl.ComCtrls, Vcl.StdCtrls,
   uHJX.Intf.Datas, {uHJX.Excel.Meters} uHJX.Classes.Meters, uHJX.Intf.AppServices, uHJX.Data.Types,
-  uHJX.Intf.FunctionDispatcher, Vcl.Menus;
+  uHJX.Intf.FunctionDispatcher, Vcl.Menus, sFrameAdapter, Vcl.Buttons, System.ImageList, Vcl.ImgList;
 
 type
   TfraDataPresentation = class(TFrame)
     pnlFuncs: TPanel;
-    fraDataLayout: TfraDataLayout;
     btnQryInc: TButton;
     dtpSpecialDate: TDateTimePicker;
     btnClearDatas: TButton;
@@ -47,6 +46,14 @@ type
     dtpEndDate: TDateTimePicker;
     btnFillinData: TButton;
     btnHideData: TButton;
+    ImageList1: TImageList;
+    BitBtnLoadLayout: TBitBtn;
+    BitBtnClearDatas: TBitBtn;
+    BitBtnQuerySpecialDate: TBitBtn;
+    BitBtnQryIncData: TBitBtn;
+    BitBtnFillInData: TBitBtn;
+    BitBtnListAllGraphObjects: TBitBtn;
+    GroupBox1: TGroupBox;
     procedure btnLoadLayoutClick(Sender: TObject);
     procedure btnClearDatasClick(Sender: TObject);
     procedure btnQryIncClick(Sender: TObject);
@@ -57,6 +64,7 @@ type
     procedure btnHideDataClick(Sender: TObject);
   private
         { Private declarations }
+    fraDataLayout: TfraDataLayout;
     FDataOpts: integer; // 0-last; 1-special;
     FDTScale : TDateTime;
     procedure OnNeedData(AID: string; ADataName: string; var Data: Variant; var DT: TDateTime);
@@ -90,6 +98,9 @@ USES uHJX.EnvironmentVariables;
 constructor TfraDataPresentation.Create(AOwner: TComponent);
 begin
   inherited;
+  fraDataLayout := TfraDataLayout.Create(Self);
+  fraDataLayout.Parent := Self;
+  fraDataLayout.Align :=alClient;
   fraDataLayout.OnNeedDataEvent := Self.OnNeedData;
   fraDataLayout.OnNeedIncrementEvent := Self.OnNeedIncrement;
   fraDataLayout.OnNeedDeformEvent := Self.OnNeedDeformData;

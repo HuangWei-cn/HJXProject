@@ -33,7 +33,7 @@ type
     procedure piGroupByPositionClick(Sender: TObject);
     procedure piGroupByTypeClick(Sender: TObject);
   private
-        { Private declarations }
+    { Private declarations }
     function IsChecked(Node: TTreeNode): Boolean;
     procedure SetChecked(Node: TTreeNode; Checked: Boolean);
     procedure tvToggleCheckbox(TreeView: TTreeView; Node: TTreeNode; IsClick: Boolean = False);

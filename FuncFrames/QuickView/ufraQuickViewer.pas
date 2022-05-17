@@ -22,7 +22,7 @@ uses
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.Menus, Vcl.OleCtrls, SHDocVw, MemTableDataEh,
   Data.DB, DBGridEhGrouping, ToolCtrlsEh, DBGridEhToolCtrls, DynVarsEh, DataDriverEh,
   Datasnap.DBClient, EhLibVCL, GridsEh, DBAxisGridsEh, DBGridEh, MemTableEh, System.Actions,
-  Vcl.ActnList;
+  Vcl.ActnList, Vcl.Buttons;
 
 type
   TfraQuickViewer = class(TFrame)
@@ -92,6 +92,8 @@ type
     piCollapseThisLevel: TMenuItem;
     piCollapseSubLevels: TMenuItem;
     piCollapseAllLevel: TMenuItem;
+    BitBtnCreateQuickView: TBitBtn;
+    BitBtnShowIncrement: TBitBtn;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);

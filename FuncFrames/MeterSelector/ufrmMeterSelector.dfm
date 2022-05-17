@@ -17,13 +17,6 @@ object frmMeterSelector: TfrmMeterSelector
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
-  object lblSelNum: TLabel
-    Left = 12
-    Top = 360
-    Width = 36
-    Height = 12
-    Caption = 'Number'
-  end
   inline fraMS: TfraMeterSelector
     Left = 0
     Top = 0

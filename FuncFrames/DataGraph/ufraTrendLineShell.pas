@@ -25,24 +25,24 @@ type
   TfraTrendLineShell = class(TFrame)
     procedure FrameResize(Sender: TObject);
   private
-        { Private declarations }
+    { Private declarations }
     FMeterName      : String;
     FDTStart, FDTEnd: TDateTime;
     FfraTL          : TfraBasicTrendLine;
-        // 根据仪器类型设置坐标轴标题,本方法为临时方法
+    // 根据仪器类型设置坐标轴标题,本方法为临时方法
     procedure SetAxisTitles(AMeterType: string);
-        { 绘制通用仪器过程线，多点、锚杆之类的 }
+    { 绘制通用仪器过程线，多点、锚杆之类的 }
     procedure _DrawNormalLine(ADsnName: string; DTStart, DTEnd: TDateTime);
-        { 绘制锚杆组过程线 }
+    { 绘制锚杆组过程线 }
     procedure _DrawMGGroupLine(AGrpName: string; DTStart, DTEnd: TDateTime);
   public
-        { Public declarations }
+    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-        { -------------- }
-        { 给设计编号，显示全部数据的过程线。目前不考虑过程线样式之类的东东 }
+    { -------------- }
+    { 给设计编号，显示全部数据的过程线。目前不考虑过程线样式之类的东东 }
     procedure DrawLine(ADsnName: string); overload; // 2018-06-05 方法名应改为DrawDatas，以统一各类图形
-        { 之所以重载DrawLine方法，是为了不改变其他代码。当然，最终两个方法将合二为一 }
+    { 之所以重载DrawLine方法，是为了不改变其他代码。当然，最终两个方法将合二为一 }
     procedure DrawLine(ADsnName: string; DTStart, DTEnd: TDateTime); overload;
   end;
 

@@ -5,6 +5,7 @@
  Purpose:   本单元用于查找新增仪器计算表，从已知的工作簿中。但无法从未知的新
             工作簿中查找。
  History:
+            2022-05-16 不显示隐藏的工作表以及Sheet1、Sheet2之类的表
 ----------------------------------------------------------------------------- }
 { todo: 增加将查找到的监测仪器工作表添加到仪器文件列表中的功能 }
 unit ufrmFindNewSheets;
@@ -33,16 +34,14 @@ type
     { Private declarations }
     procedure FindNewSheets;
     procedure AppendNewSheet;
+    procedure ShowSetSheetForm;
   public
     { Public declarations }
   end;
 
-var
-  frmFindNewSheets: TfrmFindNewSheets;
-
 implementation
 
-uses nExcel, uHJX.Excel.IO, ufrmSetNewSheetParams, uHJX.Excel.InitParams;
+uses nExcel, uHJX.Excel.IO, ufrmSetNewSheetParams, uHJX.Excel.InitParams, ufrmSetSelectedSheets;
 {$R *.dfm}
 
 
@@ -50,9 +49,12 @@ procedure TfrmFindNewSheets.actAppendNewSheetExecute(Sender: TObject);
 var
   lvwItem: TListItem;
 begin
+  ShowSetSheetForm;
+  (*
   if lvwNewSheets.Items.Count = 0 then Exit;
   if lvwNewSheets.Selected = nil then Exit;
   lvwItem := lvwNewSheets.Selected;
+
   frmSetNewSheetParam.ShowSetForm(lvwItem.Caption, lvwItem.SubItems[0]);
   if frmSetNewSheetParam.ModalResult = mrCancel then Exit;
 
@@ -65,6 +67,7 @@ begin
 
   // 添加到仪器文件列表中
   AppendNewSheet;
+ *)
 end;
 
 procedure TfrmFindNewSheets.btnFindNewClick(Sender: TObject);
@@ -72,6 +75,13 @@ begin
   FindNewSheets;
 end;
 
+{ -----------------------------------------------------------------------------
+  Procedure  : FindNewSheets
+  Description: 从现有监测仪器所在的工作簿中查找新工作表，通常一个工作表对应1~n
+  个监测仪器。本方法不会去查找新工作簿。
+  工作方式：1、从现有有效监测仪器中得到所有在用的工作簿和工作表；
+            2、逐一打开这些工作簿，核对是否存在未被登记的工作表，若有则列出
+----------------------------------------------------------------------------- }
 procedure TfrmFindNewSheets.FindNewSheets;
 var
   i, j: Integer;
@@ -109,6 +119,15 @@ begin
 
       ExcelIO.OpenWorkbook(nBK, wbks.Strings[i]);
       for j := 1 to nBK.WorkSheets.Count do
+      begin
+        // 2022-05-16 不考虑隐藏工作表
+        // 注：nExcel中，WorkSheet的Visible属性不是Boolean而是Varaint，其值的含义如下
+        // xlSheetVisible     = $0000000;
+        // xlSheetHidden      = $0000001;
+        // xlSheetVeryHidden  = $0000002;
+        // 因此，隐藏的工作表Visible属性不为0。
+        if nBK.WorkSheets[j].Visible <> 0 then Continue; // 2022-05-16
+
         if (wbks.Objects[i] as TStrings).IndexOf(nBK.WorkSheets[j].Name) = -1 then
         begin
           // mmoResult.Lines.Add(wbks.Strings[i] + ':' + nBK.WorkSheets[j].Name);
@@ -118,7 +137,9 @@ begin
           Application.ProcessMessages;
           // lvwNewSheets.Invalidate;
         end;
+      end;
     end;
+    ShowMessage('新工作表查找完毕');
 
   finally
     for i := 0 to wbks.Count - 1 do wbks.Objects[i].Free;
@@ -170,8 +191,8 @@ begin
       if lvwNewSheets.Items[i].Checked then
       begin
         sName := lvwNewSheets.Items[i].Caption;
-        Ret := uHJX.Excel.InitParams.AppendDataSheet(sName, SheetName, BookName, MeterType,
-          Position);
+        Ret := uHJX.Excel.InitParams.AppendDataSheet(sName, { SheetName } sName,
+          { BookName } lvwNewSheets.Items[i].SubItems[0], MeterType, Position);
         if Ret = 1 then
         begin
           inc(n);
@@ -186,6 +207,24 @@ begin
     else
         ShowMessage('未能将仪器添加进数据文件列表，请检查原因。');
   end;
+end;
+
+procedure TfrmFindNewSheets.ShowSetSheetForm;
+var
+  i, n: Integer;
+  frm : TfrmSetSelectedSheets;
+begin
+  frm := TfrmSetSelectedSheets.Create(Self);
+  frm.FindForm := Self;
+  n := 0;
+  for i := 0 to lvwNewSheets.Items.Count - 1 do
+    if lvwNewSheets.Items[i].Checked then
+    begin
+      frm.AddSheet(lvwNewSheets.Items[i].Caption, lvwNewSheets.Items[i].SubItems[0]);
+      inc(n);
+    end;
+  if n > 0 then frm.ShowModal;
+  frm.Release;
 end;
 
 end.

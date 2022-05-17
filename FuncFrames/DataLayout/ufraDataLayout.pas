@@ -241,8 +241,9 @@ var
   bSetDefault: Boolean; // 需要设置缺省值
   oo         : TGraphObject;
 begin
-  tp := sgDataLayout.ClientToGraph(X, Y);
-  oo := sgDataLayout.FindObjectAt(tp.X, tp.Y);
+  { 本方法不再使用2022-05-13 }
+  //tp := sgDataLayout.ClientToGraph(X, Y);
+  //oo := sgDataLayout.FindObjectAt(tp.X, tp.Y);
 (*
 // 如果X，Y处有东西，且为TGPTEXTNODE对象，则需要对齐
   if (oo <> nil) and (oo is TGPTextNode) then

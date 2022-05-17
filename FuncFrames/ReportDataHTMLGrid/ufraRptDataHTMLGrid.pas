@@ -79,6 +79,8 @@ type
     udChartWidth: TUpDown;
     udChartHeight: TUpDown;
     wbReport: TWebBrowser;
+    BitBtn1: TBitBtn;
+    BitBtn2: TBitBtn;
     procedure btnCreateReportClick(Sender: TObject);
     procedure FrameResize(Sender: TObject);
     procedure lblBreakClick(Sender: TObject);

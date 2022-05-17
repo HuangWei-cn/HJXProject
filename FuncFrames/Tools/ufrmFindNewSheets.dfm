@@ -59,6 +59,12 @@ object frmFindNewSheets: TfrmFindNewSheets
         AutoSize = True
         Caption = #24037#20316#31807
       end>
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = #23435#20307
+    Font.Style = []
+    ParentFont = False
     PopupMenu = popOp
     TabOrder = 1
     ViewStyle = vsReport

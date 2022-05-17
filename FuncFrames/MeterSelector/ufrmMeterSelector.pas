@@ -21,13 +21,12 @@ type
     fraMS: TfraMeterSelector;
     Button1: TButton;
     Button2: TButton;
-    lblSelNum: TLabel;
     procedure FormCreate(Sender: TObject);
   private
-        { Private declarations }
+    { Private declarations }
   public
-        { Public declarations }
-        { 显示用户给定的选择过的仪器 }
+    { Public declarations }
+    { 显示用户给定的选择过的仪器 }
     procedure SetSelected(AStrs: TStrings);
     procedure GetSelected(AStrs: TStrings);
   end;
