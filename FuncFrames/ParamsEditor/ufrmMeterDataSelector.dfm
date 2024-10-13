@@ -10,7 +10,6 @@ object frmMeterDataFileSelection: TfrmMeterDataFileSelection
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poOwnerFormCenter
   PixelsPerInch = 96
   TextHeight = 13
@@ -259,6 +258,7 @@ object frmMeterDataFileSelection: TfrmMeterDataFileSelection
       EditLabel.Height = 13
       EditLabel.Caption = #26085#26399#34892
       TabOrder = 4
+      Text = ''
     end
     object edtDTCol: TLabeledEdit
       Left = 71
@@ -269,6 +269,7 @@ object frmMeterDataFileSelection: TfrmMeterDataFileSelection
       EditLabel.Height = 13
       EditLabel.Caption = #26085#26399#36215#22987#21015
       TabOrder = 5
+      Text = ''
     end
     object edtIVRow: TLabeledEdit
       Left = 7
@@ -279,6 +280,7 @@ object frmMeterDataFileSelection: TfrmMeterDataFileSelection
       EditLabel.Height = 13
       EditLabel.Caption = #21021#20540#34892
       TabOrder = 6
+      Text = ''
     end
     object edtAnCol: TLabeledEdit
       Left = 71
@@ -289,6 +291,36 @@ object frmMeterDataFileSelection: TfrmMeterDataFileSelection
       EditLabel.Height = 13
       EditLabel.Caption = #22791#27880#21015
       TabOrder = 7
+      Text = ''
+    end
+    object AdvListEditor1: TAdvListEditor
+      Left = 7
+      Top = 480
+      Width = 250
+      Height = 22
+      Appearance.Normal.ColorFrom = 16312028
+      Appearance.Normal.ColorTo = 15847357
+      Appearance.Normal.BorderColor = 14124408
+      Appearance.Selected.ColorFrom = 15115123
+      Appearance.Selected.ColorTo = 14183971
+      Appearance.Selected.BorderColor = 14183971
+      Appearance.Selected.TextColor = clWhite
+      Caption = ''
+      Color = clWhite
+      EditOffset = -2
+      Lookup = <>
+      LookupPopup.Font.Charset = DEFAULT_CHARSET
+      LookupPopup.Font.Color = clWindowText
+      LookupPopup.Font.Height = -11
+      LookupPopup.Font.Name = 'Arial'
+      LookupPopup.Font.Style = []
+      Separator = ';'
+      TabOrder = 8
+      Values = <
+        item
+          DisplayText = 'Value 1'
+        end>
+      Version = '1.4.0.1'
     end
   end
   object Panel3: TPanel

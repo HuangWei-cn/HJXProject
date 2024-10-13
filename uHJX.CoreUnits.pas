@@ -12,6 +12,7 @@ interface
 uses
     uHJX.Intf.AppServices,
     uHJX.Intf.FuncCompManager,
+    uHJX.Intf.FunctionDispatcher,
     uHJX.Intf.ProjectGlobal,
     uHJX.Intf.Datas,
     uHJX.IntfImp.AppServices,

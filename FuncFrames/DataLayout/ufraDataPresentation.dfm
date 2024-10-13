@@ -15,7 +15,6 @@ object fraDataPresentation: TfraDataPresentation
     BevelKind = bkFlat
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 933
     object chkShowIncrement: TCheckBox
       Left = 659
       Top = 9
@@ -31,40 +30,17 @@ object fraDataPresentation: TfraDataPresentation
     object gbx01: TGroupBox
       Left = 0
       Top = 0
-      Width = 142
+      Width = 173
       Height = 85
       Align = alLeft
       Caption = #21151#33021
       TabOrder = 1
-      object btnClearDatas: TButton
+      object sbtnLoadLayout: TsSpeedButton
         Left = 12
-        Top = 52
-        Width = 113
-        Height = 25
-        Caption = #28165#38500#25968#25454
-        TabOrder = 0
-        Visible = False
-        OnClick = btnClearDatasClick
-      end
-      object btnLoadLayout: TButton
-        Left = 12
-        Top = 21
-        Width = 113
-        Height = 25
-        Caption = #21152#36733#20998#24067#22270
-        DropDownMenu = popLayoutList
-        ImageIndex = 0
-        Style = bsSplitButton
-        TabOrder = 1
-        Visible = False
-        OnClick = btnLoadLayoutClick
-      end
-      object BitBtnLoadLayout: TBitBtn
-        Left = 6
-        Top = 14
-        Width = 62
-        Height = 60
-        Hint = #21152#36733#24067#32622#22270
+        Top = 17
+        Width = 77
+        Height = 58
+        Flat = True
         Glyph.Data = {
           36240000424D3624000000000000360000002800000030000000300000000100
           2000000000000024000000000000000000000000000000000000000000000000
@@ -356,17 +332,17 @@ object fraDataPresentation: TfraDataPresentation
           12FFDB9612FFDB9612FFDB9612FFDB9612FFDB9710400000000000000000DB95
           1280DA9611DFDA95106F00000000000000000000000000000000000000000000
           0000000000000000000000000000000000000000000000000000}
-        Layout = blGlyphTop
-        Style = bsNew
-        TabOrder = 2
         OnClick = btnLoadLayoutClick
+        AnimatEvents = [aeMouseEnter, aeMouseLeave, aeMouseDown, aeMouseUp, aeClick, aeLighting, aeGlobalDef]
+        ButtonStyle = tbsDropDown
+        DropdownMenu = popLayoutList
       end
-      object BitBtnClearDatas: TBitBtn
-        Left = 72
-        Top = 14
-        Width = 62
-        Height = 60
-        Hint = #28165#38500#24067#32622#22270#20013#30340#25968#25454
+      object sSpeedButton1: TsSpeedButton
+        Left = 103
+        Top = 18
+        Width = 58
+        Height = 58
+        Flat = True
         Glyph.Data = {
           36240000424D3624000000000000360000002800000030000000300000000100
           2000000000000024000000000000000000000000000000000000000000000000
@@ -658,20 +634,41 @@ object fraDataPresentation: TfraDataPresentation
           0000000000000000000000000000000000000000000000000000000000000000
           000000000000000000000000000000000000000000000000000000000000DF8F
           1010DC96105FDC96105FDF8F1010000000000000000000000000}
-        Layout = blGlyphTop
-        TabOrder = 3
         OnClick = btnClearDatasClick
+        AnimatEvents = [aeMouseEnter, aeMouseLeave, aeMouseDown, aeMouseUp, aeClick, aeLighting, aeGlobalDef]
+      end
+      object btnClearDatas: TButton
+        Left = 12
+        Top = 52
+        Width = 113
+        Height = 25
+        Caption = #28165#38500#25968#25454
+        TabOrder = 0
+        Visible = False
+        OnClick = btnClearDatasClick
+      end
+      object btnLoadLayout: TButton
+        Left = 12
+        Top = 21
+        Width = 113
+        Height = 25
+        Caption = #21152#36733#20998#24067#22270
+        DropDownMenu = popLayoutList
+        ImageIndex = 0
+        Style = bsSplitButton
+        TabOrder = 1
+        Visible = False
+        OnClick = btnLoadLayoutClick
       end
     end
     object gbxQueryData: TGroupBox
-      Left = 142
+      Left = 173
       Top = 0
       Width = 131
       Height = 85
       Align = alLeft
       Caption = #26597#35810#25968#25454
       TabOrder = 2
-      ExplicitLeft = 136
       object btnSpecialDate: TButton
         Left = 12
         Top = 21
@@ -691,8 +688,8 @@ object fraDataPresentation: TfraDataPresentation
         Width = 105
         Height = 25
         Hint = #36873#25321#35201#26597#35810#30340#25968#25454#26085#26399
-        Date = 42850.489188310190000000
-        Time = 42850.489188310190000000
+        Date = 42850.000000000000000000
+        Time = 0.489188310188183100
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
@@ -784,14 +781,13 @@ object fraDataPresentation: TfraDataPresentation
       end
     end
     object gbxInc: TGroupBox
-      Left = 273
+      Left = 304
       Top = 0
       Width = 230
       Height = 85
       Align = alLeft
       Caption = #26597#35810#22686#37327
       TabOrder = 3
-      ExplicitLeft = 267
       object cbxIncOptions: TComboBox
         Left = 12
         Top = 52
@@ -833,8 +829,8 @@ object fraDataPresentation: TfraDataPresentation
         Width = 106
         Height = 25
         Hint = #36873#25321#22686#37327#36215#22987#26085#26399
-        Date = 44509.713856273150000000
-        Time = 44509.713856273150000000
+        Date = 44509.000000000000000000
+        Time = 0.713856273148849100
         Enabled = False
         ParentShowHint = False
         ShowHint = True
@@ -846,8 +842,8 @@ object fraDataPresentation: TfraDataPresentation
         Width = 106
         Height = 25
         Hint = #36873#25321#22686#37327#30340#25130#33267#26085#26399
-        Date = 44509.714149687490000000
-        Time = 44509.714149687490000000
+        Date = 44509.000000000000000000
+        Time = 0.714149687490135000
         Enabled = False
         ParentShowHint = False
         ShowHint = True
@@ -960,7 +956,7 @@ object fraDataPresentation: TfraDataPresentation
       OnClick = btnHideDataClick
     end
     object GroupBox1: TGroupBox
-      Left = 503
+      Left = 534
       Top = 0
       Width = 142
       Height = 85
@@ -1585,7 +1581,7 @@ object fraDataPresentation: TfraDataPresentation
     Left = 420
     Top = 336
     Bitmap = {
-      494C010101000C00100020002000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010101000C00040020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000800000002000000001002000000000000040
       000000000000000000000000000000000000000000FFFAEED300F3D38700EFC3
       5C00F1C35400F1C35400F1C35400F1C35400F1C35400F1C35400F1C35400F1C3
@@ -2117,6 +2113,7 @@ object fraDataPresentation: TfraDataPresentation
       1FFFCF1C0000000000000000000000001FFFFF8C000000000000000000000000
       1FFFFFC40000000000000000000000001FFFFFE0000000000000000000000000
       0FFFFFF000000000000000000000000000000000000000000000000000000000
-      80000001000000000000000000000000}
+      8000000100000000000000000000000000000000000000000000000000000000
+      000000000000}
   end
 end

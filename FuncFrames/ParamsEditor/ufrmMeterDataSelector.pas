@@ -24,9 +24,9 @@ interface
 
 uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.ExtCtrls, AdvListEditor,
+    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.ExtCtrls,
     Vcl.Menus, System.Actions, Vcl.ActnList,
-    {uHJX.Excel.Meters}uHJX.Classes.Meters, uHJX.Excel.InitParams;
+    {uHJX.Excel.Meters}uHJX.Classes.Meters, uHJX.Excel.InitParams, Vcl.Mask, AdvListEditor;
 
 type
     TfrmMeterDataFileSelection = class(TForm)
@@ -65,6 +65,7 @@ type
         actSetDTRowCol: TAction;
         actSetIVRow: TAction;
         actSetAnCol: TAction;
+    AdvListEditor1: TAdvListEditor;
         procedure lstWorksheetsClick(Sender: TObject);
         procedure lstWorksheetsDblClick(Sender: TObject);
         procedure actSetDTRowColExecute(Sender: TObject);

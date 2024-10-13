@@ -10,7 +10,6 @@ object frmFindNewSheets: TfrmFindNewSheets
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
   OnCreate = FormCreate
@@ -69,9 +68,14 @@ object frmFindNewSheets: TfrmFindNewSheets
     TabOrder = 1
     ViewStyle = vsReport
   end
+  object ActivityIndicator1: TActivityIndicator
+    Left = 392
+    Top = 264
+    IndicatorSize = aisLarge
+  end
   object popOp: TPopupMenu
-    Left = 420
-    Top = 256
+    Left = 396
+    Top = 184
     object piAppendNewSheet: TMenuItem
       Action = actAppendNewSheet
     end

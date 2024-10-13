@@ -4,6 +4,7 @@ object fraBasicTrendLine: TfraBasicTrendLine
   Width = 800
   Height = 350
   TabOrder = 0
+  PixelsPerInch = 96
   object chtLine: TChart
     Left = 0
     Top = 0
@@ -14,15 +15,21 @@ object fraBasicTrendLine: TfraBasicTrendLine
     Legend.Alignment = laTop
     Legend.CheckBoxes = True
     Legend.DrawBehind = True
+    Legend.Font.Quality = fqBest
     Legend.LegendStyle = lsSeries
     Legend.TextStyle = ltsPlain
+    Legend.Title.Font.Quality = fqBest
     MarginLeft = 20
     MarginRight = 20
     MarginUnits = muPixels
     PrintProportional = False
     Title.Font.Color = clBlack
-    Title.Font.Height = -17
-    Title.Font.Name = #40657#20307
+    Title.Font.Height = -15
+    Title.Font.Name = 'Verdana'
+    Title.Font.Quality = fqBest
+    Title.Font.Shadow.HorizSize = 2
+    Title.Font.Shadow.SmoothBlur = 3
+    Title.Font.Shadow.VertSize = 2
     Title.Text.Strings = (
       'TChart')
     OnClickSeries = chtLineClickSeries
@@ -70,16 +77,21 @@ object fraBasicTrendLine: TfraBasicTrendLine
     Shadow.Visible = False
     View3D = False
     Zoom.MouseWheel = pmwNormal
+    OnAfterDraw = chtLineAfterDraw
     Align = alClient
     BevelOuter = bvNone
     Color = clWhite
     ParentShowHint = False
     PopupMenu = popTL
+    OnDragDrop = chtLineDragDrop
+    OnDragOver = chtLineDragOver
     ShowHint = True
     TabOrder = 0
     OnClick = chtLineClick
     OnDblClick = chtLineDblClick
+    OnMouseDown = chtLineMouseDown
     OnMouseMove = chtLineMouseMove
+    OnMouseUp = chtLineMouseUp
     DefaultCanvas = 'TGDIPlusCanvas'
     PrintMargins = (
       2
@@ -87,7 +99,28 @@ object fraBasicTrendLine: TfraBasicTrendLine
       3
       6)
     ColorPaletteIndex = 19
+    object lblHint: TLabel
+      Left = 356
+      Top = 156
+      Width = 121
+      Height = 37
+      Alignment = taCenter
+      AutoSize = False
+      Caption = #20801#35768#25302#25341#25968#25454#28857
+      Color = clHighlight
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #40657#20307
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+      Transparent = False
+      Layout = tlCenter
+      Visible = False
+    end
     object Series1: TLineSeries
+      HoverElement = [heCurrent]
       Shadow.SmoothBlur = 43
       Brush.BackColor = clDefault
       DrawStyle = dsCurve
@@ -96,8 +129,9 @@ object fraBasicTrendLine: TfraBasicTrendLine
       Pointer.DarkPen = 80
       Pointer.HorizSize = 2
       Pointer.InflateMargins = True
-      Pointer.Pen.Color = clDefault
+      Pointer.Pen.Color = 553648128
       Pointer.Style = psRectangle
+      Pointer.Transparency = 25
       Pointer.VertSize = 2
       Pointer.Visible = True
       PointerBehind = True
@@ -108,6 +142,7 @@ object fraBasicTrendLine: TfraBasicTrendLine
       YValues.Order = loNone
     end
     object Series2: TLineSeries
+      HoverElement = [heCurrent]
       Shadow.SmoothBlur = 75
       Brush.BackColor = clDefault
       LinePen.Color = clDefault
@@ -125,11 +160,11 @@ object fraBasicTrendLine: TfraBasicTrendLine
       YValues.Order = loNone
     end
     object Series3: TPointSeries
+      HoverElement = [heCurrent]
       Legend.Visible = False
       Marks.Emboss.Clip = True
       Marks.Shadow.Clip = True
       Marks.Clip = True
-      DataSource = Series1
       ShowInLegend = False
       ClickableLine = False
       Pointer.Brush.Style = bsClear
@@ -141,6 +176,53 @@ object fraBasicTrendLine: TfraBasicTrendLine
       XValues.Order = loAscending
       YValues.Name = 'Y'
       YValues.Order = loNone
+      DataSources = (
+        'Series1')
+    end
+    object Series4: TFastLineSeries
+      HoverElement = []
+      LinePen.Color = 3390463
+      XValues.Name = 'X'
+      XValues.Order = loAscending
+      YValues.Name = 'Y'
+      YValues.Order = loNone
+      object TeeFunction1: TTrendFunction
+      end
+    end
+    object Series5: TFastLineSeries
+      HoverElement = []
+      LinePen.Color = 4474111
+      XValues.Name = 'X'
+      XValues.Order = loAscending
+      YValues.Name = 'Y'
+      YValues.Order = loNone
+      object TeeFunction2: TSmoothingFunction
+        Period = 1.000000000000000000
+      end
+    end
+    object Series6: TFastLineSeries
+      HoverElement = []
+      LinePen.Color = 13408512
+      XValues.Name = 'X'
+      XValues.Order = loAscending
+      YValues.Name = 'Y'
+      YValues.Order = loNone
+      object TeeFunction3: TCurveFittingFunction
+        Period = 1.000000000000000000
+      end
+    end
+    object Series7: TFastLineSeries
+      HoverElement = []
+      LinePen.Color = 13382553
+      XValues.DateTime = True
+      XValues.Name = 'X'
+      XValues.Order = loAscending
+      YValues.Name = 'Y'
+      YValues.Order = loNone
+      DataSources = (
+        'Series3')
+      object TeeFunction4: TAverageTeeFunction
+      end
     end
     object ctScrollLeft: TAxisScrollTool
       Active = False
@@ -148,11 +230,15 @@ object fraBasicTrendLine: TfraBasicTrendLine
     end
     object ctScrollBottom: TAxisScrollTool
       Active = False
-      AxisID = 0
+      AxisID = 3
     end
     object ctScrollRight: TAxisScrollTool
       Active = False
       AxisID = 0
+    end
+    object ChartTool1: TDragPointTool
+      DragStyle = dsY
+      OnEndDrag = ChartTool1EndDrag
     end
   end
   object TeeGDIPlus1: TTeeGDIPlus
@@ -163,6 +249,7 @@ object fraBasicTrendLine: TfraBasicTrendLine
     Top = 4
   end
   object popTL: TPopupMenu
+    AutoPopup = False
     Left = 368
     Top = 100
     object piCopyAsBitmap: TMenuItem
@@ -194,6 +281,20 @@ object fraBasicTrendLine: TfraBasicTrendLine
     object piSetupChart: TMenuItem
       Caption = #35774#32622
       OnClick = piSetupChartClick
+    end
+    object N5: TMenuItem
+      Caption = #22270#20363#20301#32622
+      object N7: TMenuItem
+        Caption = #19978#37096
+        Checked = True
+        RadioItem = True
+        OnClick = N7Click
+      end
+      object N8: TMenuItem
+        Caption = #21491#20391
+        RadioItem = True
+        OnClick = N8Click
+      end
     end
     object piSetupSeries: TMenuItem
       Caption = #20943#23569#26354#32447#28857#20026'20'#20010
@@ -233,5 +334,23 @@ object fraBasicTrendLine: TfraBasicTrendLine
       Caption = #26497#31616
       OnClick = piMinimalismClick
     end
+    object piCurve: TMenuItem
+      Caption = #26354#32447
+      OnClick = piCurveClick
+    end
+    object N9: TMenuItem
+      Caption = '-'
+    end
+    object piRewriteData: TMenuItem
+      Caption = #22238#20889#20462#25913#21518#30340#25968#25454
+      Hint = #23558#20462#25913#21518#30340#26354#32447#25968#25454#20889#22238#21040#25968#25454#34920#20013
+      OnClick = piRewriteDataClick
+    end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    OnTimer = Timer1Timer
+    Left = 540
+    Top = 16
   end
 end

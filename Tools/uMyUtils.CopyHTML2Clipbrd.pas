@@ -22,7 +22,7 @@ implementation
 
 procedure CopyHTMLToClipboard(AHTMLStr: string);
 var
-    u8s, s : AnsiString;
+    u8s, s : string; //AnsiString;
     cf_html: integer;
     ts     : TStringStream;
     iLen   : integer;

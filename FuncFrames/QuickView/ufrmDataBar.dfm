@@ -1,33 +1,30 @@
-object frmEVGraph: TfrmEVGraph
+object frmDataBar: TfrmDataBar
   Left = 0
   Top = 0
-  Caption = #29305#24449#26354#32447
-  ClientHeight = 344
-  ClientWidth = 942
+  Caption = #25968#25454#26834#26834
+  ClientHeight = 284
+  ClientWidth = 723
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  OldCreateOrder = False
   OnClose = FormClose
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
-  object Chart: TChart
+  object chtBar: TChart
     Left = 0
     Top = 0
-    Width = 942
-    Height = 344
-    BackWall.Brush.Style = bsClear
+    Width = 723
+    Height = 284
     BackWall.Brush.Gradient.Direction = gdBottomTop
     BackWall.Brush.Gradient.EndColor = clWhite
     BackWall.Brush.Gradient.StartColor = 15395562
-    BackWall.Brush.Gradient.Visible = True
-    BackWall.Pen.Color = 5592405
-    BackWall.Pen.Width = 0
+    BackWall.Color = clWhite
     BackWall.Transparent = False
-    Border.Visible = True
     Foot.Font.Color = clBlue
     Foot.Font.Name = 'Verdana'
     Gradient.Direction = gdBottomTop
@@ -37,30 +34,29 @@ object frmEVGraph: TfrmEVGraph
     LeftWall.Color = 14745599
     Legend.CheckBoxes = True
     Legend.Font.Name = 'Verdana'
+    Legend.Font.Quality = fqBest
     Legend.Shadow.Transparency = 0
+    Legend.Symbol.Gradient.EndColor = 10708548
     RightWall.Color = 14745599
     Title.Font.Color = clBlack
     Title.Font.Height = -15
     Title.Font.Name = 'Verdana'
-    Title.Font.Style = [fsBold]
+    Title.Font.Quality = fqBest
     Title.Font.Shadow.HorizSize = 2
     Title.Font.Shadow.SmoothBlur = 4
     Title.Font.Shadow.VertSize = 2
     Title.Text.Strings = (
-      #29305#24449#26354#32447)
+      '**'#26029#38754#35266#27979#25968#25454#21450#22686#37327)
     BottomAxis.Axis.Color = 4210752
-    BottomAxis.Axis.Fill.Gradient.Direction = gdRightLeft
-    BottomAxis.Axis.Fill.Gradient.StartColor = clRed
-    BottomAxis.Grid.Style = psDot
-    BottomAxis.Grid.Width = 0
-    BottomAxis.Grid.SmallDots = True
-    BottomAxis.LabelsAngle = 90
+    BottomAxis.Grid.Color = 11119017
+    BottomAxis.GridCentered = True
     BottomAxis.LabelsFormat.Font.Name = 'Verdana'
-    BottomAxis.LabelsSeparation = 0
+    BottomAxis.LabelsFormat.Font.Quality = fqBest
     BottomAxis.TicksInner.Color = 11119017
-    BottomAxis.Title.Caption = #30417#27979#28857
-    BottomAxis.Title.Font.Height = -13
+    BottomAxis.Title.Caption = #30417#27979#20202#22120
+    BottomAxis.Title.Font.Height = -12
     BottomAxis.Title.Font.Name = 'Verdana'
+    BottomAxis.Title.Font.Quality = fqBest
     DepthAxis.Axis.Color = 4210752
     DepthAxis.Grid.Color = 11119017
     DepthAxis.LabelsFormat.Font.Name = 'Verdana'
@@ -71,17 +67,18 @@ object frmEVGraph: TfrmEVGraph
     DepthTopAxis.LabelsFormat.Font.Name = 'Verdana'
     DepthTopAxis.TicksInner.Color = 11119017
     DepthTopAxis.Title.Font.Name = 'Verdana'
-    Frame.Color = 5592405
-    Frame.Width = 0
     LeftAxis.Axis.Color = 4210752
+    LeftAxis.AxisValuesFormat = '0.00'
+    LeftAxis.Grid.Color = 11119017
     LeftAxis.Grid.Style = psDot
-    LeftAxis.Grid.Width = 0
-    LeftAxis.Grid.SmallDots = True
     LeftAxis.LabelsFormat.Font.Name = 'Verdana'
+    LeftAxis.LabelsFormat.Font.Quality = fqBest
+    LeftAxis.LabelStyle = talValue
     LeftAxis.TicksInner.Color = 11119017
-    LeftAxis.Title.Caption = #29289#29702#37327
-    LeftAxis.Title.Font.Height = -13
+    LeftAxis.Title.Caption = #25968#25454
+    LeftAxis.Title.Font.Height = -12
     LeftAxis.Title.Font.Name = 'Verdana'
+    LeftAxis.Title.Font.Quality = fqBest
     RightAxis.Axis.Color = 4210752
     RightAxis.Grid.Color = 11119017
     RightAxis.LabelsFormat.Font.Name = 'Verdana'
@@ -94,92 +91,76 @@ object frmEVGraph: TfrmEVGraph
     TopAxis.Title.Font.Name = 'Verdana'
     View3D = False
     Align = alClient
-    BevelOuter = bvNone
     Color = clWhite
     PopupMenu = PopupMenu1
     TabOrder = 0
-    OnDblClick = ChartDblClick
+    OnDblClick = chtBarDblClick
     DefaultCanvas = 'TGDIPlusCanvas'
     ColorPaletteIndex = 13
-    object srsMax: TLineSeries
-      HoverElement = [heCurrent]
-      Title = #26368#22823#20540
-      Brush.BackColor = clDefault
-      LinePen.Color = clBlue
-      LinePen.Style = psDot
-      LinePen.Width = 2
-      Pointer.Brush.Style = bsClear
-      Pointer.InflateMargins = True
-      Pointer.Style = psDownTriangle
-      Pointer.Visible = True
+    object ssMeterData: TBarSeries
+      BarBrush.Color = 16744448
+      BarBrush.Style = bsBDiagonal
+      BarBrush.Gradient.EndColor = 10708548
+      BarBrush.Gradient.Visible = True
+      Marks.Frame.Visible = False
+      Marks.Margins.Left = 12
+      Marks.Margins.Right = 3
+      Marks.Style = smsValue
+      Marks.Callout.ArrowHead = ahSolid
+      Marks.Callout.Length = 13
+      Title = #24403#21069#27979#20540
+      ValueFormat = '0.00'
+      Gradient.EndColor = 10708548
+      Gradient.Visible = True
+      Shadow.Clip = True
+      Shadow.Color = 6447714
+      Shadow.HorizSize = 4
+      Shadow.SmoothBlur = 7
+      Shadow.VertSize = 4
       XValues.Name = 'X'
       XValues.Order = loAscending
-      YValues.Name = 'Y'
+      YValues.Name = #38271#26465
       YValues.Order = loNone
     end
-    object srsLast: TLineSeries
-      HoverElement = [heCurrent]
+    object ssDelta: TBarSeries
+      BarBrush.Style = bsFDiagonal
+      Marks.Style = smsValue
+      Marks.Tail.Visible = True
       SeriesColor = 8388863
-      Shadow.HorizSize = 2
-      Shadow.SmoothBlur = 2
-      Shadow.VertSize = 2
-      Title = #24403#21069#20540
-      Brush.BackColor = clDefault
-      LinePen.Color = 8388863
-      LinePen.Width = 2
-      Pointer.Brush.Style = bsClear
-      Pointer.InflateMargins = True
-      Pointer.Pen.Color = clDefault
-      Pointer.Style = psCircle
-      Pointer.Visible = True
+      Title = #26399#38388#22686#37327
+      ValueFormat = '0.00'
+      Shadow.Clip = True
+      Shadow.HorizSize = 4
+      Shadow.SmoothBlur = 5
+      Shadow.VertSize = 4
       XValues.Name = 'X'
       XValues.Order = loAscending
-      YValues.Name = 'Y'
+      YValues.Name = #38271#26465
       YValues.Order = loNone
     end
-    object srsMin: TLineSeries
-      HoverElement = [heCurrent]
-      SeriesColor = 54528
-      Title = #26368#23567#20540
-      Brush.BackColor = clDefault
-      LinePen.Color = 55552
-      LinePen.Style = psDot
-      LinePen.Width = 2
-      LinePen.SmallDots = True
-      Pointer.Brush.Style = bsClear
-      Pointer.InflateMargins = True
-      Pointer.Style = psTriangle
-      Pointer.Visible = True
-      XValues.Name = 'X'
-      XValues.Order = loAscending
-      YValues.Name = 'Y'
-      YValues.Order = loNone
-    end
-  end
-  object TeeGDIPlus1: TTeeGDIPlus
-    Active = True
-    AntiAliasText = gpfBest
-    TeePanel = Chart
-    Left = 360
-    Top = 28
   end
   object PopupMenu1: TPopupMenu
-    Left = 868
-    Top = 152
-    object piCopyAsBitmap: TMenuItem
-      Caption = #25335#36125#20026#20301#22270
-      OnClick = piCopyAsBitmapClick
+    Left = 648
+    Top = 168
+    object piCopyToClipboard: TMenuItem
+      Caption = #25335#36125#22270#24418
+      OnClick = piCopyToClipboardClick
     end
-    object piCopyAsMetafile: TMenuItem
-      Caption = #25335#36125#20026#22270#20803
-      OnClick = piCopyAsMetafileClick
-    end
-    object N3: TMenuItem
+    object N1: TMenuItem
       Caption = '-'
     end
     object piSetupChart: TMenuItem
       Caption = #35774#32622#22270#24418
       OnClick = piSetupChartClick
     end
+    object piLabel90: TMenuItem
+      Caption = #20202#22120#32534#21495#26059#36716'90'#176
+      OnClick = piLabel90Click
+    end
+  end
+  object TeeGDIPlus1: TTeeGDIPlus
+    Active = True
+    AntiAliasText = gpfBest
+    TeePanel = chtBar
   end
 end

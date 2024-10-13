@@ -5,4 +5,5 @@ object fraTrendLineShell: TfraTrendLineShell
   Height = 350
   TabOrder = 0
   OnResize = FrameResize
+  PixelsPerInch = 96
 end

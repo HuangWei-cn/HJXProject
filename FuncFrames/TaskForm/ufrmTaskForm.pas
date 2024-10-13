@@ -26,7 +26,7 @@ implementation
 procedure TTaskform.CreateParams(var Params: TCreateParams);
 begin
   inherited;
-  params.WndParent := 0;
+  //params.WndParent := 0;
 end;
 
 end.

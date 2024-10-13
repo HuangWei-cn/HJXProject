@@ -103,6 +103,7 @@ begin
     _CreateDataSet;
     cdsMeters.CreateDataSet;
     // ÌîÈëÄÚÈİ
+    excelmeters.SortByPosition;
     for i := 0 to ExcelMeters.Count - 1 do
     begin
         Meter := ExcelMeters.Items[i];

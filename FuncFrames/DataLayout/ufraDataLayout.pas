@@ -242,8 +242,8 @@ var
   oo         : TGraphObject;
 begin
   { 本方法不再使用2022-05-13 }
-  //tp := sgDataLayout.ClientToGraph(X, Y);
-  //oo := sgDataLayout.FindObjectAt(tp.X, tp.Y);
+  // tp := sgDataLayout.ClientToGraph(X, Y);
+  // oo := sgDataLayout.FindObjectAt(tp.X, tp.Y);
 (*
 // 如果X，Y处有东西，且为TGPTEXTNODE对象，则需要对齐
   if (oo <> nil) and (oo is TGPTextNode) then
@@ -650,12 +650,19 @@ begin
       FPopupDataGraph(FSelectedMeter, S);
 end;
 
+{ -----------------------------------------------------------------------------
+  Procedure  : Play
+  Description: 显示数据方法
+----------------------------------------------------------------------------- }
 procedure TfraDataLayout.Play(ShowIncrement: Boolean = False);
 var
-  i: Integer;
+  i      : Integer;
+  qryObjs: TStrings;
+  DataItem: TdmcDataItem;
 begin
   if (not ShowIncrement) and (not Assigned(FOnNeedDataEvent)) then
       Exit;
+  qryObjs := TStringList.Create;
   try
     Screen.Cursor := crHourGlass;
     sgDataLayout.CommandMode := cmViewOnly;
@@ -668,6 +675,25 @@ begin
     ProgressBar1.Position := 0;
     ProgressBar1.Visible := True;
 
+    /// 如果直接采用轮询所有对象的方式，则可能对同一个仪器查询多次，有一些图包含多个断面，同一只仪器
+    /// 可能出现多次，没必要全部查询一遍。因此，每查询一支仪器，就同时检查是否有重复的，若有重复的则
+    /// 填入已查询到的数据，然后去掉那个就可以了。
+    { TODO: 避免对同一只仪器查询多次 }
+(*
+      for i := 0 to sgDataLayout.ObjectsCount - 1 do
+        if sgDataLayout.Objects.Items[i] is TdmcDataItem then
+          with sgDataLayout.Objects.Items[i] as TdmcDataItem do
+          begin
+            qryObjs.Add(DesignName);
+            qryObjs.Objects[qryObjs.Count - 1] := sgDataLayout.Objects.Items[i];
+          end;
+
+      while qryObjs.Count >0 do
+      begin
+        DataItem := qryObjs.Objects[0] as TdmcDataItem;
+      end;
+
+*)
     for i := 0 to sgDataLayout.ObjectsCount - 1 do
     begin
       ProgressBar1.Position := i + 1;
@@ -690,6 +716,7 @@ begin
     Screen.Cursor := crDefault;
     if Assigned(FOnPlayFinished) then FOnPlayFinished(Self);
     ProgressBar1.Visible := False;
+    qryObjs.Free;
   end;
 end;
 
@@ -812,10 +839,11 @@ begin
   // AnItem.East := Y;
   AnItem.ShowData('', DT);
 end;
-{-----------------------------------------------------------------------------
+
+{ -----------------------------------------------------------------------------
   Procedure  : GraphEndDragging
   Description: 拖拽图元，判断是否需要自动对齐
------------------------------------------------------------------------------}
+----------------------------------------------------------------------------- }
 procedure TfraDataLayout.GraphEndDragging(Graph: TSimpleGraph; GraphObject: TGraphObject;
   HT: Cardinal;
   Cancelled: Boolean);

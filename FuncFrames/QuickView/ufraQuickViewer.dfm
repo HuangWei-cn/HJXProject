@@ -30,8 +30,8 @@ object fraQuickViewer: TfraQuickViewer
     Padding.Bottom = 2
     TabOrder = 0
     object btnCreateQuickView: TButton
-      Left = 8
-      Top = 6
+      Left = 96
+      Top = 50
       Width = 93
       Height = 41
       Caption = #26597#35810
@@ -41,8 +41,8 @@ object fraQuickViewer: TfraQuickViewer
       OnClick = btnCreateQuickViewClick
     end
     object btnShowIncrement: TButton
-      Left = 115
-      Top = 6
+      Left = 195
+      Top = 50
       Width = 110
       Height = 41
       Caption = #26368#26032#22686#37327
@@ -95,8 +95,8 @@ object fraQuickViewer: TfraQuickViewer
       end
     end
     object btnSpecificDates: TButton
-      Left = 148
-      Top = 6
+      Left = 329
+      Top = 3
       Width = 141
       Height = 41
       Caption = #25351#23450#26085#26399#22686#37327
@@ -122,13 +122,13 @@ object fraQuickViewer: TfraQuickViewer
       TabOrder = 4
     end
     object rdgPresentType: TRadioGroup
-      Left = 368
+      Left = 360
       Top = 3
-      Width = 72
+      Width = 80
       Height = 63
       Align = alRight
       Caption = #34920#29616#26041#24335
-      ItemIndex = 0
+      ItemIndex = 1
       Items.Strings = (
         'WebGrid'
         'EhGrid')
@@ -503,8 +503,8 @@ object fraQuickViewer: TfraQuickViewer
       OnClick = btnCreateQuickViewClick
     end
     object BitBtnShowIncrement: TBitBtn
-      Left = 84
-      Top = 6
+      Left = 323
+      Top = 50
       Width = 70
       Height = 60
       Hint = #26597#35810#21046#23450#26085#26399#22686#37327
@@ -830,8 +830,8 @@ object fraQuickViewer: TfraQuickViewer
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
   end
   object DBGridEh1: TDBGridEh
-    Left = 112
-    Top = 183
+    Left = 115
+    Top = 179
     Width = 389
     Height = 296
     AllowedOperations = []
@@ -840,14 +840,18 @@ object fraQuickViewer: TfraQuickViewer
     DataGrouping.GroupPanelVisible = True
     DataSource = dsDatas
     DynProps = <>
+    EditActions = [geaCopyEh]
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
     Font.Name = 'Consolas'
     Font.Style = []
+    IndicatorOptions = [gioShowRowIndicatorEh, gioShowRecNoEh]
+    IndicatorParams.FillStyle = cfstGradientEh
     IndicatorTitle.ShowDropDownSign = True
     IndicatorTitle.TitleButton = True
-    OptionsEh = [dghFixed3D, dghHighlightFocus, dghClearSelection, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghColumnResize, dghColumnMove, dghExtendVertLines]
+    Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
+    OptionsEh = [dghFixed3D, dghHighlightFocus, dghClearSelection, dghAutoSortMarking, dghMultiSortMarking, dghDblClickOptimizeColWidth, dghDialogFind, dghShowRecNo, dghColumnResize, dghColumnMove, dghExtendVertLines]
     ParentFont = False
     PopupMenu = popGrid
     SearchPanel.Enabled = True
@@ -889,7 +893,7 @@ object fraQuickViewer: TfraQuickViewer
         Left = 188
         Top = 20
         Width = 145
-        Height = 21
+        Height = 23
         Style = csDropDownList
         ItemIndex = 1
         TabOrder = 1
@@ -932,7 +936,7 @@ object fraQuickViewer: TfraQuickViewer
         Left = 193
         Top = 20
         Width = 145
-        Height = 21
+        Height = 23
         Style = csDropDownList
         ItemIndex = 0
         TabOrder = 1
@@ -1084,8 +1088,24 @@ object fraQuickViewer: TfraQuickViewer
     object piShowDataGrid: TMenuItem
       Action = actShowDatas
     end
+    object N7: TMenuItem
+      Caption = '-'
+    end
+    object piGroupLine: TMenuItem
+      Action = actGroupLine
+    end
+    object piGroupBar: TMenuItem
+      Action = actGroupBar
+    end
+    object piMeterLine: TMenuItem
+      Action = actMeterLine
+      OnClick = piMeterLineClick
+    end
     object N3: TMenuItem
       Caption = '-'
+    end
+    object piViewDataSheet: TMenuItem
+      Action = actViewDataSheet
     end
     object piOpenDataSheet: TMenuItem
       Action = actOpenDataSheet
@@ -1093,8 +1113,12 @@ object fraQuickViewer: TfraQuickViewer
     object N4: TMenuItem
       Caption = '-'
     end
-    object N5: TMenuItem
+    object piCopyGrid: TMenuItem
       Action = actCopytoClipboard
+    end
+    object piCopySelection: TMenuItem
+      Caption = #25335#36125#36873#21306#25968#25454
+      OnClick = piCopySelectionClick
     end
     object N2: TMenuItem
       Caption = '-'
@@ -1126,15 +1150,23 @@ object fraQuickViewer: TfraQuickViewer
         OnClick = piCollapseAllLevelClick
       end
     end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object piAllowEdit: TMenuItem
+      Action = actAllowEdit
+    end
   end
   object ActionList1: TActionList
     Left = 692
     Top = 132
     object actShowTrendLine: TAction
+      Category = 'GridOp'
       Caption = #26174#31034#36807#31243#32447
       OnExecute = actShowTrendLineExecute
     end
     object actShowDatas: TAction
+      Category = 'GridOp'
       Caption = #26174#31034#35266#27979#25968#25454#34920
       OnExecute = actShowDatasExecute
     end
@@ -1154,12 +1186,38 @@ object fraQuickViewer: TfraQuickViewer
       OnExecute = actDecFontSizeExecute
     end
     object actOpenDataSheet: TAction
+      Category = 'GridOp'
       Caption = #25171#24320#21407#22987#35745#31639#34920
       OnExecute = actOpenDataSheetExecute
     end
     object actCopytoClipboard: TAction
+      Category = 'GridOp'
       Caption = #25335#36125#34920#26684
       OnExecute = actCopytoClipboardExecute
+    end
+    object actGroupLine: TAction
+      Category = 'GridOp'
+      Caption = #34920#20013#20202#22120#36807#31243#32447#32452
+      OnExecute = actGroupLineExecute
+    end
+    object actGroupBar: TAction
+      Category = 'GridOp'
+      Caption = #34920#20013#20202#22120#26834#22270
+      OnExecute = actGroupBarExecute
+    end
+    object actMeterLine: TAction
+      Category = 'GridOp'
+      Caption = #34920#20013#20202#22120#20998#24067#22270
+    end
+    object actViewDataSheet: TAction
+      Category = 'GridOp'
+      Caption = #26597#30475#21407#22987#25968#25454
+      OnExecute = actViewDataSheetExecute
+    end
+    object actAllowEdit: TAction
+      Category = 'GridOp'
+      Caption = 'AllowEdit'
+      OnExecute = actAllowEditExecute
     end
   end
   object dlgFont: TFontDialog

@@ -14,15 +14,15 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, aceListView, Vcl.ComCtrls, sListView, Vcl.StdCtrls, sButton,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs{, aceListView}, Vcl.ComCtrls, sListView, Vcl.StdCtrls, sButton,
   sCheckBox, ufrmFindNewSheets {用于删除保存后的项目};
 
 type
   TfrmSetSelectedSheets = class(TForm)
-    lvwSheets: TacListView;
     btnCancel: TsButton;
     btnAppendMeter: TsButton;
     sCheckBox1: TsCheckBox;
+    lvwSheets: TListView;
     procedure FormCreate(Sender: TObject);
     procedure btnAppendMeterClick(Sender: TObject);
   private
@@ -50,6 +50,7 @@ uses
 
 procedure TfrmSetSelectedSheets.FormCreate(Sender: TObject);
 begin
+  //lvwSheets.Items.Clear;
   lvwSheets.Items.Clear;
   // FOwnerForm := Sender as TfrmFindNewSheets;
 end;
@@ -70,14 +71,15 @@ var
   i    : Integer;
   sName: String;
   Meter: TMeterDefine;
-  Li   : TacListItem;
+  Li   : {TacListItem}TListItem;
 begin
   sName := Trim(ASheetName);
   if (sName = '') or (Trim(ABookName) = '') then Exit;
   /// 根据是sName查找是否存在同名监测仪器
   Meter := ExcelMeters.Meter[sName];
-  Li := lvwSheets.Items.Add('');
-  Li.GroupIndex := 0;
+  {Li := lvwSheets.Items.Add('');}
+  li := lvwSheets.Items.Add;
+  {Li.GroupIndex := 0;}
   if Meter = nil then
   begin
     Li.Caption := '未知';
@@ -96,7 +98,7 @@ end;
 procedure TfrmSetSelectedSheets.SaveMeterSheetToList;
 var
   i : Integer;
-  Li: TacListItem;
+  Li: {TacListItem}TListItem;
 begin
   for i := 0 to lvwSheets.Items.Count - 1 do
   begin

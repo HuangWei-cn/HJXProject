@@ -4,6 +4,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
   Width = 365
   Height = 753
   TabOrder = 0
+  PixelsPerInch = 96
   object CategoryPanelGroup1: TCategoryPanelGroup
     Left = 0
     Top = 101
@@ -27,7 +28,6 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Top = 832
       Caption = #22270#34920#39044#23450#20041
       TabOrder = 0
-      ExplicitWidth = 363
       object Label1: TLabel
         Left = 4
         Top = 12
@@ -81,11 +81,10 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Top = 632
       Caption = #33258#23450#20041#32467#26500
       TabOrder = 1
-      ExplicitWidth = 363
       object vleDataStru: TValueListEditor
         Left = 0
         Top = 0
-        Width = 344
+        Width = 342
         Height = 174
         Align = alClient
         Font.Charset = GB2312_CHARSET
@@ -111,7 +110,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vleDataStruStringsChange
         ColWidths = (
           133
-          188)
+          186)
       end
     end
     object CategoryPanel3: TCategoryPanel
@@ -119,11 +118,10 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Height = 153
       Caption = #39044#23450#20041#25968#25454#32467#26500
       TabOrder = 2
-      ExplicitWidth = 363
       object cmbPreDefineDataStruc: TComboBox
         Left = 10
         Top = 12
-        Width = 306
+        Width = 272
         Height = 22
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -132,7 +130,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
       object memPreDDSContent: TMemo
         Left = 10
         Top = 40
-        Width = 306
+        Width = 272
         Height = 77
         Anchors = [akLeft, akTop, akRight]
         Lines.Strings = (
@@ -147,11 +145,10 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Height = 194
       Caption = #24037#31243#23646#24615
       TabOrder = 3
-      ExplicitWidth = 363
       object vlePrjParams: TValueListEditor
         Left = 0
         Top = 0
-        Width = 344
+        Width = 342
         Height = 168
         Align = alClient
         Font.Charset = ANSI_CHARSET
@@ -175,7 +172,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vlePrjParamsStringsChange
         ColWidths = (
           135
-          203)
+          184)
       end
     end
     object CategoryPanel1: TCategoryPanel
@@ -189,11 +186,10 @@ object fraXLSParamEditor: TfraXLSParamEditor
       Font.Style = []
       ParentFont = False
       TabOrder = 4
-      ExplicitWidth = 363
       object vleMeterParams: TValueListEditor
         Left = 0
         Top = 0
-        Width = 344
+        Width = 342
         Height = 259
         Align = alClient
         Font.Charset = ANSI_CHARSET
@@ -225,7 +221,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
         OnStringsChange = vleMeterParamsStringsChange
         ColWidths = (
           134
-          204)
+          185)
       end
       object dtpDateEdit: TDateTimePicker
         Left = 136
@@ -234,8 +230,8 @@ object fraXLSParamEditor: TfraXLSParamEditor
         Height = 21
         BevelInner = bvNone
         BevelOuter = bvNone
-        Date = 42866.109564039350000000
-        Time = 42866.109564039350000000
+        Date = 42866.000000000000000000
+        Time = 0.109564039346878400
         Font.Charset = GB2312_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -328,6 +324,7 @@ object fraXLSParamEditor: TfraXLSParamEditor
       LabelPosition = lpLeft
       ParentFont = False
       TabOrder = 0
+      Text = ''
       OnChange = edtDesignIDChange
     end
     object Button1: TButton

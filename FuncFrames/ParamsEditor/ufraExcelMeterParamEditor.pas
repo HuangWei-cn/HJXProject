@@ -19,7 +19,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.Grids, Vcl.ValEdit, uHJX.ProjectGlobal, Vcl.ComCtrls, {uHJX.Excel.Meters,}
-  uHJX.Intf.AppServices, uHJX.Classes.Meters;
+  uHJX.Intf.AppServices, uHJX.Classes.Meters, Vcl.Mask;
 
 type
   TfraXLSParamEditor = class(TFrame)
@@ -93,7 +93,7 @@ implementation
 
 
 uses
-  uHJX.Excel.InitParams, uHJX.Excel.IO, ufrmMeterDataSelector;
+  uHJX.Excel.InitParams, uHJX.Excel.IO{, ufrmMeterDataSelector 可能TMS组件安装问题，导致找不到AdvListEditor的库，暂时禁止这个功能};
 
 constructor TfraXLSParamEditor.Create(AOwner: TComponent);
 begin
@@ -355,9 +355,10 @@ end;
   显示其中内容供用户使用
 ----------------------------------------------------------------------------- }
 procedure TfraXLSParamEditor.SelectDataFile;
-var
-  frm: TfrmMeterDataFileSelection;
+(*var
+  frm: TfrmMeterDataFileSelection;*)
 begin
+(*
   if lblWorkBook.Caption <> '' then
       dlgOpen.FileName := lblWorkBook.Caption;
   if dlgOpen.Execute then
@@ -395,6 +396,7 @@ begin
       frm.Release;
     end;
   end;
+*)
 end;
 
 procedure TfraXLSParamEditor.lblSelectDatafileDblClick(Sender: TObject);

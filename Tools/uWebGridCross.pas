@@ -580,7 +580,7 @@ begin
     iMC := 1;
     for iCol := 0 to FColCount - 1 do
     begin
-            { 如果本列不允许横向合并，则处理之前的合并，但是标题行不受限制 }
+    { 如果本列不允许横向合并，则处理之前的合并，但是标题行不受限制 }
       if (iRow > FTitleRows - 1) and (not ColHeader[iCol].AllowRowSpan) and
         (not FRows[iRow].IsCaptionRow) then
       begin
@@ -625,7 +625,7 @@ begin
     iMC := 1;
     for iRow := 0 to FRowCount - 1 do
     begin
-            { 如果列不允许纵向合并，或本行为标题行、CaptionRow则next }
+      { 如果列不允许纵向合并，或本行为标题行、CaptionRow则next }
       if ((iRow > FTitleRows - 1) and (not FColHeaders[iCol].AllowColSpan)) or
         (FRows[iRow].IsCaptionRow) then
       begin
@@ -642,7 +642,9 @@ begin
         Continue;
       end;
 
-      if FCellMatrix[iRow][iCol].ColSpan > 1 then Continue;
+      // 如果超出标题行，则不允许同时列扩展和行扩展，但是标题行没有限制
+      if iRow > FTitleRows - 1 then
+        if FCellMatrix[iRow][iCol].ColSpan > 1 then Continue;
 
       sCurValue := FCellMatrix[iRow][iCol].StrValue;
       if sValue <> sCurValue then
@@ -963,7 +965,7 @@ function TWebCrossView.PrePageHTML: string;
   procedure _ReplaceFontSize(ARep: string; AStyle: TWGFormatStyle);
   begin
     if AStyle.FontSize = 0 then Result := StringReplace(Result, ARep, '9pt', [])
-    else Result := StringReplace(Result, ARep, IntToStr(AStyle.FontSize), []);
+    else Result := StringReplace(Result, ARep, IntToStr(AStyle.FontSize)+'pt', []);
   end;
   procedure _ReplaceFontColor(ARep: string; AStyle: TWGFormatStyle);
   begin

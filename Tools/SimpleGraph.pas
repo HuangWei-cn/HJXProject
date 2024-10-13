@@ -161,7 +161,7 @@ type
         fHandle       : THandle;
         fReleaseHandle: Boolean;
     protected
-        function Realloc(var NewCapacity: Longint): Pointer; override;
+        function Realloc(var NewCapacity: NativeInt): Pointer; override;
     public
         constructor Create(MemHandle: THandle); virtual;
         destructor Destroy; override;
@@ -2657,7 +2657,7 @@ begin
     inherited Destroy;
 end;
 
-function TMemoryHandleStream.Realloc(var NewCapacity: Integer): Pointer;
+function TMemoryHandleStream.Realloc(var NewCapacity: {Integer}NativeInt): Pointer;
 const
     MemoryDelta = $2000; { Must be a power of 2 }
 begin

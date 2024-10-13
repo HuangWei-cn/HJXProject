@@ -65,7 +65,7 @@ type
   TSeriesPointerType = (sptNone, sptAuto, sptAlways);
   TSeriesLineStyle   = (slsSolid, slsDash, slsDot, slsDashDot, slsDashDotDot);
 
-    { 模板Series定义 }
+  { 模板Series定义 }
     /// <summary>模板Series定义。绘图程序可根据本定义创建TeeChart Series，属性中的SeriesType指明了
     /// Series的类型；SourceType标明了数据来源（监测仪器或环境量）；SourceName标明了仪器编号或
     /// 环境量名称；PDIndex标明了是仪器的第几个物理量；HoriAxis和VertAxis标明了本Series的横轴和
@@ -94,6 +94,12 @@ type
     /// psDot, psDashDot, psDashDotDot...etc.
     /// </remarks>
     FLineStyle: TSeriesLineStyle;
+    /// <remarks>
+    /// 过程线是否缺省处于隐藏不显示状态，即绘图时绘制它，但是在Chart中处于不显示状态
+    /// </remarks>
+    FVisible: Boolean;
+    /// <remarks> 是否不绘制Null数据点</remarks>
+    FDontPaintNull: Boolean;
   published
         // Series类型：Line，Arrow，Point。分别对应过程线、矢量图、散点图
     property SeriesType: TcsType read FType write FType;
@@ -123,12 +129,15 @@ type
     // 2019-10-11
     property PointerType: TSeriesPointerType read FPointerType write FPointerType;
     property LineStyle  : TSeriesLineStyle read FLineStyle write FLineStyle;
+    // 2022-10-30
+    property Visible      : Boolean read FVisible write FVisible;
+    property DontPaintNull: Boolean read FDontPaintNull write FDontPaintNull;
   end;
 
     { Chart的类型：过程线，矢量图，位移图 }
     /// <summary>Chart类型：过程线图、矢量图、位移图。暂时只支持这三类仪器Chart</summary>
     /// <remarks>这三类Chart所对应的Series类型分别为csLine, csArror, csPoints。</remarks>
-  TchtType = (cttTrendLine, cttVector, cttDisplacement);
+  TchtType = (cttTrendLine, cttVector, cttDisplacement, cttHoriLine, cttPoints, cttBar);
 
     { Chart模板对象 }
   TChartTemplate = class(ThjxTemplate)
@@ -441,6 +450,9 @@ begin
   NewSeries.MeterIndex := StrToInt(S);
   NewSeries.SourceType := pds;
   NewSeries.SourceName := sn;
+  NewSeries.Visible := True;        // 缺省为显示
+  NewSeries.DontPaintNull := False; // 确定是跳过Null
+
     { 根据Chart类型设置Series类型，暂不支持混合类型 }
   if FChartType = cttVector then NewSeries.FType := csArrow
   else if FChartType = cttDisplacement then NewSeries.FType := csPoints
@@ -470,7 +482,7 @@ begin
     else NewSeries.PointerType := sptAuto;
   end
   else
-    NewSeries.PointerType := sptAlways;
+      NewSeries.PointerType := sptAlways;
 
   // 2019-10-11 检查线型
   if High(Params) > 3 then
@@ -483,7 +495,15 @@ begin
     else NewSeries.LineStyle := slsSolid;
   end
   else
-    NewSeries.LineStyle := slsSolid;
+      NewSeries.LineStyle := slsSolid;
+
+  // 2022-10-30 检查是否显示
+  if High(Params) > 4 then
+    if SameText(Params[5], 'False') then NewSeries.Visible := False;
+
+  // 是否绘制Null点
+  if high(Params) > 5 then
+    if SameText(Params[6], 'DontPaint') then NewSeries.DontPaintNull := True;
 
 end;
 

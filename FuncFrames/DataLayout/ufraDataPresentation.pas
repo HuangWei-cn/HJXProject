@@ -25,7 +25,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufraDataLayout, Vcl.ExtCtrls,
   Vcl.ComCtrls, Vcl.StdCtrls,
   uHJX.Intf.Datas, {uHJX.Excel.Meters} uHJX.Classes.Meters, uHJX.Intf.AppServices, uHJX.Data.Types,
-  uHJX.Intf.FunctionDispatcher, Vcl.Menus, sFrameAdapter, Vcl.Buttons, System.ImageList, Vcl.ImgList;
+  uHJX.Intf.FunctionDispatcher, Vcl.Menus, sFrameAdapter, Vcl.Buttons, System.ImageList, Vcl.ImgList,
+  sSpeedButton;
 
 type
   TfraDataPresentation = class(TFrame)
@@ -47,13 +48,13 @@ type
     btnFillinData: TButton;
     btnHideData: TButton;
     ImageList1: TImageList;
-    BitBtnLoadLayout: TBitBtn;
-    BitBtnClearDatas: TBitBtn;
     BitBtnQuerySpecialDate: TBitBtn;
     BitBtnQryIncData: TBitBtn;
     BitBtnFillInData: TBitBtn;
     BitBtnListAllGraphObjects: TBitBtn;
     GroupBox1: TGroupBox;
+    sbtnLoadLayout: TsSpeedButton;
+    sSpeedButton1: TsSpeedButton;
     procedure btnLoadLayoutClick(Sender: TObject);
     procedure btnClearDatasClick(Sender: TObject);
     procedure btnQryIncClick(Sender: TObject);
@@ -133,7 +134,9 @@ procedure TfraDataPresentation.btnQryIncClick(Sender: TObject);
 begin
   // FDataOpts := 0; //0-Now
   // fraDataLayout.Play(chkShowIncrement.Checked);
+  IHJXClientFuncs.SessionBegin;
   fraDataLayout.Play(True); // 查询增量
+  ihjxclientfuncs.SessionEnd;
   { 具体增量的查询方式，则在本单元中实现，fraDataLayout只负责显示结果。
     在本功能中，增量的查询方式有：最新增量、周增量、月增量、年增量、指定时间段内增量。
     其中，前4种，均和查询数据功能中的那个日期有关，即以那个日期为时间点查询一定间隔内
@@ -171,7 +174,9 @@ begin
   else
       FDataOpts := 1;
   // 1-指定日期。通常程序加载的时候已经自动将日期设置为当天了
+  IHJXClientFuncs.SessionBegin;
   fraDataLayout.Play;
+  IHJXClientFuncs.SessionEnd;
 end;
 
 procedure TfraDataPresentation.cbxIncOptionsClick(Sender: TObject);
@@ -208,7 +213,7 @@ begin
 
   if IHJXClientFuncs = nil then
       exit;
-  IHJXClientFuncs.SessionBegin;
+  //IHJXClientFuncs.SessionBegin;
   if IHJXClientFuncs.GetNearestPDDatas(AID, DT, Datas) then
   begin
     i := ExcelMeters.Meter[AID].PDDefines.IndexOfDataName(ADataName);
@@ -218,7 +223,7 @@ begin
       Data := Datas[i + 1];
     end;
   end;
-  IHJXClientFuncs.SessionEnd;
+  //IHJXClientFuncs.SessionEnd;
   SetLength(Datas, 0);
 end;
 
@@ -316,7 +321,7 @@ begin
   DT := dtpSpecialDate.Date;
   if IHJXClientFuncs = nil then
       exit;
-  IHJXClientFuncs.SessionBegin;
+  //IHJXClientFuncs.SessionBegin;
 
   case cbxIncOptions.ItemIndex of
     0: { 最新增量 }
@@ -360,7 +365,7 @@ begin
       end;
     end;
   end;
-  IHJXClientFuncs.SessionEnd;
+  //IHJXClientFuncs.SessionEnd;
 
   for i := Low(Datas) to high(Datas) do
       VarClear(Datas[i]);

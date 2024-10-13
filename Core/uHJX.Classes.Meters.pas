@@ -87,6 +87,7 @@ type
     TMeterProjectParams = record
         SubProject: string;
         Position: string;
+        PosIndex:Integer; //2022-11-3 用指定的顺序对部位进行排序，顺序在预定义项的工程部位表里
         Elevation: double;
         Stake: string;
         Profile: string;

@@ -1,17 +1,18 @@
 { -----------------------------------------------------------------------------
  Unit Name: ufraQuickViewer
- Author:    »ÆÎ°
- Date:      07-ÁùÔÂ-2018
- Purpose:   ¹Û²âÊı¾İËÙÀÀÏÔÊ¾µ¥Ôª
-    ±¾µ¥ÔªÍ¨¹ı¼ì²éÃ¿Ö»ÒÇÆ÷×î½üÁ½´Î¹Û²âÊı¾İ±ä»¯¡¢ÔÂ±ä»¯£¬½«³¬¹ıÏŞÖµµÄÒÇÆ÷¼°Æä
-    Êı¾İÏÔÊ¾³öÀ´£¬Í¬Ê±Í³¼ÆÊı¾İÔö´óºÍ¼õĞ¡µÄÊıÁ¿£¬ÁË½âµ±Ç°Ç÷ÊÆ¡£
+ Author:    é»„ä¼Ÿ
+ Date:      07-å…­æœˆ-2018
+ Purpose:   è§‚æµ‹æ•°æ®é€Ÿè§ˆæ˜¾ç¤ºå•å…ƒ
+    æœ¬å•å…ƒé€šè¿‡æ£€æŸ¥æ¯åªä»ªå™¨æœ€è¿‘ä¸¤æ¬¡è§‚æµ‹æ•°æ®å˜åŒ–ã€æœˆå˜åŒ–ï¼Œå°†è¶…è¿‡é™å€¼çš„ä»ªå™¨åŠå…¶
+    æ•°æ®æ˜¾ç¤ºå‡ºæ¥ï¼ŒåŒæ—¶ç»Ÿè®¡æ•°æ®å¢å¤§å’Œå‡å°çš„æ•°é‡ï¼Œäº†è§£å½“å‰è¶‹åŠ¿ã€‚
  History:
-    2018-06-14 Ôö¼ÓÁËÏÔÊ¾Êı¾İÔöÁ¿µÄ¹¦ÄÜ£¬Ä¿Ç°ÉĞ²»ÄÜÖ¸¶¨ÈÕÆÚ£¬µ«¿ÉÒÔ¹ıÂËµôÎ¢Ğ¡
-    ±ä»¯¡£
-    2020-06-10 Ôö¼ÓÁËÊ¹ÓÃDBGridEh±í¸ñÏÔÊ¾ÔöÁ¿µÄ¹¦ÄÜ¡£²»¾ÃÇ°»¹Ôö¼ÓÁËÏÔÊ¾×îºóÒ»Ìõ
-    ¼ÇÂ¼µÄ¹¦ÄÜ
+    2018-06-14 å¢åŠ äº†æ˜¾ç¤ºæ•°æ®å¢é‡çš„åŠŸèƒ½ï¼Œç›®å‰å°šä¸èƒ½æŒ‡å®šæ—¥æœŸï¼Œä½†å¯ä»¥è¿‡æ»¤æ‰å¾®å°
+    å˜åŒ–ã€‚
+    2020-06-10 å¢åŠ äº†ä½¿ç”¨DBGridEhè¡¨æ ¼æ˜¾ç¤ºå¢é‡çš„åŠŸèƒ½ã€‚ä¸ä¹…å‰è¿˜å¢åŠ äº†æ˜¾ç¤ºæœ€åä¸€æ¡
+    è®°å½•çš„åŠŸèƒ½
 ----------------------------------------------------------------------------- }
-
+{ TODO:å¢åŠ æ›´æ–°ä¸€æ¡è®°å½•çš„åŠŸèƒ½ }
+{ TODO:å…è®¸ç”¨æˆ·ä¿®æ”¹æ•°æ® }
 unit ufraQuickViewer;
 
 interface
@@ -85,7 +86,7 @@ type
     actOpenDataSheet: TAction;
     piOpenDataSheet: TMenuItem;
     N4: TMenuItem;
-    N5: TMenuItem;
+    piCopyGrid: TMenuItem;
     actCopytoClipboard: TAction;
     N6: TMenuItem;
     piCollapse: TMenuItem;
@@ -94,6 +95,19 @@ type
     piCollapseAllLevel: TMenuItem;
     BitBtnCreateQuickView: TBitBtn;
     BitBtnShowIncrement: TBitBtn;
+    N7: TMenuItem;
+    piGroupLine: TMenuItem;
+    piGroupBar: TMenuItem;
+    piMeterLine: TMenuItem;
+    actGroupLine: TAction;
+    actGroupBar: TAction;
+    actMeterLine: TAction;
+    piViewDataSheet: TMenuItem;
+    actViewDataSheet: TAction;
+    piCopySelection: TMenuItem;
+    N5: TMenuItem;
+    piAllowEdit: TMenuItem;
+    actAllowEdit: TAction;
     procedure btnCreateQuickViewClick(Sender: TObject);
     procedure btnShowIncrementClick(Sender: TObject);
     procedure HtmlViewerHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -115,26 +129,32 @@ type
     procedure piCollapseThisLevelClick(Sender: TObject);
     procedure piCollapseSubLevelsClick(Sender: TObject);
     procedure piCollapseAllLevelClick(Sender: TObject);
+    procedure actGroupLineExecute(Sender: TObject);
+    procedure actGroupBarExecute(Sender: TObject);
+    procedure actViewDataSheetExecute(Sender: TObject);
+    procedure piMeterLineClick(Sender: TObject);
+    procedure piCopySelectionClick(Sender: TObject);
+    procedure actAllowEditExecute(Sender: TObject);
   private
     { Private declarations }
     FMeterList: TStrings;
-    // ´´½¨×îĞÂÔöÁ¿Êı¾İ¼¯
+    // åˆ›å»ºæœ€æ–°å¢é‡æ•°æ®é›†
     procedure _CreateIncrementDataSet;
-    // ´´½¨Ö¸¶¨¼ä¸ôÔöÁ¿Êı¾İ¼¯
+    // åˆ›å»ºæŒ‡å®šé—´éš”å¢é‡æ•°æ®é›†
     procedure _Create2DayIncDataSet;
-    // ÉèÖÃDBGridEhµÄÑÕÉ«µÈ
+    // è®¾ç½®DBGridEhçš„é¢œè‰²ç­‰
     procedure _SetGridPresent;
-    { ÏÔÊ¾Á½¸öÖ¸¶¨ÈÕÆÚµÄÊı¾İ£¬¼°ÆäÔöÁ¿ }
+    { æ˜¾ç¤ºä¸¤ä¸ªæŒ‡å®šæ—¥æœŸçš„æ•°æ®ï¼ŒåŠå…¶å¢é‡ }
     procedure ShowSpecificDatesData;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    { ÏÔÊ¾¹Û²âÇé¿öËÙÀÀ }
+    { æ˜¾ç¤ºè§‚æµ‹æƒ…å†µé€Ÿè§ˆ }
     procedure ShowQuickView;
-    { ÏÔÊ¾¹Û²âÊı¾İÔöÁ¿£¬ÈôUseFilter = FalseÔòÏÔÊ¾È«²¿ÒÇÆ÷µÄÊı¾İÔöÁ¿£¬·ñÔòÖ»ÏÔÊ¾³¬ÏŞµÄ }
+    { æ˜¾ç¤ºè§‚æµ‹æ•°æ®å¢é‡ï¼Œè‹¥UseFilter = Falseåˆ™æ˜¾ç¤ºå…¨éƒ¨ä»ªå™¨çš„æ•°æ®å¢é‡ï¼Œå¦åˆ™åªæ˜¾ç¤ºè¶…é™çš„ }
     procedure ShowDataIncrement(UseFilter: Boolean = False);
-    { ÏÔÊ¾×îĞÂµÄ¹Û²âÊı¾İ£¬Ã¿Ö§ÒÇÆ÷Ò»Ìõ¼ÇÂ¼£¬°´ÀàĞÍ·Ö±í }
+    { æ˜¾ç¤ºæœ€æ–°çš„è§‚æµ‹æ•°æ®ï¼Œæ¯æ”¯ä»ªå™¨ä¸€æ¡è®°å½•ï¼ŒæŒ‰ç±»å‹åˆ†è¡¨ }
     procedure ShowLastDatas;
   end;
 
@@ -142,14 +162,15 @@ implementation
 
 uses
   uHJX.Data.Types, uHJX.Intf.AppServices, uHJX.Intf.FunctionDispatcher, uHJX.Intf.Datas,
-  uHJX.Classes.Meters, uHJX.Excel.IO,
-  uWebGridCross, uWBLoadHTML, DBGridEhImpExp;
+  uHJX.Classes.Meters, uHJX.Excel.IO, uHJX.Intf.GraphDispatcher,
+  uWebGridCross, uWBLoadHTML, DBGridEhImpExp,
+  ufrmDataBar;
 {$R *.dfm}
 
 
 const
-    { ×¢£ºÕâÀïµÄCSSÉèÖÃÊ¹µÃ±í¸ñ³ÊÏÖÏ¸Ïß±ß¿ò }
-    { Õë¶Ô±í¸ñµÄ±íÍ·¡¢µ¥Ôª¸ñÊ¹ÓÃÁËCSS¶¨Òå }
+    { æ³¨ï¼šè¿™é‡Œçš„CSSè®¾ç½®ä½¿å¾—è¡¨æ ¼å‘ˆç°ç»†çº¿è¾¹æ¡† }
+    { é’ˆå¯¹è¡¨æ ¼çš„è¡¨å¤´ã€å•å…ƒæ ¼ä½¿ç”¨äº†CSSå®šä¹‰ }
   htmPageCode2 = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">'#13#10
     + '<html>'#13#10
     + '<head>'#13#10
@@ -160,7 +181,7 @@ const
     + '.tdStyle {font-size: 8pt; font-family: Consolas; color: #000000; background-color:#FFFFFF;empty-cells:show;'
     // #F7F7F7
     + '          border:1px solid #1F4E79; padding:2px}'#13#10
-    + '.CaptionStyle {font-family:ºÚÌå;font-size: 9pt;color: #000000; padding:2px;border:1px solid #1F4E79; background-color:#FFFF99}'#13#10
+    + '.CaptionStyle {font-family:é»‘ä½“;font-size: 9pt;color: #000000; padding:2px;border:1px solid #1F4E79; background-color:#FFFF99}'#13#10
     + '</style>'#13#10
     + '</head>'#13#10
     + '<body>'#13#10
@@ -168,10 +189,10 @@ const
     + '</body>'#13#10
     + '</html>';
 
-  FN_INCDATA: array [0 .. 8] of string = ('°²×°²¿Î»', 'ÒÇÆ÷ÀàĞÍ', 'Éè¼Æ±àºÅ', 'ÎïÀíÁ¿', '¹Û²âÈÕÆÚ', '¼ä¸ôÌìÊı', 'µ±Ç°²âÖµ',
-    '×îĞÂÔöÁ¿', '30ÌìÔöÁ¿');
-  FN_2DDATA: array [0 .. 10] of string = ('°²×°²¿Î»', 'ÒÇÆ÷ÀàĞÍ', 'Éè¼Æ±àºÅ', 'ÎïÀíÁ¿', 'ÆğÊ¼ÈÕÆÚ', 'ÆğÊ¼²âÖµ', '½ØÖ¹ÈÕÆÚ',
-    '½ØÖ¹²âÖµ', '¼ä¸ôÌìÊı', 'ÔöÁ¿', 'ÈÕ¾ùÔöÁ¿');
+  FN_INCDATA: array [0 .. 8] of string = ('å®‰è£…éƒ¨ä½', 'ä»ªå™¨ç±»å‹', 'è®¾è®¡ç¼–å·', 'ç‰©ç†é‡', 'è§‚æµ‹æ—¥æœŸ', 'é—´éš”å¤©æ•°', 'å½“å‰æµ‹å€¼',
+    'æœ€æ–°å¢é‡', '30å¤©å¢é‡');
+  FN_2DDATA: array [0 .. 10] of string = ('å®‰è£…éƒ¨ä½', 'ä»ªå™¨ç±»å‹', 'è®¾è®¡ç¼–å·', 'ç‰©ç†é‡', 'èµ·å§‹æ—¥æœŸ', 'èµ·å§‹æµ‹å€¼', 'æˆªæ­¢æ—¥æœŸ',
+    'æˆªæ­¢æµ‹å€¼', 'é—´éš”å¤©æ•°', 'å¢é‡', 'æ—¥å‡å¢é‡');
 
 var
   MaxDeltaDDWY: Double = 0.1;
@@ -192,53 +213,53 @@ begin
   // for i := 0 to cdsdatas.IndexDefs.Count -1 do cdsdatas.IndexDefs[i].Free;
   cdsDatas.IndexDefs.Clear;
 
-  // °²×°²¿Î»
+  // å®‰è£…éƒ¨ä½
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Position';
   DF.DataType := ftstring;
-  DF.DisplayName := '°²×°²¿Î»';
-  // ÒÇÆ÷ÀàĞÍ
+  DF.DisplayName := 'å®‰è£…éƒ¨ä½';
+  // ä»ªå™¨ç±»å‹
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'MeterType';
   DF.DataType := ftstring;
-  DF.DisplayName := 'ÒÇÆ÷ÀàĞÍ';
-  // Éè¼Æ±àºÅ
+  DF.DisplayName := 'ä»ªå™¨ç±»å‹';
+  // è®¾è®¡ç¼–å·
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'DesignName';
   DF.DataType := ftstring;
-  DF.DisplayName := 'Éè¼Æ±àºÅ';
-  // ÎïÀíÁ¿
+  DF.DisplayName := 'è®¾è®¡ç¼–å·';
+  // ç‰©ç†é‡
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'PDName';
   DF.DataType := ftstring;
-  DF.DisplayName := 'ÎïÀíÁ¿';
-  // ¹Û²âÈÕÆÚ
+  DF.DisplayName := 'ç‰©ç†é‡';
+  // è§‚æµ‹æ—¥æœŸ
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'DTScale';
   DF.DataType := ftDateTime;
-  DF.DisplayName := '¹Û²âÈÕÆÚ';
-  // ¼ä¸ôÌìÊı
+  DF.DisplayName := 'è§‚æµ‹æ—¥æœŸ';
+  // é—´éš”å¤©æ•°
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'InteralDays';
   DF.DataType := ftFloat;
-  DF.DisplayName := '¼ä¸ôÌìÊı';
-  // µ±Ç°²âÖµ
+  DF.DisplayName := 'é—´éš”å¤©æ•°';
+  // å½“å‰æµ‹å€¼
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Data';
   DF.DataType := ftFloat;
-  DF.DisplayName := 'µ±Ç°²âÖµ';
-  // ×îĞÂÔöÁ¿
+  DF.DisplayName := 'å½“å‰æµ‹å€¼';
+  // æœ€æ–°å¢é‡
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Increment';
   DF.DataType := ftFloat;
-  DF.DisplayName := '×îĞÂÔöÁ¿';
-  // ×î½ü30ÌìÔöÁ¿
+  DF.DisplayName := 'æœ€æ–°å¢é‡';
+  // æœ€è¿‘30å¤©å¢é‡
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Inc30Days';
   DF.DataType := ftFloat;
-  DF.DisplayName := '×î½ü30ÌìÔöÁ¿';
+  DF.DisplayName := 'æœ€è¿‘30å¤©å¢é‡';
 
-  // Ìí¼ÓË÷Òı
+  // æ·»åŠ ç´¢å¼•
   cdsDatas.IndexDefs.Add('IdxPos', 'Position', []);
   cdsDatas.IndexDefs.Add('IdxTyp', 'MeterType', []);
   cdsDatas.IndexDefs.Add('IdxDgn', 'DesignName', []);
@@ -261,47 +282,47 @@ begin
   if cdsDatas.Active then cdsDatas.Close;
   cdsDatas.FieldDefs.Clear;
   cdsDatas.IndexDefs.Clear;
-  // 1°²×°²¿Î»
+  // 1å®‰è£…éƒ¨ä½
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Position';
   DF.DataType := ftstring;
-  // 2ÒÇÆ÷ÀàĞÍ
+  // 2ä»ªå™¨ç±»å‹
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'MeterType';
   DF.DataType := ftstring;
-  // 3Éè¼Æ±àºÅ
+  // 3è®¾è®¡ç¼–å·
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'DesignName';
   DF.DataType := ftstring;
-  // 4ÎïÀíÁ¿
+  // 4ç‰©ç†é‡
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'PDName';
   DF.DataType := ftstring;
-  // 5ÆğÊ¼ÈÕÆÚ
+  // 5èµ·å§‹æ—¥æœŸ
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'StartDate';
   DF.DataType := ftDateTime;
-  // 6²âÖµ
+  // 6æµ‹å€¼
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Data1';
   DF.DataType := ftFloat;
-  // 7½ØÖ¹ÈÕÆÚ
+  // 7æˆªæ­¢æ—¥æœŸ
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'EndDate';
   DF.DataType := ftDateTime;
-  // 8²âÖµ
+  // 8æµ‹å€¼
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Data2';
   DF.DataType := ftFloat;
-  // 9¼ä¸ôÌìÊı
+  // 9é—´éš”å¤©æ•°
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'IntralDays';
   DF.DataType := ftFloat;
-  // 10ÔöÁ¿
+  // 10å¢é‡
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Increment';
   DF.DataType := ftFloat;
-  // 11±ä»¯ÂÊ
+  // 11å˜åŒ–ç‡
   DF := cdsDatas.FieldDefs.AddFieldDef;
   DF.Name := 'Rate';
   DF.DataType := ftFloat;
@@ -328,7 +349,7 @@ var
   end;
 
 begin
-  // ÏÈÉèÖÃ¹²ÓĞµÄÀàĞÍ
+  // å…ˆè®¾ç½®å…±æœ‰çš„ç±»å‹
   if DBGridEh1.FieldColumns['Position'] <> nil then
       __SetColumnColor(DBGridEh1.FieldColumns['Position'], clWebWheat, clBlack);
   if DBGridEh1.FieldColumns['MeterType'] <> nil then
@@ -379,8 +400,17 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : ShowQuickView
-  Description: ÏÔÊ¾ËÙÀÀÄÚÈİ
+  Description: æ˜¾ç¤ºé€Ÿè§ˆå†…å®¹
 ----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.actAllowEditExecute(Sender: TObject);
+begin
+  piAllowEdit.Checked := not piAllowEdit.Checked;
+  if piAllowEdit.Checked then
+    DBGridEh1.AllowedOperations := [alopUpdateEh]
+  else
+    dbgrideh1.AllowedOperations	:= [];
+end;
+
 procedure TfraQuickViewer.actCopytoClipboardExecute(Sender: TObject);
 begin
   DBGridEh_DoCopyAction(DBGridEh1, True)
@@ -400,6 +430,58 @@ begin
       DBGridEh1.Columns[i].OptimizeWidth;
     end;
   end;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : actGroupBarExecute
+  Description: ä»è¡¨æ ¼ä¸­ç°æœ‰ä»ªå™¨ç»˜åˆ¶Barå›¾
+----------------------------------------------------------------------------- }
+procedure TfraQuickViewer.actGroupBarExecute(Sender: TObject);
+var
+  mtType: String; // é€‰ä¸­ä»ªå™¨çš„ç±»å‹
+  pdName: String;
+begin
+  if MemTableEh1.RecordCount = 0 then Exit;
+  if MemTableEh1.FieldByName('Position').IsNull or MemTableEh1.FieldByName('MeterType').IsNull then
+  begin
+    ShowMessage('ä½ å¾—é€‰æ‹©æŸæ¡è®°å½•ï¼Œæœ‰å·¥ç¨‹éƒ¨ä½å’Œä»ªå™¨ç±»å‹çš„è®°å½•');
+    Exit;
+  end;
+
+  mtType := MemTableEh1.FieldByName('MeterType').AsString;
+  pdName := MemTableEh1.FieldByName('PDName').AsString;
+
+  PopupDataBar(mtType, pdName, MemTableEh1, True);
+
+end;
+
+procedure TfraQuickViewer.actGroupLineExecute(Sender: TObject);
+var
+  IGD   : IGraphDispatcher;
+  Meters: TStrings;
+begin
+  if not cdsDatas.Active then Exit;
+  if IAppServices = nil then Exit;
+  if IAppServices.FuncDispatcher = nil then Exit;
+  if IAppServices.GetDispatcher('GraphDispatcher') <> nil then
+    if Supports(IAppServices.GetDispatcher('GraphDispatcher'), IGraphDispatcher, IGD) then
+    begin
+      Meters := TStringList.Create;
+      try
+        if MemTableEh1.RecordCount > 0 then
+        begin
+          MemTableEh1.First;
+          repeat
+            Meters.Add(MemTableEh1.FieldByName('DesignName').AsString + '|' +
+              MemTableEh1.FieldByName('PDName').AsString);
+            MemTableEh1.Next;
+          until MemTableEh1.Eof;
+          IGD.ShowGroupGraph(ggtTrendLine, Meters, nil);
+        end;
+      finally
+        Meters.Free;
+      end;
+    end;
 end;
 
 procedure TfraQuickViewer.actIncFontSizeExecute(Sender: TObject);
@@ -472,10 +554,26 @@ begin
   (IAppServices.FuncDispatcher as IFunctionDispatcher).ShowDataGraph(mn, nil);
 end;
 
+procedure TfraQuickViewer.actViewDataSheetExecute(Sender: TObject);
+var
+  IFunc: IFunctionDispatcher;
+  mn:String;
+begin
+  if not cdsDatas.Active then Exit;
+  if IAppServices = nil then Exit;
+  if IAppServices.FuncDispatcher = nil then Exit;
+  mn := MemTableEh1.FieldByName('DesignName').AsString;
+
+  IFunc := IAppServices.FuncDispatcher as IFunctionDispatcher;
+  if ifunc.HasProc('ShowMeterSheetWithoutExcel') then
+    ifunc.CallFunction('ShowMeterSheetWithoutExcel', mn);
+end;
+
 procedure TfraQuickViewer.btnCreateQuickViewClick(Sender: TObject);
 begin
   pnlProgress.Left := (Self.Width - pnlProgress.Width) div 2;
   pnlProgress.Top := (Self.Height - pnlProgress.Height) div 2;
+  IAppServices.ClientDatas.SessionBegin;
   case rdgQueryType.ItemIndex of
     0: ShowQuickView;
     1: ShowDataIncrement(chkUseFilter.Checked);
@@ -487,9 +585,14 @@ begin
       end; // ShowSpecificDatesData;
     3: ShowLastDatas;
   end;
+  IAppServices.ClientDatas.SessionEnd;
   // ShowQuickView;
 end;
 
+{ -----------------------------------------------------------------------------
+  Procedure  : ShowQuickView
+  Description: å¯¹åº”ç€â€œé€æ”¯é€Ÿè§ˆâ€åŠŸèƒ½ï¼Œåªç”¨WebGridè¿›è¡Œè¡¨ç¤º
+----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.ShowQuickView;
 var
   MTList     : TStrings;
@@ -503,7 +606,7 @@ var
   WCV        : TWebCrossView;
   Page       : string;
   Body       : string;
-    // ÅĞ¶ÏÊÇ·ñÖµµÃÏÔÊ¾³öÀ´£¬Ä¿Ç°µÄÅĞ¶Ï±È½Ï½©»¯£¬»¹ĞèÒª¿¼ÂÇµ½Ê±¼ä¼ä¸ôÎÊÌâ£¬¼´±ä»¯ËÙÂÊ
+    // åˆ¤æ–­æ˜¯å¦å€¼å¾—æ˜¾ç¤ºå‡ºæ¥ï¼Œç›®å‰çš„åˆ¤æ–­æ¯”è¾ƒåƒµåŒ–ï¼Œè¿˜éœ€è¦è€ƒè™‘åˆ°æ—¶é—´é—´éš”é—®é¢˜ï¼Œå³å˜åŒ–é€Ÿç‡
   function _NeedShow: Boolean;
   var
     Delta: Double;
@@ -517,7 +620,7 @@ var
 
   begin
     Result := True;
-    if MeterType = '¶àµãÎ»ÒÆ¼Æ' then
+    if MeterType = 'å¤šç‚¹ä½ç§»è®¡' then
     begin
       Delta := V2[1] - V1[1];
             // CountDelta;
@@ -533,28 +636,28 @@ var
       if abs(Delta) < MaxDeltaDDWY then
           Result := False;
     end
-    else if MeterType = 'ÃªË÷²âÁ¦¼Æ' then
+    else if MeterType = 'é”šç´¢æµ‹åŠ›è®¡' then
     begin
       Delta := V2[1] - V1[1];
       CountDelta;
       if abs(Delta) < MaxDeltaMS then
           Result := False;
     end
-    else if MeterType = 'Ãª¸ËÓ¦Á¦¼Æ' then
+    else if MeterType = 'é”šæ†åº”åŠ›è®¡' then
     begin
       Delta := V2[1] - V1[1];
       CountDelta;
       if abs(Delta) < MaxDeltaMG then
           Result := False;
     end
-    else if MeterType = 'ÉøÑ¹¼Æ' then
+    else if MeterType = 'æ¸—å‹è®¡' then
     begin
       Delta := V2[1] - V1[1];
       CountDelta;
       if abs(Delta) < MaxDeltaSY then
           Result := False;
     end
-    else if MeterType = '»ùÑÒ±äĞÎ¼Æ' then
+    else if MeterType = 'åŸºå²©å˜å½¢è®¡' then
     begin
       Delta := V2[1] - V1[1];
       CountDelta;
@@ -562,22 +665,22 @@ var
           Result := False;
     end;
   end;
-    // Ö»ÏÔÊ¾Ò»´ÎÊı¾İ
+    // åªæ˜¾ç¤ºä¸€æ¬¡æ•°æ®
   procedure ShowOneData;
   begin
 
   end;
-    // ÏÔÊ¾Á½´ÎÊı¾İ
+    // æ˜¾ç¤ºä¸¤æ¬¡æ•°æ®
   procedure ShowTwoData;
   var
     DataRow: array of variant;
     i      : Integer;
   begin
-        // Èç¹û²»ÖµÒ»Ìá¾Í¼ÌĞøÏÂÒ»¸ö
+        // å¦‚æœä¸å€¼ä¸€æå°±ç»§ç»­ä¸‹ä¸€ä¸ª
     if not _NeedShow then
         Exit;
 
-    Inc(iOverLine); // ¶à¸ö³¬ÏŞµÄ
+    Inc(iOverLine); // å¤šä¸ªè¶…é™çš„
 
     WCV.Reset;
     WCV.ColCount := Length(V1); //
@@ -587,9 +690,9 @@ var
 
     WCV.TitleRows := 1;
     SetLength(DataRow, WCV.ColCount);
-    DataRow[0] := '¹Û²âÈÕÆÚ';
+    DataRow[0] := 'è§‚æµ‹æ—¥æœŸ';
     for i := 0 to Meter.PDDefines.Count - 1 do
-        DataRow[i + 1] := Meter.PDName(i);
+        DataRow[i + 1] := Meter.pdName(i);
     WCV.AddRow(DataRow);
     DataRow[0] := FormatDateTime('yyyy-mm-dd', V1[0]);
     for i := 1 to High(V1) do
@@ -600,7 +703,7 @@ var
     for i := 1 to High(V2) do
         DataRow[i] := V2[i];
     WCV.AddRow(DataRow);
-    DataRow[0] := 'ÔöÁ¿';
+    DataRow[0] := 'å¢é‡';
     for i := 1 to High(V2) do
         DataRow[i] := V2[i] - V1[i];
     WCV.AddRow(DataRow);
@@ -612,14 +715,14 @@ begin
   if ExcelMeters.Count = 0 then
       Exit;
     // Body := '';
-  Body := '<h2>²âÖµÔöÁ¿³¬¹ı¹Ø×¢ãĞÖµµÄÒÇÆ÷£º</h2>'
-    + Format('<div>¶àµãÎ»ÒÆ¼ÆÏŞ²î:%fmm£»ÃªË÷²âÁ¦¼ÆÏŞ²î:%fkN£»Ãª¸ËÓ¦Á¦¼ÆÏŞ²î:%fkN</div>',
+  Body := '<h2>æµ‹å€¼å¢é‡è¶…è¿‡å…³æ³¨é˜ˆå€¼çš„ä»ªå™¨ï¼š</h2>'
+    + Format('<div>å¤šç‚¹ä½ç§»è®¡é™å·®:%fmmï¼›é”šç´¢æµ‹åŠ›è®¡é™å·®:%fkNï¼›é”šæ†åº”åŠ›è®¡é™å·®:%fkN</div>',
     [MaxDeltaDDWY, MaxDeltaMS, MaxDeltaMG]);
   iInc := 0;
   iDec := 0;
   iOverLine := 0;
   MTList := TStringList.Create;
-    // ×¼±¸ÒÇÆ÷ÁĞ±í
+    // å‡†å¤‡ä»ªå™¨åˆ—è¡¨
   if chkAllMeters.Checked then
     for i := 0 to ExcelMeters.Count - 1 do
         MTList.Add(ExcelMeters.Items[i].DesignName)
@@ -627,10 +730,10 @@ begin
   begin
     with IAppServices.FuncDispatcher as IFunctionDispatcher do
     begin
-      // Èç¹ûÄÜÑ¡Ôñ²¿·ÖÒÇÆ÷Ôò
+      // å¦‚æœèƒ½é€‰æ‹©éƒ¨åˆ†ä»ªå™¨åˆ™
       if HasProc('PopupMeterSelector') then
           CallFunction('PopupMeterSelector', MTList)
-      else // ·ñÔòÑ¡ÔñÈ«²¿ÒÇÆ÷
+      else // å¦åˆ™é€‰æ‹©å…¨éƒ¨ä»ªå™¨
       begin
         for i := 0 to ExcelMeters.Count - 1 do
             MTList.Add(ExcelMeters.Items[i].DesignName)
@@ -640,7 +743,7 @@ begin
 
   if MTList.Count = 0 then
   begin
-    showmessage('Ã»ÓĞÑ¡ÔñĞèÒª²éÑ¯µÄÒÇÆ÷£¬ÇëÑ¡ÔñºóÔÙ²éÑ¯¡£');
+    ShowMessage('æ²¡æœ‰é€‰æ‹©éœ€è¦æŸ¥è¯¢çš„ä»ªå™¨ï¼Œè¯·é€‰æ‹©åå†æŸ¥è¯¢ã€‚');
     Exit;
   end;
 
@@ -667,7 +770,7 @@ begin
 
       ProgressBar.Position := iMeter + 1;
       lblDesignName.Caption := Meter.Params.MeterType + Meter.DesignName;
-      lblProgress.Caption := Format('ÕıÔÚ´¦ÀíµÚ%dÖ§ÒÇÆ÷£¬¹²%dÖ§', [iMeter + 1, { ExcelMeters } MTList.Count]);
+      lblProgress.Caption := Format('æ­£åœ¨å¤„ç†ç¬¬%dæ”¯ä»ªå™¨ï¼Œå…±%dæ”¯', [iMeter + 1, { ExcelMeters } MTList.Count]);
 
       IAppServices.ProcessMessages;
 
@@ -679,14 +782,14 @@ begin
           ShowTwoData;
         end
         else
-            ShowOneData; // Ã»ÓĞÍê³ÉÕâ¸ö·½·¨£¬Ã»ÓĞ¿¼ÂÇºÃÈçºÎÏÔÊ¾µ¥´ÎÊı¾İ
+            ShowOneData; // æ²¡æœ‰å®Œæˆè¿™ä¸ªæ–¹æ³•ï¼Œæ²¡æœ‰è€ƒè™‘å¥½å¦‚ä½•æ˜¾ç¤ºå•æ¬¡æ•°æ®
         Inc(iMeterCount);
       end;
     end;
 
-        // ÏÔÊ¾Ôö¼õÊıÁ¿
-    Body := Body + Format('<hr>±¾´Î²âÖµÔöÁ¿³¬¹ı¹Ø×¢ãĞÖµµÄÒÇÆ÷ÓĞ%dÖ§£¬ÆäÓàÒÇÆ÷¹Û²âÊı¾İ±ä»¯½ÏĞ¡¡£<br>', [iOverLine]);
-    Body := Body + Format('ÔÚ×î½üÁ½´Î¹Û²âÖĞ£¬ÓĞ%dÖ§ÒÇÆ÷(´«¸ĞÆ÷)Êı¾İÔö´ó£¬ÓĞ%dÖ§ÒÇÆ÷Êı¾İ¼õĞ¡¡£', [iInc, iDec]);
+    // æ˜¾ç¤ºå¢å‡æ•°é‡
+    Body := Body + Format('<hr>æœ¬æ¬¡æµ‹å€¼å¢é‡è¶…è¿‡å…³æ³¨é˜ˆå€¼çš„ä»ªå™¨æœ‰%dæ”¯ï¼Œå…¶ä½™ä»ªå™¨è§‚æµ‹æ•°æ®å˜åŒ–è¾ƒå°ã€‚<br>', [iOverLine]);
+    Body := Body + Format('åœ¨æœ€è¿‘ä¸¤æ¬¡è§‚æµ‹ä¸­ï¼Œæœ‰%dæ”¯ä»ªå™¨(ä¼ æ„Ÿå™¨)æ•°æ®å¢å¤§ï¼Œæœ‰%dæ”¯ä»ªå™¨æ•°æ®å‡å°ã€‚', [iInc, iDec]);
     Page := StringReplace(htmPageCode2, '@PageContent@', Body, []);
     if chkUseIE.Checked then
     begin
@@ -717,7 +820,7 @@ var
   i            : Integer;
 begin
   S := VarToStr(URL);
-  if pos('about', S) > 0 then // ¼ÓÔØ¿ÕÒ³Ãæ
+  if pos('about', S) > 0 then // åŠ è½½ç©ºé¡µé¢
       Cancel := False
   else if pos('popgraph', S) > 0 then
   begin
@@ -733,23 +836,27 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : ShowDataIncrement
-  Description: ±¾·½·¨²éÑ¯È«²¿ÒÇÆ÷ÔÚÖ¸¶¨Ê±¼äµÄ¹Û²âÊı¾İÔöÁ¿¼°ÔÂÔöÁ¿£¬²¢ÔÚHTMLViewer
-  ÖĞÏÔÊ¾³öÀ´¡£Èç¹ûUseFilter=True£¬Ôò¹ıÂËµô±ä»¯½ÏĞ¡µÄÊı¾İ£¬Ö»±£Áô±ä»¯´óµÄ¡£
+  Description: æœ¬æ–¹æ³•æŸ¥è¯¢å…¨éƒ¨ä»ªå™¨åœ¨æŒ‡å®šæ—¶é—´çš„è§‚æµ‹æ•°æ®å¢é‡åŠæœˆå¢é‡ï¼Œå¹¶åœ¨HTMLViewer
+  ä¸­æ˜¾ç¤ºå‡ºæ¥ã€‚å¦‚æœUseFilter=Trueï¼Œåˆ™è¿‡æ»¤æ‰å˜åŒ–è¾ƒå°çš„æ•°æ®ï¼Œåªä¿ç•™å˜åŒ–å¤§çš„ã€‚
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.btnDateSelectedClick(Sender: TObject);
 begin
   pnlDateSelector.Visible := False;
+  IAppServices.ClientDatas.SessionBegin;
   ShowSpecificDatesData;
+  IAppServices.ClientDatas.SessionEnd;
 end;
 
 procedure TfraQuickViewer.btnShowIncrementClick(Sender: TObject);
 begin
+  IAppServices.ClientDatas.SessionBegin;
   ShowDataIncrement(chkUseFilter.Checked);
+  IAppServices.ClientDatas.SessionEnd;
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : btnSpecificDatesClick
-  Description: ÏÔÊ¾Ö¸¶¨ÈÕÆÚµÄÁ½´Î¹Û²âÊı¾İ£¬¼°ÆäÔöÁ¿
+  Description: æ˜¾ç¤ºæŒ‡å®šæ—¥æœŸçš„ä¸¤æ¬¡è§‚æµ‹æ•°æ®ï¼ŒåŠå…¶å¢é‡
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.btnSpecificDatesClick(Sender: TObject);
 begin
@@ -760,7 +867,7 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : HtmlViewerHotSpotClick
-  Description: µã»÷ÒÇÆ÷±àºÅ³¬Á´½Ó£¬µ¯³ö¸ÃÒÇÆ÷µÄ¹ı³ÌÏß»òÆäËûÀàĞÍÊı¾İÍ¼
+  Description: ç‚¹å‡»ä»ªå™¨ç¼–å·è¶…é“¾æ¥ï¼Œå¼¹å‡ºè¯¥ä»ªå™¨çš„è¿‡ç¨‹çº¿æˆ–å…¶ä»–ç±»å‹æ•°æ®å›¾
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.HtmlViewerHotSpotClick(Sender: TObject; const SRC: string;
   var Handled: Boolean);
@@ -813,7 +920,7 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : piCollapseAllLevelClick
-  Description: ²ÉÓÃµİ¹éÊÕËõËùÓĞÕ¹¿ªµÄTreeNode
+  Description: é‡‡ç”¨é€’å½’æ”¶ç¼©æ‰€æœ‰å±•å¼€çš„TreeNode
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.piCollapseAllLevelClick(Sender: TObject);
   procedure _CollapseAll(Node: TGroupDataTreeNodeEh);
@@ -832,7 +939,7 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : piCollapseSubLevelsClick
-  Description: ÊÕÆğ±¾¼¶ËùÓĞÕ¹¿ª
+  Description: æ”¶èµ·æœ¬çº§æ‰€æœ‰å±•å¼€
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.piCollapseSubLevelsClick(Sender: TObject);
 var
@@ -847,28 +954,40 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : piCollapseThisLevelClick
-  Description: Group TreeÊÕÆğ±¾¼¶Õ¹¿ª½Úµã
+  Description: Group Treeæ”¶èµ·æœ¬çº§å±•å¼€èŠ‚ç‚¹
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.piCollapseThisLevelClick(Sender: TObject);
 begin
-  // ÏÈÊÕÆğÑ¡ÖĞ¼ÇÂ¼µÄ¸¸½ÚµãÊÔÊÔ
+  // å…ˆæ”¶èµ·é€‰ä¸­è®°å½•çš„çˆ¶èŠ‚ç‚¹è¯•è¯•
   if DBGridEh1.DataGrouping.CurDataNode.Parent <> nil then
       DBGridEh1.DataGrouping.CurDataNode.Parent.Expanded := False;
   // DBGridEh1.DataGrouping.GroupDataTree.Collapse(DBGridEh1.DataGrouping.CurDataNode.Parent);
 end;
 
+procedure TfraQuickViewer.piCopySelectionClick(Sender: TObject);
+begin
+    DBGridEh_DoCopyAction(DBGridEh1, False);
+end;
+
+procedure TfraQuickViewer.piMeterLineClick(Sender: TObject);
+begin
+//
+end;
+
 procedure TfraQuickViewer.popGridPopup(Sender: TObject);
 begin
-  // ÅĞ¶ÏGrid.DataSetÊÇ·ñActive
+  // åˆ¤æ–­Grid.DataSetæ˜¯å¦Active
   if (popGrid.PopupComponent as TDBGridEh).DataSource.DataSet.Active then
   begin
     piShowTrendLine.Enabled := True;
     piShowDataGrid.Enabled := True;
+    piCopySelection.Enabled := True
   end
   else
   begin
     piShowTrendLine.Enabled := False;
     piShowDataGrid.Enabled := False;
+    piCopySelection.Enabled := False;
   end;
 end;
 
@@ -886,8 +1005,8 @@ var
   Page  : String;
   sType : string;
   sPos  : String;
-  k     : Integer;     // ÌØÕ÷ÖµÏîµÄĞòºÅ£»
-  kIdx  : set of Byte; // ÌØÕ÷ÖµĞòºÅ¼¯ºÏ£¬¼ÙÉèÌØÕ÷ÖµÏî²»³¬¹ı127¸ö¡£
+  k     : Integer;     // ç‰¹å¾å€¼é¡¹çš„åºå·ï¼›
+  kIdx  : set of Byte; // ç‰¹å¾å€¼åºå·é›†åˆï¼Œå‡è®¾ç‰¹å¾å€¼é¡¹ä¸è¶…è¿‡127ä¸ªã€‚
   gl    : TGridDataGroupLevelEh;
   ErrMsg: String;
   procedure ClearValues;
@@ -915,14 +1034,14 @@ var
     for ii := 5 to 7 do
         WCV.ColHeader[ii].Align := taRightJustify;
     SetLength(vH, 8);
-    vH[0] := 'ÒÇÆ÷ÀàĞÍ';
-    vH[1] := 'Éè¼Æ±àºÅ';
-    vH[2] := 'ÎïÀíÁ¿';
-    vH[3] := '¹Û²âÈÕÆÚ';
-    vH[4] := '¼ä¸ôÌìÊı';
-    vH[5] := 'µ±Ç°²âÖµ';
-    vH[6] := '×îĞÂÔöÁ¿';
-    vH[7] := '×î½ü30ÌìÔöÁ¿';
+    vH[0] := 'ä»ªå™¨ç±»å‹';
+    vH[1] := 'è®¾è®¡ç¼–å·';
+    vH[2] := 'ç‰©ç†é‡';
+    vH[3] := 'è§‚æµ‹æ—¥æœŸ';
+    vH[4] := 'é—´éš”å¤©æ•°';
+    vH[5] := 'å½“å‰æµ‹å€¼';
+    vH[6] := 'æœ€æ–°å¢é‡';
+    vH[7] := 'æœ€è¿‘30å¤©å¢é‡';
     WCV.AddRow(vH);
   end;
 
@@ -937,7 +1056,7 @@ var
 
 begin
   HtmlViewer.Clear;
-  // Èç¹ûWebGrid
+  // å¦‚æœWebGrid
   if rdgPresentType.ItemIndex = 0 then
   begin
     DBGridEh1.Visible := False;
@@ -958,7 +1077,7 @@ begin
       wbViewer.Visible := False;
     end;
   end
-  else // ·ñÔòÊÇEhGrid
+  else // å¦åˆ™æ˜¯EhGrid
   begin
     HtmlViewer.Visible := False;
     wbViewer.Visible := False;
@@ -971,7 +1090,7 @@ begin
   if ExcelMeters.Count = 0 then
       Exit;
 
-  // ×¼±¸ÒÇÆ÷ÁĞ±í
+  // å‡†å¤‡ä»ªå™¨åˆ—è¡¨
   if chkAllMeters.Checked then
   begin
     FMeterList.Clear;
@@ -982,10 +1101,10 @@ begin
   begin
     with IAppServices.FuncDispatcher as IFunctionDispatcher do
     begin
-      // Èç¹ûÄÜÑ¡Ôñ²¿·ÖÒÇÆ÷Ôò
+      // å¦‚æœèƒ½é€‰æ‹©éƒ¨åˆ†ä»ªå™¨åˆ™
       if HasProc('PopupMeterSelector') then
           CallFunction('PopupMeterSelector', { MTList } FMeterList)
-      else // ·ñÔòÑ¡ÔñÈ«²¿ÒÇÆ÷
+      else // å¦åˆ™é€‰æ‹©å…¨éƒ¨ä»ªå™¨
       begin
         for i := 0 to ExcelMeters.Count - 1 do
             { MTList } FMeterList.Add(ExcelMeters.Items[i].DesignName)
@@ -995,24 +1114,23 @@ begin
 
   if FMeterList.Count = 0 then
   begin
-    showmessage('Ã»ÓĞÑ¡ÔñĞèÒª²éÑ¯µÄÒÇÆ÷£¬ÇëÑ¡ÔñºóÔÙ²éÑ¯¡£');
+    ShowMessage('æ²¡æœ‰é€‰æ‹©éœ€è¦æŸ¥è¯¢çš„ä»ªå™¨ï¼Œè¯·é€‰æ‹©åå†æŸ¥è¯¢ã€‚');
     Exit;
   end;
 
   if rdgPresentType.ItemIndex = 0 then
   begin
-    Body := '<h2>¹Û²âÊı¾İ±ä»¯Çé¿ö±í</h2>';
+    Body := '<h2>è§‚æµ‹æ•°æ®å˜åŒ–æƒ…å†µè¡¨</h2>';
     WCV := TWebCrossView.Create;
 
-    // Èç¹û²»ÊÇ°´ÒÇÆ÷ÀàĞÍ·Ö±í£¬ÔòSetGrid¡£°´ÀàĞÍ·Ö±íÊÇÔÚÓöµ½ĞÂÒÇÆ÷ÀàĞÍµÄÊ±ºò²ÅSetGrid£¬ÈôÔÚ´Ë´¦
-    // SetGrid½«Ôì³ÉÖ»ÓĞ±íÍ·µÄ¿Õ±í¡£
+    // å¦‚æœä¸æ˜¯æŒ‰ä»ªå™¨ç±»å‹åˆ†è¡¨ï¼Œåˆ™SetGridã€‚æŒ‰ç±»å‹åˆ†è¡¨æ˜¯åœ¨é‡åˆ°æ–°ä»ªå™¨ç±»å‹çš„æ—¶å€™æ‰SetGridï¼Œè‹¥åœ¨æ­¤å¤„
+    // SetGridå°†é€ æˆåªæœ‰è¡¨å¤´çš„ç©ºè¡¨ã€‚
     if not chkTableByType.Checked then SetGrid;
 
     sType := '';
     sPos := '';
   end;
 
-  IHJXClientFuncs.SessionBegin;
   IAppServices.ClientDatas.ClearErrMsg;
   ErrMsg := '';
 
@@ -1033,22 +1151,22 @@ begin
       // Meter := ExcelMeters.Items[iMeter];
       Meter := ExcelMeters.Meter[ { MTList } FMeterList.Strings[iMeter]];
 
-      if Meter.Params.MeterType = '²âĞ±¿×' then
+      if Meter.Params.MeterType = 'æµ‹æ–œå­”' then
           Continue;
 
       lblDesignName.Caption := Meter.DesignName;
-      lblProgress.Caption := Format('ÕıÔÚ´¦ÀíµÚ%dÖ§£¬¹²%dÖ§', [iMeter, iCount]);
+      lblProgress.Caption := Format('æ­£åœ¨å¤„ç†ç¬¬%dæ”¯ï¼Œå…±%dæ”¯', [iMeter, iCount]);
       ProgressBar.Position := iMeter;
       IAppServices.ProcessMessages;
 
-      if rdgPresentType.ItemIndex = 0 then // WebGridĞèÒª°´²¿Î»ºÍÀàĞÍ»®·ÖÒ³Ãæ
+      if rdgPresentType.ItemIndex = 0 then // WebGridéœ€è¦æŒ‰éƒ¨ä½å’Œç±»å‹åˆ’åˆ†é¡µé¢
       begin
         if Meter.PrjParams.Position <> sPos then
         begin
           sPos := Meter.PrjParams.Position;
           Body := Body + WCV.CrossGrid;
           Body := Body + '<h3>' + sPos + '</h3>';
-        // Èô²»ÊÇ°´ÀàĞÍ·Ö±í£¬Ôò¾ÍÊÇ°´²¿Î»·Ö±í
+        // è‹¥ä¸æ˜¯æŒ‰ç±»å‹åˆ†è¡¨ï¼Œåˆ™å°±æ˜¯æŒ‰éƒ¨ä½åˆ†è¡¨
           if not chkTableByType.Checked then
           begin
             WCV.Reset;
@@ -1062,8 +1180,8 @@ begin
         begin
           if chkTableByType.Checked then
           begin
-          // µ±stype =''Ê±£¬ËµÃ÷ÒÑ¾­ÊÇÁíÒ»¸ö²¿Î»µÄÒÇÆ÷ÁË£¬´ËÊ±WCVÄÚÈİÒÑ¾­ÔÚÌí¼Ó²¿Î»±êÌâÖ®Ç°Ìí¼Óµ½
-          // BodyÁË£¬ÔÙÌí¼Ó±í¸ñ¾Í»áÔÚ²¿Î»±êÌâÏÂÃæÏÔÊ¾Ò»¸öÖØ¸´µÄ±í¸ñ¡£
+          // å½“stype =''æ—¶ï¼Œè¯´æ˜å·²ç»æ˜¯å¦ä¸€ä¸ªéƒ¨ä½çš„ä»ªå™¨äº†ï¼Œæ­¤æ—¶WCVå†…å®¹å·²ç»åœ¨æ·»åŠ éƒ¨ä½æ ‡é¢˜ä¹‹å‰æ·»åŠ åˆ°
+          // Bodyäº†ï¼Œå†æ·»åŠ è¡¨æ ¼å°±ä¼šåœ¨éƒ¨ä½æ ‡é¢˜ä¸‹é¢æ˜¾ç¤ºä¸€ä¸ªé‡å¤çš„è¡¨æ ¼ã€‚
             if sType <> '' then
                 Body := Body + WCV.CrossGrid;
             Body := Body + '<h4>' + Meter.Params.MeterType + '</h4>';
@@ -1076,13 +1194,13 @@ begin
         end;
       end;
 
-      { ²éÑ¯ÒÇÆ÷Êı¾İÔöÁ¿ }
-      { 2019-07-31 ²éÑ¯ÔöÁ¿µÄ·½·¨ÒÑ¾­¸ÄÎª²éÑ¯ÒÇÆ÷´øÓĞÌØÕ÷Öµ±ê¼ÇµÄÎïÀíÁ¿ÏîÄ¿ }
+      { æŸ¥è¯¢ä»ªå™¨æ•°æ®å¢é‡ }
+      { 2019-07-31 æŸ¥è¯¢å¢é‡çš„æ–¹æ³•å·²ç»æ”¹ä¸ºæŸ¥è¯¢ä»ªå™¨å¸¦æœ‰ç‰¹å¾å€¼æ ‡è®°çš„ç‰©ç†é‡é¡¹ç›® }
       if IHJXClientFuncs.GetDataIncrement(Meter.DesignName, Now, V) then
       begin
-      { 2019-07-31 ÒòÔöÁ¿²éÑ¯·½·¨ÒÑ¾­¸ÄÎª²éÑ¯¾ßÓĞÌØÕ÷Öµ±ê¼ÇµÄÎïÀíÁ¿£¬Òò´ËÕâÀïÒ²ĞŞ¸ÄÎªÁĞ³ö¾ß±¸ÌØÕ÷Öµ
-      ±ê¼ÇµÄÎïÀíÁ¿£¬ÔİÊ±²»¿¼ÂÇ¹ıÂËĞ¡±ä»¯Á¿µÄÇé¿ö¡£¹ØÓÚ²éÑ¯µÄ½á¹ûV£¬²Î¼ûuHJX.Excel.DataQueryµ¥ÔªÖĞµÄ
-      GetDataIncrement·½·¨ÖĞµÄ¶¨Òå }
+      { 2019-07-31 å› å¢é‡æŸ¥è¯¢æ–¹æ³•å·²ç»æ”¹ä¸ºæŸ¥è¯¢å…·æœ‰ç‰¹å¾å€¼æ ‡è®°çš„ç‰©ç†é‡ï¼Œå› æ­¤è¿™é‡Œä¹Ÿä¿®æ”¹ä¸ºåˆ—å‡ºå…·å¤‡ç‰¹å¾å€¼
+      æ ‡è®°çš„ç‰©ç†é‡ï¼Œæš‚æ—¶ä¸è€ƒè™‘è¿‡æ»¤å°å˜åŒ–é‡çš„æƒ…å†µã€‚å…³äºæŸ¥è¯¢çš„ç»“æœVï¼Œå‚è§uHJX.Excel.DataQueryå•å…ƒä¸­çš„
+      GetDataIncrementæ–¹æ³•ä¸­çš„å®šä¹‰ }
         k := 0;
         kIdx := [];
         for i := 0 to Meter.PDDefines.Count - 1 do
@@ -1101,12 +1219,12 @@ begin
               vH[0] := sType;
               vH[1] := '<a href="PopGraph:' + Meter.DesignName + '">' +
                 Meter.DesignName + '</a>';
-              vH[2] := V[i][0]; // ÎïÀíÁ¿Ãû
+              vH[2] := V[i][0]; // ç‰©ç†é‡å
               vH[3] := FormatDateTime('yyyy-mm-dd', V[i][1]);
-              vH[4] := V[i][2]; // ¼ä¸ôÈÕÆÚ
-              vH[5] := V[i][3]; // ×îºó²âÖµ
-              vH[6] := V[i][4]; // ÓëÉÏ´Î²âÖµµÄÔöÁ¿
-              vH[7] := V[i][5]; // 30ÈÕÔöÁ¿
+              vH[4] := V[i][2]; // é—´éš”æ—¥æœŸ
+              vH[5] := V[i][3]; // æœ€åæµ‹å€¼
+              vH[6] := V[i][4]; // ä¸ä¸Šæ¬¡æµ‹å€¼çš„å¢é‡
+              vH[7] := V[i][5]; // 30æ—¥å¢é‡
               WCV.AddRow(vH);
             end
             else
@@ -1132,7 +1250,7 @@ begin
     end;
 
     ErrMsg := IAppServices.ClientDatas.ErrorMsg;
-    if ErrMsg <> '' then showmessage('²éÑ¯¹ı³ÌÖĞ·¢ÏÖÒÔÏÂ´íÎó:'#13#10 + ErrMsg);
+    if ErrMsg <> '' then ShowMessage('æŸ¥è¯¢è¿‡ç¨‹ä¸­å‘ç°ä»¥ä¸‹é”™è¯¯:'#13#10 + ErrMsg);
 
     if rdgPresentType.ItemIndex = 0 then
     begin
@@ -1177,7 +1295,6 @@ begin
       WCV.Free;
       ClearValues;
     end;
-    IHJXClientFuncs.SessionEnd;
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
   end;
@@ -1185,7 +1302,7 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : ShowSpecificDatesData
-  Description: ÏÔÊ¾Á½¸öÖ¸¶¨ÈÕÆÚµÄ¹Û²âÊı¾İ£¬¼°ÆäÔöÁ¿
+  Description: æ˜¾ç¤ºä¸¤ä¸ªæŒ‡å®šæ—¥æœŸçš„è§‚æµ‹æ•°æ®ï¼ŒåŠå…¶å¢é‡
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.ShowSpecificDatesData;
 var
@@ -1220,13 +1337,13 @@ var
       WCV.ColHeader[0].AllowColSpan := True;
       for ii in [2, 3, 4] do WCV.ColHeader[ii].Align := taRightJustify;
       SetLength(vH, 5);
-      vH[0] := 'Éè¼Æ±àºÅ';
-      vH[1] := 'ÎïÀíÁ¿';
-      for ii := 2 to 3 do vH[ii] := '¹Û²âÊı¾İ';
-      vH[4] := 'ÔöÁ¿';
+      vH[0] := 'è®¾è®¡ç¼–å·';
+      vH[1] := 'ç‰©ç†é‡';
+      for ii := 2 to 3 do vH[ii] := 'è§‚æµ‹æ•°æ®';
+      vH[4] := 'å¢é‡';
       WCV.AddRow(vH);
-      vH[2] := '%dt1%'; // µÚÒ»¸öÈÕÆÚ
-      vH[3] := '%dt2%'; // µÚ¶ş¸öÈÕÆÚ
+      vH[2] := '%dt1%'; // ç¬¬ä¸€ä¸ªæ—¥æœŸ
+      vH[3] := '%dt2%'; // ç¬¬äºŒä¸ªæ—¥æœŸ
       WCV.AddRow(vH);
     end
     else
@@ -1243,17 +1360,17 @@ var
       for ii in [4, 5, 6, 7, 8] do WCV.ColHeader[ii].Align := taRightJustify;
 
       SetLength(vH, 9);
-      vH[0] := 'Éè¼Æ±àºÅ';
-      vH[1] := 'ÎïÀíÁ¿';
-      for ii := 2 to 5 do vH[ii] := '¹Û²âÊı¾İ';
-      vH[6] := 'ÔöÁ¿';
-      vH[7] := 'ÈÕÆÚ¼ä¸ô';
-      vH[8] := '±ä»¯ËÙÂÊ';
+      vH[0] := 'è®¾è®¡ç¼–å·';
+      vH[1] := 'ç‰©ç†é‡';
+      for ii := 2 to 5 do vH[ii] := 'è§‚æµ‹æ•°æ®';
+      vH[6] := 'å¢é‡';
+      vH[7] := 'æ—¥æœŸé—´éš”';
+      vH[8] := 'å˜åŒ–é€Ÿç‡';
       WCV.AddRow(vH);
-      vH[2] := 'ÆğÊ¼ÈÕÆÚ';
-      vH[3] := '½ØÖ¹ÈÕÆÚ';
-      vH[4] := 'ÆğÊ¼²âÖµ';
-      vH[5] := '½ØÖ¹²âÖµ';
+      vH[2] := 'èµ·å§‹æ—¥æœŸ';
+      vH[3] := 'æˆªæ­¢æ—¥æœŸ';
+      vH[4] := 'èµ·å§‹æµ‹å€¼';
+      vH[5] := 'æˆªæ­¢æµ‹å€¼';
       WCV.AddRow(vH);
     end;
 
@@ -1262,7 +1379,7 @@ var
 begin
   if ExcelMeters.Count = 0 then Exit;
 
-// Èç¹ûWebGrid
+// å¦‚æœWebGrid
   if rdgPresentType.ItemIndex = 0 then
   begin
     DBGridEh1.Visible := False;
@@ -1283,7 +1400,7 @@ begin
       wbViewer.Visible := False;
     end;
   end
-  else // ·ñÔòÊÇEhGrid
+  else // å¦åˆ™æ˜¯EhGrid
   begin
     HtmlViewer.Visible := False;
     wbViewer.Visible := False;
@@ -1305,7 +1422,7 @@ begin
     HtmlViewer.Align := alClient;
   end;
 *)
-  // Ñ¡ÔñÒÇÆ÷
+  // é€‰æ‹©ä»ªå™¨
   if chkAllMeters.Checked then
   begin
     FMeterList.Clear;
@@ -1319,15 +1436,14 @@ begin
 
   if FMeterList.Count = 0 then
   begin
-    showmessage('Ã»ÓĞÑ¡Ôñ¼à²âÒÇÆ÷');
+    ShowMessage('æ²¡æœ‰é€‰æ‹©ç›‘æµ‹ä»ªå™¨');
     Exit;
   end;
 
-  // ×¼±¸±í¸ñ¶ÔÏó
-  IAppServices.ClientDatas.SessionBegin;
+  // å‡†å¤‡è¡¨æ ¼å¯¹è±¡
   IAppServices.ClientDatas.ClearErrMsg;
   ErrMsg := '';
-  // Èç¹û²ÉÓÃWebGrid±íÏÖ£¬Ôò
+  // å¦‚æœé‡‡ç”¨WebGridè¡¨ç°ï¼Œåˆ™
   if rdgPresentType.ItemIndex = 0 then
   begin
     if chkSimpleSDGrid.Checked then SetLength(vH, 5)
@@ -1348,21 +1464,21 @@ begin
     lblDesignName.Caption := '';
     // iCount := { MTList } FMeterList.Count; // ExcelMeters.Count;
     pnlProgress.Visible := True;
-    // ×¼±¸ÒÇÆ÷Êı¾İ£¬¼°ÌîĞ´ÄÚÈİ
+    // å‡†å¤‡ä»ªå™¨æ•°æ®ï¼ŒåŠå¡«å†™å†…å®¹
     for i := 0 to FMeterList.Count - 1 do
     begin
       Meter := ExcelMeters.Meter[FMeterList[i]];
       lblDesignName.Caption := Meter.DesignName;
-      lblProgress.Caption := Format('ÕıÔÚ´¦ÀíµÚ%dÖ§£¬¹²%dÖ§', [i + 1, FMeterList.Count]);
+      lblProgress.Caption := Format('æ­£åœ¨å¤„ç†ç¬¬%dæ”¯ï¼Œå…±%dæ”¯', [i + 1, FMeterList.Count]);
       ProgressBar.Position := i + 1;
 
       if Meter.DataSheet = '' then Continue;
-      if Meter.Params.MeterType = '²âĞ±¿×' then Continue;
+      if Meter.Params.MeterType = 'æµ‹æ–œå­”' then Continue;
 
-      // Èç¹û²ÉÓÃWebGrid£¬Ôò
+      // å¦‚æœé‡‡ç”¨WebGridï¼Œåˆ™
       if rdgPresentType.ItemIndex = 0 then
       begin
-        // ²¿Î»´¦Àí
+        // éƒ¨ä½å¤„ç†
         if Meter.PrjParams.Position <> sPos then
         begin
           sPos := Meter.PrjParams.Position;
@@ -1370,17 +1486,17 @@ begin
           WCV.Reset;
           _SetGrid;
         end;
-        // ÀàĞÍ¼ì²é¡¢´¦Àí
+        // ç±»å‹æ£€æŸ¥ã€å¤„ç†
         if Meter.Params.MeterType <> sType then
         begin
           sType := Meter.Params.MeterType;
           WCV.AddCaptionRow([sType]);
         end;
-        { 2019-07-31²ÉÓÃÁĞ³öÌØÕ÷ÖµÏîµÄ·½Ê½´´½¨±í¸ñ£¬¼´ÒÇÆ÷µÄÌØÕ÷ÖµÁ¿¶¼ÁĞÈëÊı¾İ²éÑ¯Ö®ÖĞ }
+        { 2019-07-31é‡‡ç”¨åˆ—å‡ºç‰¹å¾å€¼é¡¹çš„æ–¹å¼åˆ›å»ºè¡¨æ ¼ï¼Œå³ä»ªå™¨çš„ç‰¹å¾å€¼é‡éƒ½åˆ—å…¥æ•°æ®æŸ¥è¯¢ä¹‹ä¸­ }
         _ClearValues;
       end;
 
-      // ÏÂÃæµÄ´úÂë²éÑ¯ºÍÍ³¼ÆÒÇÆ÷µÄÌØÕ÷ÖµÏîÊıÁ¿£¬²¢½«PDĞòºÅÌîÈëkIdx¼¯ºÏ
+      // ä¸‹é¢çš„ä»£ç æŸ¥è¯¢å’Œç»Ÿè®¡ä»ªå™¨çš„ç‰¹å¾å€¼é¡¹æ•°é‡ï¼Œå¹¶å°†PDåºå·å¡«å…¥kIdxé›†åˆ
       j := 0;
       kIdx := [];
       for k := 0 to Meter.PDDefines.Count - 1 do
@@ -1390,17 +1506,17 @@ begin
           include(kIdx, k);
         end;
 
-      { µ±ÒÇÆ÷µÄÌØÕ÷ÖµÏî²»ÎªÁã£¬Ôò´´½¨±í¸ñ }
+      { å½“ä»ªå™¨çš„ç‰¹å¾å€¼é¡¹ä¸ä¸ºé›¶ï¼Œåˆ™åˆ›å»ºè¡¨æ ¼ }
       if j > 0 then
       begin
-        // ²éÑ¯Êı¾İ
+        // æŸ¥è¯¢æ•°æ®
         if IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp1.Date, V) and
           IAppServices.ClientDatas.GetNearestPDDatas(FMeterList[i], dtp2.Date, V1) then
         begin
           if (Length(V) = 0) or (V[0] = 0) or (Length(V1) = 0) or (V1[0] = 0) then Continue;
           dt1 := V[0];
           dt2 := V1[0];
-          // Èç¹û²ÉÓÃWebGrid£¬Ôò
+          // å¦‚æœé‡‡ç”¨WebGridï¼Œåˆ™
           if rdgPresentType.ItemIndex = 0 then
           begin
             vH[0] := '<a href="PopGraph:' + Meter.DesignName + '">' + Meter.DesignName + '</a>';
@@ -1408,15 +1524,15 @@ begin
             begin
               vH[2] := FormatDateTime('yyyy-mm-dd', dt1);
               vH[3] := FormatDateTime('yyyy-mm-dd', dt2);
-              vH[7] := dt2 - dt1; // ÈÕÆÚ¼ä¸ô
+              vH[7] := dt2 - dt1; // æ—¥æœŸé—´éš”
             end;
           end;
 
-          for j in kIdx do // Öğ¸öÌí¼ÓÌØÕ÷ÖµÊı¾İĞĞ
+          for j in kIdx do // é€ä¸ªæ·»åŠ ç‰¹å¾å€¼æ•°æ®è¡Œ
           begin
-            if rdgPresentType.ItemIndex = 0 then // ²ÉÓÃWebGrid
+            if rdgPresentType.ItemIndex = 0 then // é‡‡ç”¨WebGrid
             begin
-              vH[1] := Meter.PDName(j);
+              vH[1] := Meter.pdName(j);
               if chkSimpleSDGrid.Checked then
               begin
                 vH[2] := V[j + 1];
@@ -1432,13 +1548,13 @@ begin
               end;
               WCV.AddRow(vH);
             end
-            else // ²ÉÓÃEhGrid
+            else // é‡‡ç”¨EhGrid
             begin
               cdsDatas.Append;
               cdsDatas.FieldByName('Position').Value := Meter.PrjParams.Position;
               cdsDatas.FieldByName('MeterType').Value := Meter.Params.MeterType;
               cdsDatas.FieldByName('DesignName').Value := Meter.DesignName;
-              cdsDatas.FieldByName('PDName').Value := Meter.PDName(j);
+              cdsDatas.FieldByName('PDName').Value := Meter.pdName(j);
               cdsDatas.FieldByName('StartDate').Value := dt1;
               cdsDatas.FieldByName('EndDate').Value := dt2;
               cdsDatas.FieldByName('Data1').Value := V[j + 1];
@@ -1454,13 +1570,13 @@ begin
       end;
     end;
 
-    // Èç¹û²éÑ¯¹ı³ÌÖĞ´æÔÚ´íÎó£¬ÔÚÕâÀïÏÔÊ¾Ò»ÏÂ
+    // å¦‚æœæŸ¥è¯¢è¿‡ç¨‹ä¸­å­˜åœ¨é”™è¯¯ï¼Œåœ¨è¿™é‡Œæ˜¾ç¤ºä¸€ä¸‹
     ErrMsg := IAppServices.ClientDatas.ErrorMsg;
-    if ErrMsg <> '' then showmessage('²éÑ¯¹ı³Ì·¢ÏÖÒÔÏÂ´íÎó£º'#13#10 + ErrMsg);
+    if ErrMsg <> '' then ShowMessage('æŸ¥è¯¢è¿‡ç¨‹å‘ç°ä»¥ä¸‹é”™è¯¯ï¼š'#13#10 + ErrMsg);
 
     if rdgPresentType.ItemIndex = 0 then
     begin
-    // ÏÔÊ¾½á¹û
+    // æ˜¾ç¤ºç»“æœ
       sBody := sBody + WCV.CrossGrid;
       if chkSimpleSDGrid.Checked then
       begin
@@ -1497,15 +1613,15 @@ begin
     end;
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
-    IAppServices.ClientDatas.SessionEnd;
   end;
 
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : ShowLastDatas
-  Description: ±¾·½·¨ÏÔÊ¾ËùÑ¡ÒÇÆ÷µÄ×îºóÒ»Ìõ¼ÇÂ¼£¬·Ö²¿Î»¡¢°´ÀàĞÍ·Ö±í£¬ÏÔÊ¾È«²¿
-  ÎïÀíÁ¿¡£
+  Description: æœ¬æ–¹æ³•æ˜¾ç¤ºæ‰€é€‰ä»ªå™¨çš„æœ€åä¸€æ¡è®°å½•ï¼Œåˆ†éƒ¨ä½ã€æŒ‰ç±»å‹åˆ†è¡¨ï¼Œæ˜¾ç¤ºå…¨éƒ¨
+  ç‰©ç†é‡ã€‚ç›®å‰æœ¬åŠŸèƒ½åªç”¨WebGridè¡¨ç¤ºï¼Œå¹¶ä¸”æ˜¾ç¤ºæ‰€æœ‰çš„ç‰©ç†é‡ï¼Œè¡Œæ˜¾ç¤ºï¼Œä¸æ˜¯EhGrid
+  é‚£ç§ç”¨å¤šè¡Œæ˜¾ç¤ºå¤šç‰©ç†é‡çš„æ–¹å¼ã€‚
 ----------------------------------------------------------------------------- }
 procedure TfraQuickViewer.ShowLastDatas;
 var
@@ -1542,22 +1658,22 @@ var
         Result := False;
   end;
 
-  { ¸ù¾İÒÇÆ÷ÀàĞÍÉèÖÃ±í¸ñ }
+  { æ ¹æ®ä»ªå™¨ç±»å‹è®¾ç½®è¡¨æ ¼ }
   procedure SetGrid;
   var
     iii: Integer;
   begin
-    WCV.ColCount := Meter.DataSheetStru.PDs.Count + 3; // Éè¼Æ±àºÅ£¬¹Û²âÈÕÆÚ£¬ÎïÀíÁ¿ÏµÁĞ£¬±¸×¢ÁĞ
+    WCV.ColCount := Meter.DataSheetStru.PDs.Count + 3; // è®¾è®¡ç¼–å·ï¼Œè§‚æµ‹æ—¥æœŸï¼Œç‰©ç†é‡ç³»åˆ—ï¼Œå¤‡æ³¨åˆ—
     WCV.TitleRows := 1;
     WCV.AddRow;
-    WCV.Cells[0, 0].Value := 'Éè¼Æ±àºÅ';
-    WCV.Cells[1, 0].Value := '¹Û²âÈÕÆÚ';
+    WCV.Cells[0, 0].Value := 'è®¾è®¡ç¼–å·';
+    WCV.Cells[1, 0].Value := 'è§‚æµ‹æ—¥æœŸ';
     for iii := 0 to Meter.DataSheetStru.PDs.Count - 1 do
     begin
       WCV.Cells[2 + iii, 0].Value := Meter.PDDefine[iii].Name;
       WCV.ColHeader[2 + iii].Align := taRightJustify;
     end;
-    WCV.Cells[WCV.ColCount - 1, 0].Value := '±¸×¢';
+    WCV.Cells[WCV.ColCount - 1, 0].Value := 'å¤‡æ³¨';
   end;
 
 begin
@@ -1577,7 +1693,7 @@ begin
     HtmlViewer.Align := alClient;
   end;
 
-  // ×¼±¸ÒÇÆ÷ÁĞ±í
+  // å‡†å¤‡ä»ªå™¨åˆ—è¡¨
   if chkAllMeters.Checked then
   begin
     FMeterList.Clear;
@@ -1588,10 +1704,10 @@ begin
   begin
     with IAppServices.FuncDispatcher as IFunctionDispatcher do
     begin
-    // Èç¹ûÄÜÑ¡Ôñ²¿·ÖÒÇÆ÷Ôò
+    // å¦‚æœèƒ½é€‰æ‹©éƒ¨åˆ†ä»ªå™¨åˆ™
       if HasProc('PopupMeterSelector') then
           CallFunction('PopupMeterSelector', { MTList } FMeterList)
-      else // ·ñÔòÑ¡ÔñÈ«²¿ÒÇÆ÷
+      else // å¦åˆ™é€‰æ‹©å…¨éƒ¨ä»ªå™¨
       begin
         for i := 0 to ExcelMeters.Count - 1 do
             FMeterList.Add(ExcelMeters.Items[i].DesignName)
@@ -1600,19 +1716,18 @@ begin
   end;
   if FMeterList.Count = 0 then
   begin
-    showmessage('Ã»ÓĞÑ¡ÔñĞèÒª²éÑ¯µÄ¼à²âÒÇÆ÷£¬ÇëÑ¡ÔñºóÔÙ²éÑ¯¡£');
+    ShowMessage('æ²¡æœ‰é€‰æ‹©éœ€è¦æŸ¥è¯¢çš„ç›‘æµ‹ä»ªå™¨ï¼Œè¯·é€‰æ‹©åå†æŸ¥è¯¢ã€‚');
     Exit;
   end;
 
-  Body := '<h2>¹Û²âÊı¾İ±ä»¯Çé¿ö±í</h2>';
+  Body := '<h2>è§‚æµ‹æ•°æ®å˜åŒ–æƒ…å†µè¡¨</h2>';
   WCV := TWebCrossView.Create;
 
-  // ±¾·½·¨²úÉúµÄ±í¸ñ½«°´ÕÕÒÇÆ÷ÀàĞÍ·Ö±í
+  // æœ¬æ–¹æ³•äº§ç”Ÿçš„è¡¨æ ¼å°†æŒ‰ç…§ä»ªå™¨ç±»å‹åˆ†è¡¨
   // if not chkTableByType.Checked then SetGrid;
 
   sType := '';
   sPos := '';
-  IHJXClientFuncs.SessionBegin;
   IHJXClientFuncs.ClearErrMsg;
   ErrMsg := '';
 
@@ -1634,10 +1749,10 @@ begin
       Meter := ExcelMeters.Meter[ { MTList } FMeterList.Strings[iMeter]];
 
       lblDesignName.Caption := Meter.DesignName;
-      lblProgress.Caption := Format('ÕıÔÚ´¦ÀíµÚ%dÖ§£¬¹²%dÖ§', [iMeter, iCount]);
+      lblProgress.Caption := Format('æ­£åœ¨å¤„ç†ç¬¬%dæ”¯ï¼Œå…±%dæ”¯', [iMeter, iCount]);
       ProgressBar.Position := iMeter;
 
-      if Meter.Params.MeterType = '²âĞ±¿×' then
+      if Meter.Params.MeterType = 'æµ‹æ–œå­”' then
           Continue;
 
       IAppServices.ProcessMessages;
@@ -1647,7 +1762,7 @@ begin
         sPos := Meter.PrjParams.Position;
         Body := Body + WCV.CrossGrid;
         Body := Body + '<h3>' + sPos + '</h3>';
-        // Èô²»ÊÇ°´ÀàĞÍ·Ö±í£¬Ôò¾ÍÊÇ°´²¿Î»·Ö±í
+        // è‹¥ä¸æ˜¯æŒ‰ç±»å‹åˆ†è¡¨ï¼Œåˆ™å°±æ˜¯æŒ‰éƒ¨ä½åˆ†è¡¨
         if not chkTableByType.Checked then
         begin
           WCV.Reset;
@@ -1661,8 +1776,8 @@ begin
       begin
         if chkTableByType.Checked then
         begin
-          // µ±stype =''Ê±£¬ËµÃ÷ÒÑ¾­ÊÇÁíÒ»¸ö²¿Î»µÄÒÇÆ÷ÁË£¬´ËÊ±WCVÄÚÈİÒÑ¾­ÔÚÌí¼Ó²¿Î»±êÌâÖ®Ç°Ìí¼Óµ½
-          // BodyÁË£¬ÔÙÌí¼Ó±í¸ñ¾Í»áÔÚ²¿Î»±êÌâÏÂÃæÏÔÊ¾Ò»¸öÖØ¸´µÄ±í¸ñ¡£
+          // å½“stype =''æ—¶ï¼Œè¯´æ˜å·²ç»æ˜¯å¦ä¸€ä¸ªéƒ¨ä½çš„ä»ªå™¨äº†ï¼Œæ­¤æ—¶WCVå†…å®¹å·²ç»åœ¨æ·»åŠ éƒ¨ä½æ ‡é¢˜ä¹‹å‰æ·»åŠ åˆ°
+          // Bodyäº†ï¼Œå†æ·»åŠ è¡¨æ ¼å°±ä¼šåœ¨éƒ¨ä½æ ‡é¢˜ä¸‹é¢æ˜¾ç¤ºä¸€ä¸ªé‡å¤çš„è¡¨æ ¼ã€‚
           if sType <> '' then
               Body := Body + WCV.CrossGrid;
           Body := Body + '<h4>' + Meter.Params.MeterType + '</h4>';
@@ -1675,17 +1790,17 @@ begin
       end;
 
       if IHJXClientFuncs.GetLastPDDatas(Meter.DesignName, V) then
-        if (Length(V) <> 0) and (V[0] <> 0) then // Èô¹Û²âÈÕÆÚÎª0£¬Ôò±íÃ÷¸ÃÒÇÆ÷Ã»ÓĞ¹Û²âÊı¾İ
+        if (Length(V) <> 0) and (V[0] <> 0) then // è‹¥è§‚æµ‹æ—¥æœŸä¸º0ï¼Œåˆ™è¡¨æ˜è¯¥ä»ªå™¨æ²¡æœ‰è§‚æµ‹æ•°æ®
         begin
           WCV.AddRow;
           iRow := WCV.RowCount - 1;
-          WCV.Cells[0, iRow].Value := Meter.DesignName;    // Éè¼Æ±àºÅ
-          WCV.Cells[1, iRow].Value := VarToDateTime(V[0]); // ¹Û²âÈÕÆÚ
-          // Ìí¼ÓÎïÀíÁ¿
+          WCV.Cells[0, iRow].Value := Meter.DesignName;    // è®¾è®¡ç¼–å·
+          WCV.Cells[1, iRow].Value := VarToDateTime(V[0]); // è§‚æµ‹æ—¥æœŸ
+          // æ·»åŠ ç‰©ç†é‡
           for i := 0 to Meter.PDDefines.Count - 1 do
             if VarIsNumeric(V[1 + i]) then
                 WCV.Cells[2 + i, iRow].Value := FormatFloat('0.00', V[i + 1]);
-          // Ìí¼Ó±¸×¢
+          // æ·»åŠ å¤‡æ³¨
         end;
     end;
 
@@ -1699,12 +1814,11 @@ begin
     { MTList.Free; }
     WCV.Free;
     ClearValues;
-    IHJXClientFuncs.SessionEnd;
     Screen.Cursor := crDefault;
     pnlProgress.Visible := False;
 
     ErrMsg := IHJXClientFuncs.ErrorMsg;
-    if ErrMsg <> '' then showmessage('²éÑ¯¹ı³ÌÖĞ·¢ÏÖÒÔÏÂ´íÎó£º'#13#10 + ErrMsg);
+    if ErrMsg <> '' then ShowMessage('æŸ¥è¯¢è¿‡ç¨‹ä¸­å‘ç°ä»¥ä¸‹é”™è¯¯ï¼š'#13#10 + ErrMsg);
     IHJXClientFuncs.ClearErrMsg;
   end;
 end;

@@ -7,11 +7,14 @@
   History:
     2018-06-14  修改了表格格式，按工程部位拆分了表格
     2018-09-18  增加了查询时间段内特征值的功能，增加了“增量”和“振幅”两项。
+    2022-10-25  增加了允许用户选择特征值项的功能，可选增设序号列，可选3行式表头
   ----------------------------------------------------------------------------- }
-{ todo:允许采用分表形式显示特征值数据，可按安装部位进行分组分表 }
-{ todo:允许用户选择表格内容，如可选是否有年特征、月特征、当前值、增量、振幅等等。
+{ done:允许采用分表形式显示特征值数据，可按安装部位进行分组分表 }
+{ done:允许用户选择表格内容，如可选是否有年特征、月特征、当前值、增量、振幅等等。
 虽然查询结果是返回全部内容，但是表示的时候允许挑选，以免生成一个巨大表格，还需再编辑 }
-{ todo:提供EhGrid显示的特征值，这个组件允许按列排序，这样在分组后再排序是非常有用的 }
+{ done:提供EhGrid显示的特征值，这个组件允许按列排序，这样在分组后再排序是非常有用的 }
+{ todo:允许选择仪器的某项数据进行特征值查询，比如钢筋计可以只查应力，而不必每次都要多查个温度，
+       导致还得删除温度项 }
 unit ufraEigenvalueWeb;
 
 interface
@@ -41,6 +44,13 @@ type
     chkYearEV: TCheckBox;
     chkMonthEV: TCheckBox;
     chkLastData: TCheckBox;
+    grpDataSelect: TGroupBox;
+    chkMinData: TCheckBox;
+    chkIncData: TCheckBox;
+    chkAmplitude: TCheckBox;
+    GroupBox2: TGroupBox;
+    chkSeqNum: TCheckBox;
+    chk3TitleRows: TCheckBox;
     procedure btnGetEVDataClick(Sender: TObject);
     procedure wbEVPageBeforeNavigate2(ASender: TObject; const pDisp: IDispatch; const URL, Flags,
       TargetFrameName, PostData, Headers: OleVariant; var Cancel: WordBool);
@@ -156,85 +166,221 @@ end;
 procedure TfraEigenvalueWeb._GetTitleRowStr(ARow: Integer; var V: array of Variant);
 var
   i, iCol: Integer;
-begin
-    // SetLength(V, 15);
-  // 首行标题
-  if ARow = 1 then
+  CN, ii : Integer; // 每个特征值项的列数
+  procedure __SetRow1;
+  var
+    iiCol: Integer;
   begin
-        // V[0] := '安装部位';
-        // V[1] := '仪器类型';
-    V[0] := '设计编号';
-    V[1] := '物理量';
-    i := 2;
+    if chkSeqNum.Checked then
+    begin
+      V[0] := '序号';
+      V[1] := '设计编号';
+      V[2] := '物理量';
+      i := 3;
+    end
+    else
+    begin
+      // V[0] := '安装部位';
+      // V[1] := '仪器类型';
+      V[0] := '设计编号';
+      V[1] := '物理量';
+      i := 2;
+    end;
     if chkHistoryEV.Checked then
     begin
-      for iCol := i to i + 5 do V[iCol] := '历史特征值';
-      Inc(i, 6);
+      for iiCol := i to i + CN - 1 do V[iiCol] := '历史特征值';
+      Inc(i, CN);
     end;
 
     if chkYearEV.Checked then
     begin
-      for iCol := i to i + 5 do V[iCol] := '年特征值';
-      Inc(i, 6);
+      for iiCol := i to i + CN - 1 do V[iiCol] := '年特征值';
+      Inc(i, CN);
     end;
 
     if chkMonthEV.Checked then
     begin
-      for iCol := i to i + 5 do V[iCol] := '月特征值';
-      Inc(i, 6);
+      for iiCol := i to i + CN - 1 do V[iiCol] := '月特征值';
+      Inc(i, CN);
     end;
 
     if chkLastData.Checked then
     begin
-      for iCol := i to i + 1 do V[iCol] := '当前值';
-      Inc(i, 2);
-    end;
-  end
-  else // 第二行标题
-  begin
-    V[0] := '设计编号';
-    V[1] := '物理量';
-    i := 2;
-    if chkHistoryEV.Checked then
-    begin
-      V[i] := '最大值';
-      V[i + 1] := '最大值日期';
-      V[i + 2] := '最小值';
-      V[i + 3] := '最小值日期';
-      V[i + 4] := '增量';
-      V[i + 5] := '变幅';
-      Inc(i, 6);
-    end;
-
-    if chkYearEV.Checked then
-    begin
-      V[i] := '年最大值';
-      V[i + 1] := '最大值日期';
-      V[i + 2] := '年最小值';
-      V[i + 3] := '最小值日期';
-      V[i + 4] := '年增量';
-      V[i + 5] := '年变幅';
-      Inc(i, 6);
-    end;
-
-    if chkMonthEV.Checked then
-    begin
-      V[i] := '月最大值';
-      V[i + 1] := '最大值日期';
-      V[i + 2] := '月最小值';
-      V[i + 3] := '最小值日期';
-      V[i + 4] := '月增量';
-      V[i + 5] := '月变幅';
-      Inc(i, 6);
-    end;
-
-    if chkLastData.Checked then
-    begin
-      V[i] := '当前值';
-      V[i + 1] := '观测日期';
+      for iiCol := i to i + 1 do V[iiCol] := '当前值';
       Inc(i, 2);
     end;
   end;
+  // 用于设置某一类的各列，如历史特征值，年特征值，月特征值啥的
+  // ATitle的值为“年”“月”“历史”啥的
+  procedure __SetACols(ATitleRow: Integer);
+  begin
+    ii := 2;
+    if chk3TitleRows.Checked then
+    begin
+      if ATitleRow = 3 then
+      begin
+        V[i] := '日期';
+        V[i + 1] := '测值';
+      end
+      else
+      begin
+        V[i] := '最大值';
+        V[i + 1] := '最大值';
+      end;
+    end
+    else
+    begin
+      V[i + 1] := '最大值';
+      V[i] := '最大值日期';
+    end;
+
+    if chkMinData.Checked then
+    begin
+      if chk3TitleRows.Checked then
+      begin
+        if ATitleRow = 3 then
+        begin
+          V[i + ii] := '日期';
+          V[i + ii + 1] := '测值';
+        end
+        else
+        begin
+          V[i + ii] := '最小值';
+          V[i + ii + 1] := '最小值';
+        end;
+      end
+      else
+      begin
+        V[i + ii + 1] := '最小值';
+        V[i + ii] := '最小值日期';
+      end;
+      Inc(ii, 2);
+    end;
+
+    if chkIncData.Checked then
+    begin
+      V[i + ii] := '增量';
+      Inc(ii);
+    end;
+
+    if chkAmplitude.Checked then
+    begin
+      V[i + ii] := '变幅';
+      Inc(ii);
+    end;
+    Inc(i, ii);
+  end;
+
+  procedure __SetRow2;
+  begin
+    if chkSeqNum.Checked then
+    begin
+      V[0] := '序号';
+      V[1] := '设计编号';
+      V[2] := '物理量';
+      i := 3;
+    end
+    else
+    begin
+      // V[0] := '安装部位';
+      // V[1] := '仪器类型';
+      V[0] := '设计编号';
+      V[1] := '物理量';
+      i := 2;
+    end;
+
+    if chkHistoryEV.Checked then
+    begin
+      __SetACols(2); // 历史特征值
+    end;
+
+    if chkYearEV.Checked then
+    begin
+      __SetACols(2);
+    end;
+
+    if chkMonthEV.Checked then
+    begin
+      __SetACols(2);
+    end;
+
+    if chkLastData.Checked then
+    begin
+      if chk3TitleRows.Checked then
+      begin
+        V[i] := '当前值';
+        V[i + 1] := '当前值';
+      end
+      else
+      begin
+        V[i] := '日期';
+        V[i + 1] := '测值';
+      end;
+      Inc(i, 2);
+    end;
+  end;
+
+  procedure __SetRow3;
+  begin
+    if chkSeqNum.Checked then
+    begin
+      V[0] := '序号';
+      V[1] := '设计编号';
+      V[2] := '物理量';
+      i := 3;
+    end
+    else
+    begin
+      // V[0] := '安装部位';
+      // V[1] := '仪器类型';
+      V[0] := '设计编号';
+      V[1] := '物理量';
+      i := 2;
+    end;
+
+    if chkHistoryEV.Checked then
+    begin
+      __SetACols(3); // 历史特征值
+    end;
+
+    if chkYearEV.Checked then
+    begin
+      __SetACols(3);
+    end;
+
+    if chkMonthEV.Checked then
+    begin
+      __SetACols(3);
+    end;
+
+    if chkLastData.Checked then
+    begin
+      V[i] := '日期';
+      V[i + 1] := '测值';
+      Inc(i, 2);
+    end;
+
+  end;
+
+begin
+    // SetLength(V, 15);
+  CN := 2;                                 // 必定包含最大值的两列
+  if chkMinData.Checked then Inc(CN, 2);   // 如果包含最小值，则多两列
+  if chkIncData.Checked then Inc(CN, 1);   // 如果包含增量，则增加1列
+  if chkAmplitude.Checked then Inc(CN, 1); // 如果包含变幅，则增加1列
+  // if chkSeqNum.Checked then Inc(CN, 1);    // 如果包含序号，则增加1列
+
+// 首行标题
+  if ARow = 1 then
+  begin
+    __SetRow1;
+  end
+  else if ARow = 2 then // 第二行标题
+  begin
+    __SetRow2;
+  end
+  else if ARow = 3 then // 只有选择了3行标题模式才会有第三行设置
+      __SetRow3;
 end;
 
 procedure TfraEigenvalueWeb._SetGrid(AW: TWebCrossView);
@@ -242,19 +388,33 @@ var
   V : array of Variant;
   i : Integer;
   CC: Integer; // ColCount
+  CN: Integer; // ColNumber per EVItem
   S : String;
 begin
-  AW.TitleRows := 2;
+  if chk3TitleRows.Checked then
+      AW.TitleRows := 3
+  else
+      AW.TitleRows := 2;
+  // 2022-09-09 根据用户选择的数据项确定每个特征值项拥有几行
+  CN := 2;                                 // 仅有最大值项
+  if chkMinData.Checked then Inc(CN, 2);   // 如果包含最小值，则多两列
+  if chkIncData.Checked then Inc(CN, 1);   // 如果包含增量，则增加1列
+  if chkAmplitude.Checked then Inc(CN, 1); // 如果包含变幅，则增加1列
+
   CC := 2; // 最起码有头两列设计编号和物理量名称2020-10-10
   // 2020-10-10 以下代码根据用户选择的查询项设置列数
-  if chkHistoryEV.Checked then Inc(CC, 6);
-  if chkYearEV.Checked then Inc(CC, 6);
-  if chkMonthEV.Checked then Inc(CC, 6);
+  if chkSeqNum.Checked then Inc(CC, 1); // 如果包含序号，增加1列
+  if chkHistoryEV.Checked then Inc(CC, CN { 6 } );
+  if chkYearEV.Checked then Inc(CC, CN { 6 } );
+  if chkMonthEV.Checked then Inc(CC, CN { 6 } );
   if chkLastData.Checked then Inc(CC, 2);
 
   // AW.ColCount := { 16 } 22; // 2018-09-18 增加了增量和振幅
   AW.ColCount := CC;
   AW.ColHeader[0].AllowColSpan := True;
+  if chk3TitleRows.Checked then AW.ColHeader[1].AllowColSpan := True;
+
+  { todo:下面的_GetTitleRowStr方法设置表头的方法太笨了，参考ufraEigenvalueGrid中设置表头的方法 }
   SetLength(V, CC);
   // 设置表头首行
   _GetTitleRowStr(1, V);
@@ -262,8 +422,14 @@ begin
   // 设置表头第二行
   _GetTitleRowStr(2, V);
   AW.AddRow(V);
+  // 如果是3行模式，设置表头第三行
+  if chk3TitleRows.Checked then
+  begin
+    _GetTitleRowStr(3, V);
+    AW.AddRow(V);
+  end;
 
-  for i := 2 to CC - 1 do
+  for i := 0 to CC - 1 do
   begin
     S := AW.Cells[i, 1].StrValue; // 取得标题第二行内容；
     if ((Pos('值', S) > 0) and (Pos('日期', S) = 0)) or (Pos('增量', S) > 0) or (Pos('变幅', S) > 0) then
@@ -340,10 +506,18 @@ begin
   Cancel := True;
 end;
 
+{ -----------------------------------------------------------------------------
+  Procedure  : GetEVDatas
+  Description: 生成特征值表格的HTML代码
+  2022-09-09 将特征值表从连续表改为按照仪器类型的分表，便于拷贝，也便于将来
+  针对特定仪器进行特定处理。
+----------------------------------------------------------------------------- }
 procedure TfraEigenvalueWeb.GetEVDatas(IDList: string);
 var
   i, j   : Integer; // 循环量
   iCol   : Integer;
+  ii     : Integer; // 特征值项内数据项列号
+  iSeq   : Integer; // 仪器序号
   EVDatas: PEVDataArray;
   Meter  : TMeterDefine;
   WCV    : TWebCrossView;
@@ -354,7 +528,38 @@ var
   sType  : string;
   bGet   : Boolean;
   S      : string;
-  ErrMsg:string;
+  ErrMsg : string;
+
+  // 根据用户选择的数据项目填写数据，并计算下一列的列号
+  procedure PutEVDatas(EVD: TEVDataEntry);
+  begin
+    ii := 2;
+    if chkHistoryEV.Checked then
+    begin
+      V[iCol + 1] := EVD.MaxValue;
+      V[iCol] := FormatDateTime('yyyy-mm-dd', EVD.MaxDate);
+      if chkMinData.Checked then
+      begin
+        V[iCol + ii + 1] := EVD.MinValue;
+        V[iCol + ii] := FormatDateTime('yyyy-mm-dd', EVD.MinDate);
+        Inc(ii, 2);
+      end;
+
+      if chkIncData.Checked then
+      begin
+        V[iCol + ii] := EVD.Increment;
+        Inc(ii);
+      end;
+
+      if chkAmplitude.Checked then
+      begin
+        V[iCol + ii] := EVD.Amplitude;
+        Inc(ii);
+      end;
+      Inc(iCol, ii);
+    end;
+  end;
+
 begin
   FIDList.Text := IDList;
   if FIDList.Count = 0 then
@@ -367,16 +572,19 @@ begin
 
   IHJXClientFuncs.SessionBegin;
   IHJXClientFuncs.ClearErrMsg;
-  errmsg:='';
+  ErrMsg := '';
 
   WCV := TWebCrossView.Create;
 
   _SetGrid(WCV);
     // SetLength(V, 16);
-  SetLength(V, wcv.ColCount); // 2018-09-18 增加“增量”，“振幅”两项
+  SetLength(V, WCV.ColCount); // 2018-09-18 增加“增量”，“振幅”两项
 
   Body := '<H2>观测数据特征值表</H2>';
   try
+    sPos := '';
+    sType := '';
+    iSeq := 1;
     for i := 0 to FIDList.Count - 1 do
     begin
       ProgressBar1.Position := i + 1;
@@ -395,7 +603,8 @@ begin
           sPos := Meter.PrjParams.Position;
           sType := Meter.Params.MeterType;
           Body := Body + '<h3>' + sPos + '监测仪器</h3>';
-          WCV.AddCaptionRow([sType]);
+          Body := Body + '<h4>' + sType + '</h4>';
+          // WCV.AddCaptionRow([sType]); 改为每种类型单独成表
         end
         else
         begin
@@ -405,16 +614,23 @@ begin
             sType := Meter.Params.MeterType;
             Body := Body + WCV.CrossGrid;
             Body := Body + '<h3>' + sPos + '监测仪器</h3>';
+            Body := Body + '<h4>' + sType + '</h4>';
             WCV.Reset;
             _SetGrid(WCV);
-            WCV.AddCaptionRow([sType]);
+            // WCV.AddCaptionRow([sType]);
+            iseq:= 1;
           end;
         end;
 
         if Meter.Params.MeterType <> sType then
         begin
+          Body := Body + WCV.CrossGrid;
           sType := Meter.Params.MeterType;
-          WCV.AddCaptionRow([sType]);
+          Body := Body + '<h4>' + sType + '</h4>';
+          WCV.Reset;
+          _SetGrid(WCV);
+          // WCV.AddCaptionRow([sType]);
+          iSeq := 1;
         end;
 
         if Length(EVDatas) > 0 then
@@ -425,50 +641,87 @@ begin
           // V[1] := Meter.Params.MeterType;
           { TODO -ohw -c特征值 : 仪器链接应该可选 }
             S := FIDList.Strings[i];
-                        // V[0] := Format('<a href="Meter:%s">%s</a>', [S, S]);
-            V[0] := FIDList.Strings[i];
-            V[1] := Meter.PDDefine[EVDatas[j].PDIndex].Name;
+            // V[0] := Format('<a href="Meter:%s">%s</a>', [S, S]);
+            if chkSeqNum.Checked then
+            begin
+              V[0] := iSeq;
+              V[1] := FIDList.Strings[i];
+              V[2] := Meter.PDDefine[EVDatas[j].PDIndex].Name;
+              iCol := 3;
+            end
+            else
+            begin
+              V[0] := FIDList.Strings[i];
+              V[1] := Meter.PDDefine[EVDatas[j].PDIndex].Name;
+              iCol := 2;
+            end;
                         // 添加各项
             with EVDatas[j]^ do
             begin
-              iCol := 2;
-              if chkHistoryEV.Checked then
-              begin
-                V[iCol] := Lifeev.MaxValue;
-                V[iCol + 1] := FormatDateTime('yyyy-mm-dd', Lifeev.MaxDate);
-                V[iCol + 2] := Lifeev.MinValue;
-                V[iCol + 3] := FormatDateTime('yyyy-mm-dd', Lifeev.MinDate);
-                V[iCol + 4] := Lifeev.Increment;
-                V[iCol + 5] := Lifeev.Amplitude;
-                Inc(iCol, 6);
-              end;
+              // iCol := 2;
+              ii := 2;
+              PutEVDatas(LifeEV);
+(*
+                if chkHistoryEV.Checked then
+                begin
+                  V[iCol] := Lifeev.MaxValue;
+                  V[iCol + 1] := FormatDateTime('yyyy-mm-dd', Lifeev.MaxDate);
+                  if chkMinData.Checked then
+                  begin
+                    V[iCol + ii] := Lifeev.MinValue;
+                    V[iCol + ii + 1] := FormatDateTime('yyyy-mm-dd', Lifeev.MinDate);
+                    Inc(ii, 2);
+                  end;
 
+                  if chkIncData.Checked then
+                  begin
+                    V[iCol + ii] := Lifeev.Increment;
+                    Inc(ii);
+                  end;
+
+                  if chkAmplitude.Checked then
+                  begin
+                    V[iCol + ii] := Lifeev.Amplitude;
+                    Inc(ii);
+                  end;
+                  Inc(iCol, ii);
+                end;
+
+*)
               if chkYearEV.Checked then
               begin
-                V[iCol] := YearEV.MaxValue;
-                V[iCol + 1] := FormatDateTime('yyyy-mm-dd', YearEV.MaxDate);
-                V[iCol + 2] := YearEV.MinValue;
-                V[iCol + 3] := FormatDateTime('yyyy-mm-dd', YearEV.MinDate);
-                V[iCol + 4] := YearEV.Increment;
-                V[iCol + 5] := YearEV.Amplitude;
-                Inc(iCol, 6);
+                PutEVDatas(yearev);
+(*
+                  V[iCol] := YearEV.MaxValue;
+                  V[iCol + 1] := FormatDateTime('yyyy-mm-dd', YearEV.MaxDate);
+                  V[iCol + 2] := YearEV.MinValue;
+                  V[iCol + 3] := FormatDateTime('yyyy-mm-dd', YearEV.MinDate);
+                  V[iCol + 4] := YearEV.Increment;
+                  V[iCol + 5] := YearEV.Amplitude;
+                  Inc(iCol, 6);
+
+*)
               end;
 
               if chkMonthEV.Checked then
               begin
-                V[iCol] := MonthEV.MaxValue;
-                V[iCol + 1] := FormatDateTime('yyyy-mm-dd', MonthEV.MaxDate);
-                V[iCol + 2] := MonthEV.MinValue;
-                V[iCol + 3] := FormatDateTime('yyyy-mm-dd', MonthEV.MinDate);
-                V[iCol + 4] := MonthEV.Increment;
-                V[iCol + 5] := MonthEV.Amplitude;
-                Inc(iCol, 6)
+                PutEVDatas(MonthEV);
+(*
+                  V[iCol] := MonthEV.MaxValue;
+                  V[iCol + 1] := FormatDateTime('yyyy-mm-dd', MonthEV.MaxDate);
+                  V[iCol + 2] := MonthEV.MinValue;
+                  V[iCol + 3] := FormatDateTime('yyyy-mm-dd', MonthEV.MinDate);
+                  V[iCol + 4] := MonthEV.Increment;
+                  V[iCol + 5] := MonthEV.Amplitude;
+                  Inc(iCol, 6)
+
+*)
               end;
 
               if chkLastData.Checked then
               begin
-                V[iCol] := CurValue;
-                V[iCol + 1] := FormatDateTime('yyyy-mm-dd', CurDate);
+                V[iCol + 1] := CurValue;
+                V[iCol] := FormatDateTime('yyyy-mm-dd', CurDate);
               end;
             end;
             WCV.AddRow(V);
@@ -486,6 +739,7 @@ begin
                 // V[j + 4] := D[j];
                 // end;
       end;
+      Inc(iSeq); // 换下一只仪器了
       IAppServices.ProcessMessages;
     end;
     Body := Body + WCV.CrossGrid;
@@ -510,7 +764,8 @@ begin
     ProgressBar1.Visible := False;
 
     ErrMsg := IHJXClientFuncs.ErrorMsg;
-    if ErrMsg <> '' then showmessage('查询过程中发现以下错误：'#13#10 + ErrMsg);
+    if ErrMsg <> '' then ShowMessage('查询过程中发现以下错误：'#13#10 + ErrMsg);
+    IHJXClientFuncs.SessionEnd;
     IHJXClientFuncs.ClearErrMsg;
   end;
 

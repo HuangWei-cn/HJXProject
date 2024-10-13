@@ -1,133 +1,172 @@
-{ -----------------------------------------------------------------------------
+ï»¿{ -----------------------------------------------------------------------------
   Unit Name: uHJX.Excel.DataQuery
-  Author:    »ÆÎ°
-  Date:      06-ËÄÔÂ-2017
-  Purpose:   Êı¾İ²éÑ¯µ¥Ôª-Õë¶ÔExcelÊı¾İÔ´
+  Author:    é»„ä¼Ÿ
+  Date:      06-å››æœˆ-2017
+  Purpose:   æ•°æ®æŸ¥è¯¢å•å…ƒ-é’ˆå¯¹Excelæ•°æ®æº
   History:  2018-05-29~29
-            Ôö¼Ó´¦ÀíÒÇÆ÷×éµÄÊı¾İÌáÈ¡¹¦ÄÜ£¬Ä¿Ç°ÄÜÂú×ãÃª¸Ë×é¡£ÒªÄÜÊÊÓ¦ÈÎÒâÒÇÆ÷Êı¾İ
-            ÌáÈ¡£¬ĞèÒª½øÒ»²½ÍêÉÆ
+  å¢åŠ å¤„ç†ä»ªå™¨ç»„çš„æ•°æ®æå–åŠŸèƒ½ï¼Œç›®å‰èƒ½æ»¡è¶³é”šæ†ç»„ã€‚è¦èƒ½é€‚åº”ä»»æ„ä»ªå™¨æ•°æ®
+  æå–ï¼Œéœ€è¦è¿›ä¸€æ­¥å®Œå–„
 
-            2018-05-31
-            1.Ôö¼Ó¡°±¸×¢¡±×Ö¶ÎµÄÌáÈ¡£»
-            2.ÎªÆ½ÃæÎ»ÒÆ²âµãÔö¼ÓÁË¹Û²âÊı¾İ±í±íÍ·ÉèÖÃ(DBGridEh±íÍ·)£»
-            3.¸Ä½ø²éÕÒµ¥Ìõ¼ÇÂ¼µÄ·½·¨£¬ÓÃ_LocateDTRow·½·¨¿ìËÙ²éÕÒÖ¸¶¨ÈÕÆÚËùÔÚµÄĞĞ£»
-            4.¸ø²¼ÖÃÍ¼Ìí¼ÓÁËÏÔÊ¾Ö¸¶¨ÈÕÆÚ¹Û²âÊı¾İµÄ°´Å¥ºÍ·½·¨¡£
+  2018-05-31
+  1.å¢åŠ â€œå¤‡æ³¨â€å­—æ®µçš„æå–ï¼›
+  2.ä¸ºå¹³é¢ä½ç§»æµ‹ç‚¹å¢åŠ äº†è§‚æµ‹æ•°æ®è¡¨è¡¨å¤´è®¾ç½®(DBGridEhè¡¨å¤´)ï¼›
+  3.æ”¹è¿›æŸ¥æ‰¾å•æ¡è®°å½•çš„æ–¹æ³•ï¼Œç”¨_LocateDTRowæ–¹æ³•å¿«é€ŸæŸ¥æ‰¾æŒ‡å®šæ—¥æœŸæ‰€åœ¨çš„è¡Œï¼›
+  4.ç»™å¸ƒç½®å›¾æ·»åŠ äº†æ˜¾ç¤ºæŒ‡å®šæ—¥æœŸè§‚æµ‹æ•°æ®çš„æŒ‰é’®å’Œæ–¹æ³•ã€‚
 
-            2018-06-14
-            Ôö¼ÓÁË²éÑ¯ÒÇÆ÷Êı¾İÔöÁ¿¼°ÔÂÔöÁ¿µÄ¹¦ÄÜ
-            2018-09-18
-            ÌØÕ÷Öµ²éÑ¯£ºÍê³ÉÁËÊ±¼ä¶ÎÄÚÌØÕ÷Öµ²éÑ¯¹¦ÄÜ£¬ÌØÕ÷ÖµÖĞÔö¼ÓÁË¡°ÔöÁ¿¡±ºÍ¡°Õñ·ù¡±
-            Á½Ïî¡£
+  2018-06-14
+  å¢åŠ äº†æŸ¥è¯¢ä»ªå™¨æ•°æ®å¢é‡åŠæœˆå¢é‡çš„åŠŸèƒ½
+  2018-09-18
+  ç‰¹å¾å€¼æŸ¥è¯¢ï¼šå®Œæˆäº†æ—¶é—´æ®µå†…ç‰¹å¾å€¼æŸ¥è¯¢åŠŸèƒ½ï¼Œç‰¹å¾å€¼ä¸­å¢åŠ äº†â€œå¢é‡â€å’Œâ€œæŒ¯å¹…â€
+  ä¸¤é¡¹ã€‚
+  2024-10-11
+  ä¿®æ”¹äº†_GetBookAndSheetæ–¹æ³•ï¼Œå¢åŠ äº†æ£€æŸ¥å·¥ä½œç°¿æœ€åç¼–è¾‘æ—¶é—´çš„é€»è¾‘ï¼Œå¦‚æœSSWorkBookçš„
+  æœ€åç¼–è¾‘æ—¶é—´æ—©äºæ–‡ä»¶æ—¶é—´ï¼Œè¡¨æ˜å·¥ä½œç°¿åœ¨æ‰“å¼€åè¢«ç¼–è¾‘ï¼Œéœ€è¦é‡æ–°æ‰“å¼€ã€‚
+  åœ¨æ²¡æœ‰å¢åŠ è¿™ä¸€æ¡é€»è¾‘ä¹‹å‰ï¼Œå³ä¾¿ä¿®æ”¹äº†æ–‡ä»¶ï¼Œç¨‹åºæŸ¥è¯¢çš„æ—¶å€™ä¹Ÿä¸ä¼šæ˜¾ç¤ºæœ€æ–°çš„æ•°æ®ã€‚
   ----------------------------------------------------------------------------- }
 
 unit uHJX.Excel.DataQuery;
 
-{ todo:GetLastPDDatas·½·¨µÈÃ»ÓĞ·µ»Ø±¸×¢×Ö¶ÎµÄÄÚÈİ£¬ÓĞÊ±±¸×¢ÄÚÈİÊ®·ÖÖØÒª }
-{ todo:Ó¦¿¼ÂÇÔÚSessionBeginÊ±ÉèÖÃWorkBook Pool£¬·²´ò¿ª¹ıµÄ±£ÁôÏÂÀ´£¬ÏÂÒ»´ÎÊ¹ÓÃÊ±Ö±½Óµ÷ÓÃ£¬²»ÔÙ´´½¨ }
-{ todo:×¢²á´ò¿ªÊı¾İ¿â·½·¨¡¢Êı¾İÁ¬½Ó¼°×¢ÏúÊÂ¼ş }
-{ todo:×¢²áÒÇÆ÷ÁĞ±í¼ÓÔØ¸üĞÂÊÂ¼ş }
-{ todo:×¢²áÒÇÆ÷²ÎÊı¸üĞÂ¼ÓÔØÊÂ¼ş }
+{ todo:GetLastPDDatasæ–¹æ³•ç­‰æ²¡æœ‰è¿”å›å¤‡æ³¨å­—æ®µçš„å†…å®¹ï¼Œæœ‰æ—¶å¤‡æ³¨å†…å®¹ååˆ†é‡è¦ }
+{ todo:åº”è€ƒè™‘åœ¨SessionBeginæ—¶è®¾ç½®WorkBook Poolï¼Œå‡¡æ‰“å¼€è¿‡çš„ä¿ç•™ä¸‹æ¥ï¼Œä¸‹ä¸€æ¬¡ä½¿ç”¨æ—¶ç›´æ¥è°ƒç”¨ï¼Œä¸å†åˆ›å»º }
+{ todo:æ³¨å†Œæ‰“å¼€æ•°æ®åº“æ–¹æ³•ã€æ•°æ®è¿æ¥åŠæ³¨é”€äº‹ä»¶ }
+{ todo:æ³¨å†Œä»ªå™¨åˆ—è¡¨åŠ è½½æ›´æ–°äº‹ä»¶ }
+{ todo:æ³¨å†Œä»ªå™¨å‚æ•°æ›´æ–°åŠ è½½äº‹ä»¶ }
 interface
 
 uses
   System.Classes, System.Types, System.SysUtils, System.Variants, System.StrUtils, Data.DB,
   Datasnap.DBClient, System.DateUtils, {MidasLib,} vcl.dialogs, nexcel,
+  XLSReadWriteII5, XLSSheetData5 {nExcelä¿å­˜æ•°æ®ä¼šæœ‰é—®é¢˜ï¼Œå› æ­¤ç”¨è¿™ä¸ªç»„ä»¶} , Xc12DataStyleSheet5,
   uHJX.Intf.Datas, uHJX.Excel.IO, uHJX.Data.Types, uHJX.Intf.AppServices;
 
 type
-    { »Æ½ğÏ¿Êı¾İ²éÑ¯¶ÔÏó£º }
+  { é»„é‡‘å³¡æ•°æ®æŸ¥è¯¢å¯¹è±¡ï¼š }
   ThjxDataQuery = class(TInterfacedObject, IClientFuncs)
   private
     FUseSession: Boolean;
-    FErrorMsg  : String;
-    function _GetBookAndSheet(ADsnName: String; var AWBK: IXLSWorkBook;
-      var ASht: IXLSWorkSheet; UseSession: Boolean = True): Boolean;
+    FErrorMsg: String;
+    // FRW5       : TXLSReadWriteII5;
+    function _GetBookAndSheet(ADsnName: String; var AWBK: IXLSWorkBook; var ASht: IXLSWorkSheet;
+      UseSession: Boolean = True): Boolean;
+    procedure _RewriteDatasWithExcel(Datas: PmtDatas);
+    /// ç”¨XLSReadWrite5ç»„ä»¶å°†æ•°æ®å†™å›æ•°æ®æ–‡ä»¶ä¼šé€ æˆç¾éš¾æ€§åæœï¼Œåˆ‡å‹¿ä½¿ç”¨ï¼ï¼ï¼
+    procedure _RewriteDatasWithXRW5(Datas: PmtDatas);
   public
+    constructor Create;
     destructor Destroy; override;
-        { Æô¶¯»á»° }
-        { todo:ÊµÏÖÆô¶¯»á»°ºó´´½¨´ò¿ªµÄ¹¤×÷²¾³Ø£¬µ±ĞèÒª´ò¿ª¹¤×÷²¾Ê±ÏÈ¼ì²éÊÇ·ñÒÑ¾­´ò¿ª£¬Èô³ØÖĞ
-          Ã»ÓĞ£¬²Å´´½¨²¢´ò¿ªĞÂ¹¤×÷²¾¡£¹¤×÷²¾³Ø¶ÔÓÚ¾²Ì¬±íÀàĞÍ½ÏÎªÓĞÓÃ£¬¿ÉÒÔ´ó·ù¶ÈËõ¼õÌáÈ¡Êı¾İµÄÊ±¼ä¡£ }
+    { å¯åŠ¨ä¼šè¯ }
+    { todo:å®ç°å¯åŠ¨ä¼šè¯ååˆ›å»ºæ‰“å¼€çš„å·¥ä½œç°¿æ± ï¼Œå½“éœ€è¦æ‰“å¼€å·¥ä½œç°¿æ—¶å…ˆæ£€æŸ¥æ˜¯å¦å·²ç»æ‰“å¼€ï¼Œè‹¥æ± ä¸­
+      æ²¡æœ‰ï¼Œæ‰åˆ›å»ºå¹¶æ‰“å¼€æ–°å·¥ä½œç°¿ã€‚å·¥ä½œç°¿æ± å¯¹äºé™æ€è¡¨ç±»å‹è¾ƒä¸ºæœ‰ç”¨ï¼Œå¯ä»¥å¤§å¹…åº¦ç¼©å‡æå–æ•°æ®çš„æ—¶é—´ã€‚ }
     procedure SessionBegin;
     procedure SessionEnd;
-        { È¡»ØÖ¸¶¨¼à²âÒÇÆ÷µÄ×îºóÒ»´Î¼à²âÊı¾İ }
+    { å–å›æŒ‡å®šç›‘æµ‹ä»ªå™¨çš„æœ€åä¸€æ¬¡ç›‘æµ‹æ•°æ® }
     function GetLastPDDatas(ADsnName: string; var Values: TDoubleDynArray): Boolean; overload;
     function GetLastPDDatas(ADsnName: string; var Values: TVariantDynArray): Boolean; overload;
-        { È¡»ØÖ¸¶¨Ê±¶ÎÄÚ¼à²âÒÇÆ÷µÄ×îºóÒ»´ÎÊı¾İ }
-    function GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
-      var Values: TDoubleDynArray): Boolean; overload;
-    function GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
-      var Values: TVariantDynArray): Boolean; overload;
-        { È¡»Ø×î½Ó½üÖ¸¶¨ÈÕÆÚµÄ¹Û²âÊı¾İ }
+    { å–å›æŒ‡å®šæ—¶æ®µå†…ç›‘æµ‹ä»ªå™¨çš„æœ€åä¸€æ¬¡æ•°æ® }
+    function GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime; var Values: TDoubleDynArray)
+      : Boolean; overload;
+    function GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime; var Values: TVariantDynArray)
+      : Boolean; overload;
+    { å–å›æœ€æ¥è¿‘æŒ‡å®šæ—¥æœŸçš„è§‚æµ‹æ•°æ® }
     function GetNearestPDDatas(ADsnName: String; DT: TDateTime; var Values: TDoubleDynArray;
       DTDelta: Integer = 0): Boolean; overload;
     function GetNearestPDDatas(ADsnName: String; DT: TDateTime; var Values: TVariantDynArray;
       DTDelta: Integer = 0): Boolean; overload;
-        { È¡»ØÖ¸¶¨Ê±¶ÎÄÚ¼à²âÒÇÆ÷ËùÓĞ¹Û²âÊı¾İ }
+    { å–å›æŒ‡å®šæ—¶æ®µå†…ç›‘æµ‹ä»ªå™¨æ‰€æœ‰è§‚æµ‹æ•°æ® }
     function GetPDDatasInPeriod(ADsnName: string; DT1, DT2: TDateTime; DS: TDataSet): Boolean;
-        { È¡»ØÈ«²¿¹Û²âÊı¾İ }
+    { å–å›å…¨éƒ¨è§‚æµ‹æ•°æ® }
     function GetAllPDDatas(ADsnName: string; DS: TDataSet): Boolean;
-        { È¡»ØÒÇÆ÷×éÈ«²¿¹Û²âÊı¾İ£¬×¢ÒâÒÇÆ÷×éÊı¾İ¼¯ÖĞ×Ö¶ÎÃû¸ñÊ½: Éè¼Æ±àºÅ.ÎïÀíÁ¿Ãû }
+    { å–å›ä»ªå™¨ç»„å…¨éƒ¨è§‚æµ‹æ•°æ®ï¼Œæ³¨æ„ä»ªå™¨ç»„æ•°æ®é›†ä¸­å­—æ®µåæ ¼å¼: è®¾è®¡ç¼–å·.ç‰©ç†é‡å }
     function GetGroupAllPDDatas(AGrpName: string; DS: TDataSet): Boolean;
-        { È¡»ØÒÇÆ÷ÔÚÖ¸¶¨Ê±¶ÎÄÚµÄ¹Û²âÊı¾İ }
-    function GetGroupPDDatasInPeriod(AGrpName: string; DT1, DT2: TDateTime;
-      DS: TDataSet): Boolean;
-        { È¡»Øµ±Ç°ÌØÕ÷Öµ£¬ÕâÁ½¸öÒÑÆúÓÃ }
+    { å–å›ä»ªå™¨åœ¨æŒ‡å®šæ—¶æ®µå†…çš„è§‚æµ‹æ•°æ® }
+    function GetGroupPDDatasInPeriod(AGrpName: string; DT1, DT2: TDateTime; DS: TDataSet): Boolean;
+    { å–å›å½“å‰ç‰¹å¾å€¼ï¼Œè¿™ä¸¤ä¸ªå·²å¼ƒç”¨ }
     function GetEVData(ADsnName: String; EVData: PEVDataStru): Boolean; overload;
     function GetEVData(ADsnName: string; var EVDatas: TDoubleDynArray): Boolean; overload;
-        { È¡»ØÒÇÆ÷ËùÓĞÎïÀíÁ¿µÄÌØÕ÷Öµ }
+    { å–å›ä»ªå™¨æ‰€æœ‰ç‰©ç†é‡çš„ç‰¹å¾å€¼ }
     function GetEVDatas(ADsnName: String; var EVDatas: PEVDataArray): Boolean;
-        { È¡»ØÖ¸¶¨Ê±¶ÎÄÚµÄÌØÕ÷Öµ }
+    { å–å›æŒ‡å®šæ—¶æ®µå†…çš„ç‰¹å¾å€¼ }
     function GetEVDataInPeriod(ADsnName: string; DT1, DT2: TDateTime;
       var EVDatas: PEVDataArray): Boolean;
-        { È¡»ØÖ¸¶¨Ê±¶ÎÄÚµÄ¹Û²âµã´Î }
+    { å–å›æŒ‡å®šæ—¶æ®µå†…çš„è§‚æµ‹ç‚¹æ¬¡ }
     function GetDataCount(ADsnName: string; DT1, DT2: TDateTime): Integer;
-        { ÉèÖÃDataSet×Ö¶Î±ğÃû£¬¶ÔÓÚExcelÊı¾İÇı¶¯£¬Õâ¸ö¶ÔÓ¦±í´æ´¢ÔÚExcel²ÎÊıÎÄ¼şÖĞ£¬³õÊ¼»¯²ÎÊıÊ±
-          ÒÑ¼ÓÔØµ½uHJX.Excel.Metersµ¥ÔªµÄDSNames¼¯ºÏÖĞ }
+    { å–å›æŒ‡å®šä»ªå™¨åœ¨æŒ‡å®šæ—¶æ®µå†…çš„è§‚æµ‹æ¬¡æ•°ï¼Œå…¶ä¸­Vä¸ºæ•°ç»„ï¼Œç»“æ„å¦‚ä¸‹ï¼š
+      V[0]: start date;
+      V[1]: end date;
+      V[2]: Count;
+      V[3]: variant array
+      V[3][0]: first year, such as 2017
+      V[3][1]: 1æœˆè§‚æµ‹æ¬¡æ•°
+      V[3][n]: næœˆè§‚æµ‹æ¬¡æ•°
+      V[3][12]: 12æœˆè§‚æµ‹æ¬¡æ•°
+      V[4]: variant array
+      V[4][1]: secend year, such as 2018
+      .....
+    }
+    procedure GetDataCount2(ADsnName: String; DT1, DT2: TDateTime; var V: TVariantDynArray);
+    { è®¾ç½®DataSetå­—æ®µåˆ«åï¼Œå¯¹äºExcelæ•°æ®é©±åŠ¨ï¼Œè¿™ä¸ªå¯¹åº”è¡¨å­˜å‚¨åœ¨Excelå‚æ•°æ–‡ä»¶ä¸­ï¼Œåˆå§‹åŒ–å‚æ•°æ—¶
+      å·²åŠ è½½åˆ°uHJX.Excel.Meterså•å…ƒçš„DSNamesé›†åˆä¸­ }
     procedure SetFieldDisplayName(DS: TDataSet);
-        { ·µ»ØÒÇÆ÷ÀàĞÍÃû³Æ }
+    { è¿”å›ä»ªå™¨ç±»å‹åç§° }
     function GetMeterTypeName(ADsnName: string): string;
-        { ·µ»ØÒÇÆ÷Êı¾İÔöÁ¿(²»°üÀ¨²âĞ±¿×Êı¾İ)¡£·µ»ØÁ½²â´Î¼äÔöÁ¿¼°ÔÂÔöÁ¿¡£·µ»ØÖµValuesµÄÃèÊö²Î¼û½Ó¿Ú
-          º¯ÊıµÄ×¢ÊÍ }
+    { è¿”å›ä»ªå™¨æ•°æ®å¢é‡(ä¸åŒ…æ‹¬æµ‹æ–œå­”æ•°æ®)ã€‚è¿”å›ä¸¤æµ‹æ¬¡é—´å¢é‡åŠæœˆå¢é‡ã€‚è¿”å›å€¼Valuesçš„æè¿°å‚è§æ¥å£
+      å‡½æ•°çš„æ³¨é‡Š }
     function GetDataIncrement(ADsnName: string; DT: TDateTime;
       var Values: TVariantDynArray): Boolean;
-    { ·µ»ØÖ¸¶¨ÒÇÆ÷ÔÚÖ¸¶¨ÈÕÆÚ¼ä¸ôÆÚ¼äµÄÔöÁ¿£¬·µ»ØÖµÎª£ºpdName, DTScale, ÈÕÆÚ¼ä¸ô¡¢²âÖµ¡¢ÔöÁ¿¡£
-      ±¾º¯ÊıÓëGetDataIncrementÓĞ²î±ğ£¬±¾º¯ÊıÃ»ÓĞ30ÌìÔöÁ¿£¬Òò´ËÖ»ÓĞ5ÁĞÊı¾İ£» }
+    { è¿”å›æŒ‡å®šä»ªå™¨åœ¨æŒ‡å®šæ—¥æœŸé—´éš”æœŸé—´çš„å¢é‡ï¼Œè¿”å›å€¼ä¸ºï¼špdName, DTScale, æ—¥æœŸé—´éš”ã€æµ‹å€¼ã€å¢é‡ã€‚
+      æœ¬å‡½æ•°ä¸GetDataIncrementæœ‰å·®åˆ«ï¼Œæœ¬å‡½æ•°æ²¡æœ‰30å¤©å¢é‡ï¼Œå› æ­¤åªæœ‰5åˆ—æ•°æ®ï¼› }
     function GetDataIncrement2(ADsnName: String; DT: TDateTime; InteralDays: Integer;
       var Values: TVariantDynArray): Boolean;
 
     /// <summary>
-    /// * ·µ»ØÖ¸¶¨Ê±¼ä¶ÎÄÚÖ¸¶¨ÒÇÆ÷µÄÖ¸¶¨ÖÜÆÚÔöÁ¿£¬Èç·µ»ØÔÂÔöÁ¿¡¢ÖÜÔöÁ¿¡¢¼¾¶ÈÔöÁ¿¡¢°ëÄêÔöÁ¿¡¢ÄêÔöÁ¿µÈ¡£
-    /// ±¾º¯ÊıÃ¿´ÎÖ´ĞĞ½ö²éÑ¯Ò»¸ö´«¸ĞÆ÷µÄÄ³Ò»ÎïÀíÁ¿µÄÖÜÆÚÔöÁ¿£¬ÈôĞèÒª²éÑ¯Ò»¶ÑÒÇÆ÷»òÒÇÆ÷µÄ¶à¸öÎïÀíÁ¿£¬
-    /// Ôò¶ÔÃ¿Ö§ÒÇÆ÷µÄÃ¿¸öÎïÀíÁ¿¶¼ĞèÒªµ÷ÓÃ±¾·½·¨Ò»´Î¡£
-    /// * ÈôÄ³ÒÇÆ÷ÔÚ¹Û²âÊı¾İĞòÁĞÖĞ¼äÈ±ÉÙÄ³Ê±¶ÎÊı¾İ£¬ÈçÈ±ÉÙ4ÔÂ12ÈÕ~8ÔÂ25ÈÕÆÚ¼äÊı¾İµÄÇé¿ö£¬ÔİÊ±²ÉÓÃÖĞ¼ä
-    /// È±ÉÙÊı¾İµÄÔÂ·İÔöÁ¿Îª0µÄ·½Ê½¡£×îºÃÄÜÔÚ±¸×¢ÖĞËµÃ÷ÕâÖÖÇé¿ö£¬»ò²ÉÓÃÆäËûÏÔÊ¾·½Ê½¡£
-    /// * ¸÷¸öÖÜÆÚµÄÈ¡Öµ·½·¨£ºÔÂÖÜÆÚ£¬±¾ÖÜÆğÖ¹Ê±¼ä¶ÎÒ»°ã´ÓÉÏÔÂStartDayµ½±¾ÔÂµÄStartDay£¬³ı·ÇÊÇ²ÉÓÃ×Ô
-    /// È»ÔÂ£»ÄêÖÜÆÚ£¬´ÓÉÏÒ»Äê12ÔÂStartDayµ½±¾Äê¶È12ÔÂstartday£¬³ı·ÇÊÇ×ÔÈ»Äê£»¼¾¶È²ÉÓÃ×ÔÈ»¼ÆÊ±£¬¼´´Ó
-    /// ¼¾¶ÈµÄ1ÈÕ~ÏÂÒ»¼¾¶ÈµÄ1ÈÕ£»ÖÜÖÜÆÚ£¬È¡ÉÏÒ»ÖÜµÄStartDay~±¾ÖÜµÄStartDay£¬³ı·ÇStartDayÎª1.
+    /// * è¿”å›æŒ‡å®šæ—¶é—´æ®µå†…æŒ‡å®šä»ªå™¨çš„æŒ‡å®šå‘¨æœŸå¢é‡ï¼Œå¦‚è¿”å›æœˆå¢é‡ã€å‘¨å¢é‡ã€å­£åº¦å¢é‡ã€åŠå¹´å¢é‡ã€å¹´å¢é‡ç­‰ã€‚
+    /// æœ¬å‡½æ•°æ¯æ¬¡æ‰§è¡Œä»…æŸ¥è¯¢ä¸€ä¸ªä¼ æ„Ÿå™¨çš„æŸä¸€ç‰©ç†é‡çš„å‘¨æœŸå¢é‡ï¼Œè‹¥éœ€è¦æŸ¥è¯¢ä¸€å †ä»ªå™¨æˆ–ä»ªå™¨çš„å¤šä¸ªç‰©ç†é‡ï¼Œ
+    /// åˆ™å¯¹æ¯æ”¯ä»ªå™¨çš„æ¯ä¸ªç‰©ç†é‡éƒ½éœ€è¦è°ƒç”¨æœ¬æ–¹æ³•ä¸€æ¬¡ã€‚
+    /// * è‹¥æŸä»ªå™¨åœ¨è§‚æµ‹æ•°æ®åºåˆ—ä¸­é—´ç¼ºå°‘æŸæ—¶æ®µæ•°æ®ï¼Œå¦‚ç¼ºå°‘4æœˆ12æ—¥~8æœˆ25æ—¥æœŸé—´æ•°æ®çš„æƒ…å†µï¼Œæš‚æ—¶é‡‡ç”¨ä¸­é—´
+    /// ç¼ºå°‘æ•°æ®çš„æœˆä»½å¢é‡ä¸º0çš„æ–¹å¼ã€‚æœ€å¥½èƒ½åœ¨å¤‡æ³¨ä¸­è¯´æ˜è¿™ç§æƒ…å†µï¼Œæˆ–é‡‡ç”¨å…¶ä»–æ˜¾ç¤ºæ–¹å¼ã€‚
+    /// * å„ä¸ªå‘¨æœŸçš„å–å€¼æ–¹æ³•ï¼šæœˆå‘¨æœŸï¼Œæœ¬å‘¨èµ·æ­¢æ—¶é—´æ®µä¸€èˆ¬ä»ä¸ŠæœˆStartDayåˆ°æœ¬æœˆçš„StartDayï¼Œé™¤éæ˜¯é‡‡ç”¨è‡ª
+    /// ç„¶æœˆï¼›å¹´å‘¨æœŸï¼Œä»ä¸Šä¸€å¹´12æœˆStartDayåˆ°æœ¬å¹´åº¦12æœˆstartdayï¼Œé™¤éæ˜¯è‡ªç„¶å¹´ï¼›å­£åº¦é‡‡ç”¨è‡ªç„¶è®¡æ—¶ï¼Œå³ä»
+    /// å­£åº¦çš„1æ—¥~ä¸‹ä¸€å­£åº¦çš„1æ—¥ï¼›å‘¨å‘¨æœŸï¼Œå–ä¸Šä¸€å‘¨çš„StartDay~æœ¬å‘¨çš„StartDayï¼Œé™¤éStartDayä¸º1.
     /// </summary>
-    /// <param name="ADsnName">¼à²âÒÇÆ÷Éè¼Æ±àºÅ</param>
-    /// <param name="APDIndex">´ı²éÑ¯µÄÎïÀíÁ¿ĞòºÅ£¬¶ÔÓÚ¶àÊıÓ¦ÓÃÇé¿ö£¬APDIndex=0¼´¿ÉÂú×ãÒªÇó¡£µ«ÊÇ¶ÔÓÚ
-    /// Ä³Ğ©ÒÇÆ÷£¬Èç¶àµãÎ»ÒÆ¼Æ£¬ÈôĞèÒªÁĞ³ö¸÷Éî¶È²âµãµÄÖÜÆÚ¼ä¸ô£¬ÔòĞèÒªÓÃAPDIndexÖğÒ»Ö¸¶¨´«¸ĞÆ÷¡£»òÕß
-    /// ¶ÔÓÚË®Æ½Î»ÒÆ¼Æ²âµãĞèÒª²éÑ¯ÆäËû·½Ïò¡¢¸Ö½î¼Æ²éÑ¯ÎÂ¶ÈÔöÁ¿µÈ
+    /// <param name="ADsnName">ç›‘æµ‹ä»ªå™¨è®¾è®¡ç¼–å·</param>
+    /// <param name="APDIndex">å¾…æŸ¥è¯¢çš„ç‰©ç†é‡åºå·ï¼Œå¯¹äºå¤šæ•°åº”ç”¨æƒ…å†µï¼ŒAPDIndex=0å³å¯æ»¡è¶³è¦æ±‚ã€‚ä½†æ˜¯å¯¹äº
+    /// æŸäº›ä»ªå™¨ï¼Œå¦‚å¤šç‚¹ä½ç§»è®¡ï¼Œè‹¥éœ€è¦åˆ—å‡ºå„æ·±åº¦æµ‹ç‚¹çš„å‘¨æœŸé—´éš”ï¼Œåˆ™éœ€è¦ç”¨APDIndexé€ä¸€æŒ‡å®šä¼ æ„Ÿå™¨ã€‚æˆ–è€…
+    /// å¯¹äºæ°´å¹³ä½ç§»è®¡æµ‹ç‚¹éœ€è¦æŸ¥è¯¢å…¶ä»–æ–¹å‘ã€é’¢ç­‹è®¡æŸ¥è¯¢æ¸©åº¦å¢é‡ç­‰
     /// </param>
-    /// <param name="StartDate">²éÑ¯µÄÆğÊ¼ÈÕÆÚ</param>
-    /// <param name="EndDate">²éÑ¯µÄ½ØÖ¹ÈÕÆÚ</param>
-    /// <param name="Values">·µ»ØµÄ²éÑ¯½á¹û£¬ÒÔVariant¶şÎ¬Êı×é·½Ê½·µ»Ø£¬²ÉÓÃVariantÊı×éµÄÔ­ÒòÔÚÓÚÄ³
-    /// Ğ©Êı¾İ¿ÉÄÜÎªNullÖµ£¬ÈôÊÇÓÃdouble£¬ÔòÎŞ·¨±íÊ¾Null¡£
-    /// Ã¿Ìõ¼ÇÂ¼µÄ¸ñÊ½Îª£º
-    /// ÈÕÆÚ¼ä¸ôÃû³Æ ÆğÊ¼ÈÕÆÚ ½ØÖ¹ÈÕÆÚ ÆğÊ¼Öµ  ½ØÖ¹Öµ  ÔöÁ¿  ×î´óÖµ  ×îĞ¡Öµ  ±ä·ù  ±¸×¢
-    /// Êı¾İÏîº¬ÒåËµÃ÷£º
-    /// 1¡¢ÈÕÆÚ¼ä¸ôÃû³Æ£ºStringÀàĞÍ£¬Èç¡°2018Äê8ÔÂ¡±¡¢¡°2020ÄêµÚÒ»¼¾¶È¡±¡¢¡°2017Äê¡±£»
-    /// 2¡¢ÆğÊ¼ÈÕÆÚ¡¢½ØÖ¹ÈÕÆÚ£ºDouble£¬±¾´Î¼ä¸ôµÄÆğÖ¹ÈÕÆÚ¡£
-    /// 3¡¢ÆğÊ¼Öµ¡¢½ØÖ¹Öµ¡¢ÔöÁ¿£ºDouble ·Ö±ğ¶ÔÓ¦¸ÃÖÜÆÚµÚÒ»Ìì²âÖµ¡¢×îºóÒ»Ìì²âÖµ¡¢Á½Õß²îÖµ£»
-    /// 4¡¢×î´óÖµ¡¢×îĞ¡Öµ¡¢±ä·ù£ºDouble£¬·Ö±ğ¶ÔÓ¦¸ÃÖÜÆÚÄÚµÄ×î´ó×îĞ¡ÖµºÍÁ½Õß²îÖµ£»
+    /// <param name="StartDate">æŸ¥è¯¢çš„èµ·å§‹æ—¥æœŸ</param>
+    /// <param name="EndDate">æŸ¥è¯¢çš„æˆªæ­¢æ—¥æœŸ</param>
+    /// <param name="Values">è¿”å›çš„æŸ¥è¯¢ç»“æœï¼Œä»¥VariantäºŒç»´æ•°ç»„æ–¹å¼è¿”å›ï¼Œé‡‡ç”¨Variantæ•°ç»„çš„åŸå› åœ¨äºæŸ
+    /// äº›æ•°æ®å¯èƒ½ä¸ºNullå€¼ï¼Œè‹¥æ˜¯ç”¨doubleï¼Œåˆ™æ— æ³•è¡¨ç¤ºNullã€‚
+    /// æ¯æ¡è®°å½•çš„æ ¼å¼ä¸ºï¼š
+    /// æ—¥æœŸé—´éš”åç§° èµ·å§‹æ—¥æœŸ æˆªæ­¢æ—¥æœŸ èµ·å§‹å€¼  æˆªæ­¢å€¼  å¢é‡  æœ€å¤§å€¼  æœ€å°å€¼  å˜å¹…  å¤‡æ³¨
+    /// æ•°æ®é¡¹å«ä¹‰è¯´æ˜ï¼š
+    /// 1ã€æ—¥æœŸé—´éš”åç§°ï¼šStringç±»å‹ï¼Œå¦‚â€œ2018å¹´8æœˆâ€ã€â€œ2020å¹´ç¬¬ä¸€å­£åº¦â€ã€â€œ2017å¹´â€ï¼›
+    /// 2ã€èµ·å§‹æ—¥æœŸã€æˆªæ­¢æ—¥æœŸï¼šDoubleï¼Œæœ¬æ¬¡é—´éš”çš„èµ·æ­¢æ—¥æœŸã€‚
+    /// 3ã€èµ·å§‹å€¼ã€æˆªæ­¢å€¼ã€å¢é‡ï¼šDouble åˆ†åˆ«å¯¹åº”è¯¥å‘¨æœŸç¬¬ä¸€å¤©æµ‹å€¼ã€æœ€åä¸€å¤©æµ‹å€¼ã€ä¸¤è€…å·®å€¼ï¼›
+    /// 4ã€æœ€å¤§å€¼ã€æœ€å°å€¼ã€å˜å¹…ï¼šDoubleï¼Œåˆ†åˆ«å¯¹åº”è¯¥å‘¨æœŸå†…çš„æœ€å¤§æœ€å°å€¼å’Œä¸¤è€…å·®å€¼ï¼›
     /// </param>
-    /// <param name="StartDay">Ö¸¸ÃÖÜÆÚµÄÆğÊ¼ÈÕÆÚ£¬ÈçÔÂÖÜÆÚµÄ20£¬Ö¸Ã¿ÔÂ20ÈÕÖÁ´ÎÔÂ19ÈÕ¡£¶ÔÓÚÄêºÍ¼¾¶È
-    /// ÖÜÆÚµÄÇé¿öÒ²ÊÇÈç´Ë¡£µ«ÊÇ¶ÔÓÚÖÜÔöÁ¿£¬ÔòStartDay=1~7£¬¶ÔÓ¦ÖÜÒ»~ÖÜÈÕ£¬³¬¹ı7ÔòÈÏÎªÊÇ1¡£</param>
-    /// <param name="Period">0~3£¬·Ö±ğ¶ÔÓ¦ÔÂ¡¢Äê¡¢¼¾¡¢ÖÜ</param>
-    /// <returns>²éÑ¯³É¹¦ÎªTrue£¬·ñÔòÎªFalse</returns>
+    /// <param name="StartDay">æŒ‡è¯¥å‘¨æœŸçš„èµ·å§‹æ—¥æœŸï¼Œå¦‚æœˆå‘¨æœŸçš„20ï¼ŒæŒ‡æ¯æœˆ20æ—¥è‡³æ¬¡æœˆ19æ—¥ã€‚å¯¹äºå¹´å’Œå­£åº¦
+    /// å‘¨æœŸçš„æƒ…å†µä¹Ÿæ˜¯å¦‚æ­¤ã€‚ä½†æ˜¯å¯¹äºå‘¨å¢é‡ï¼Œåˆ™StartDay=1~7ï¼Œå¯¹åº”å‘¨ä¸€~å‘¨æ—¥ï¼Œè¶…è¿‡7åˆ™è®¤ä¸ºæ˜¯1ã€‚</param>
+    /// <param name="Period">0~3ï¼Œåˆ†åˆ«å¯¹åº”æœˆã€å¹´ã€å­£ã€å‘¨</param>
+    /// <returns>æŸ¥è¯¢æˆåŠŸä¸ºTrueï¼Œå¦åˆ™ä¸ºFalse</returns>
     function GetPeriodIncrement(ADsnName: String; APDIndex: Integer; StartDate, EndDate: TDateTime;
       var Values: TVariantDynArray; StartDay: Integer = 20; Period: Integer = 0): Boolean;
+    { å–å›å…¨éƒ¨æ•°æ®ï¼ŒåŒ…æ‹¬è§‚æµ‹å€¼ }
+    function GetAllDatas(ADsnName: String; ADS: TDataSet): Boolean;
+    /// <summary> 2023-06-23
+    /// æœ¬æ–¹æ³•ç”¨äºå°†ä¸€æ¡ç‰©ç†é‡æ•°æ®å›å¡«è‡³æ•°æ®è¡¨ã€‚å›å¡«æ•°æ®çš„æ¥æºæ˜¯è¿‡ç¨‹çº¿ï¼Œå› æ­¤æ•°æ®æ•°ç»„ä»…æœ‰æ—¥æœŸå’Œæ•°å€¼
+    /// ä¸¤é¡¹ï¼Œè€Œä¸”æ•°å€¼å¯èƒ½ä¸ºç©ºå€¼ã€‚è¿”å›çš„æ•°æ®ä¸­åŒ…å«PDIndexé¡¹ï¼ŒæŒ‡åäº†æ˜¯å“ªä¸€ä¸ªPDã€‚
+    /// å›å¡«æ—¶ï¼Œå°†æ•°æ®ä¸å·¥ä½œè¡¨æ•°æ®è¿›è¡Œæ¯”è¾ƒï¼Œè‹¥ä¸¤è€…ä¸ä¸€è‡´ï¼Œç”¨å›å¡«æ•°æ®æ›¿ä»£ï¼Œå¦åˆ™ä¸æ”¹
+    /// </summary>
+    procedure RewriteDatas(Datas: PmtDatas);
+    /// <summary> 2023-06-27
+    /// ä»â€œç›‘æµ‹äº‹ä»¶.xlsxâ€ä¸­æå–æŒ‡å®šè®¾è®¡ç¼–å·çš„äº‹ä»¶
+    /// </summary>
+    function GetMeterEvents(ADesignName: String): PmtEvents;
+    /// <summary> 2023-06-27
+    /// å†™ä¸€æ¡è®°å½•
+    /// </summary>
+    procedure WriteMeterEvent(ADesignName: string; AEventDate, ALogDate: TDateTime; AEvent: string);
 
     function ErrorMsg: String;
     procedure ClearErrMsg;
@@ -139,100 +178,119 @@ procedure RegistClientDatas;
 implementation
 
 uses
-    {uHJX.Excel.Meters} uHJX.Classes.Meters;
+  uHJX.Intf.FunctionDispatcher {uHJX.Excel.Meters} , uHJX.Classes.Meters, uHJX.EnvironmentVariables;
 
 type
-  TDateLocateOption = (dloEqual, dloBefore, dloAfter, dloClosest); // ÈÕÆÚ²éÑ¯¶¨Î»Ñ¡Ïî£ºµÈÓÚ£¬Ö®Ç°£¬Ö®ºó£¬×î½Ó½ü
+  TDateLocateOption = (dloEqual, dloBefore, dloAfter, dloClosest); // æ—¥æœŸæŸ¥è¯¢å®šä½é€‰é¡¹ï¼šç­‰äºï¼Œä¹‹å‰ï¼Œä¹‹åï¼Œæœ€æ¥è¿‘
 
 var
-  SSWorkBook: IXLSWorkBook; // »á»°ÆÚ¼äÊ¹ÓÃµÄWorkbook
+  /// ä¸ºäº†æé«˜è®¿é—®æ•°æ®çš„é€Ÿåº¦ï¼Œé¿å…é‡å¤åˆ›å»ºå¯¹è±¡ã€é‡å¤æ‰“å¼€ä¸Šæ¬¡å·²ç»æ‰“å¼€çš„æ–‡ä»¶ï¼Œå¯ä½¿ç”¨Sessionæ¨¡å¼ï¼Œè°ƒç”¨
+  ///  SessionBeginæ–¹æ³•ï¼Œä¿ç•™ä¸Šæ¬¡æ‰“å¼€çš„å·¥ä½œç°¿å¯¹è±¡ï¼Œå½“ä»ªå™¨å·¥ä½œç°¿ç›¸åŒæ—¶ï¼Œä¸å¿…å†æ¬¡åŠ è½½æ•°æ®.
+  ///  åªä½¿ç”¨ä¸€ä¸ªSSWorkbookï¼Œè¿˜æ˜¯å¤ªä¿å®ˆäº†ï¼Œä¸ºäº†æé«˜æ•ˆç‡ï¼Œåº”è¯¥ä½¿ç”¨å¤šä¸ªå¯¹è±¡ï¼Œç”¨æ–‡ä»¶æ± çš„æ–¹å¼
+  SSWorkBook: IXLSWorkBook; // ä¼šè¯æœŸé—´ä½¿ç”¨çš„Workbook
+  /// SSWorkBookæ‰“å¼€çš„å·¥ä½œç°¿çš„æœ€åä¿®æ”¹æ—¶é—´ï¼Œè¿™ä¸ªå˜é‡ç”¨äºå½“é‡‡ç”¨Sessionæ–¹å¼æ—¶ï¼Œå¦‚æœç›®æ ‡å·¥ä½œç°¿å‘ç”Ÿäº†
+  /// æ”¹å˜ï¼Œåˆ™å†æ¬¡è®¿é—®è¯¥å·¥ä½œç°¿æ—¶ï¼Œéœ€è¦é‡æ–°æ‰“å¼€ï¼Œä»¥è·å–æ–°æ•°æ®ï¼Œè¿™ä¸ªå˜é‡åœ¨_GetBookAndSheetæ–¹æ³•ä¸­ä½¿ç”¨
+  ///  è¿™ä¸ªå˜é‡å·²ç»æ•´åˆåˆ°Tmyworkbookå¯¹è±¡çš„fieldä¸­äº†ï¼Œä¸å†éœ€è¦
+  /// WBFileAge: LongInt;
 
-{ -----------------------------------------------------------------------------
-  Procedure  : _GetFloatOrNull
-  Description: ·µ»Ø¸¡µãÊı£¬»òNULL
------------------------------------------------------------------------------ }
+  { -----------------------------------------------------------------------------
+    Procedure  : _GetFloatOrNull
+    Description: è¿”å›æµ®ç‚¹æ•°ï¼Œæˆ–NULL
+    ----------------------------------------------------------------------------- }
 function _GetFloatOrNull(ASht: IXLSWorkSheet; ARow, ACol: Integer): Variant;
 begin
   Result := Null;
   if VarIsNumeric(ASht.Cells[ARow, ACol].Value) then
-      Result := ASht.Cells[ARow, ACol].Value;
+    Result := ASht.Cells[ARow, ACol].Value;
 end;
 
-{ ·µ»ØÒÇÆ÷µÄ¹¤×÷²¾¼°¹¤×÷±í¶ÔÏó }
+{ è¿”å›ä»ªå™¨çš„å·¥ä½œç°¿åŠå·¥ä½œè¡¨å¯¹è±¡ }
 function ThjxDataQuery._GetBookAndSheet(ADsnName: string; var AWBK: IXLSWorkBook;
   var ASht: IXLSWorkSheet; UseSession: Boolean = True): Boolean;
 var
   Meter: TMeterDefine;
 begin
   Result := False;
-    // AWBK := nil;
-    // ASHT := nil;
+  // AWBK := nil;
+  // ASHT := nil;
   Meter := ExcelMeters.Meter[ADsnName];
   if Meter = nil then
   begin
-    AddErrMsg('Î´ÕÒµ½' + ADsnName);
+    AddErrMsg('æœªæ‰¾åˆ°' + ADsnName);
     Exit;
   end;
 
   if (Meter.DataBook = '') or (Meter.DataSheet = '') then
   begin
-    AddErrMsg('Î´ÕÒµ½' + ADsnName + 'µÄÊı¾İ±í');
+    AddErrMsg('æœªæ‰¾åˆ°' + ADsnName + 'çš„æ•°æ®è¡¨');
     Exit;
   end;
-    { todo:ÕâÀïÔö¼ÓÅĞ¶Ï£¬Èç¹ûAWBK¾ÍÊÇÒÇÆ÷µÄ¹¤×÷²¾£¬ÔòÎŞĞèÔÙ¾­¹ı´ò¿ªµÄ²½ÖèÁË }
+  { todo:è¿™é‡Œå¢åŠ åˆ¤æ–­ï¼Œå¦‚æœAWBKå°±æ˜¯ä»ªå™¨çš„å·¥ä½œç°¿ï¼Œåˆ™æ— éœ€å†ç»è¿‡æ‰“å¼€çš„æ­¥éª¤äº† }
   if UseSession then
   begin
-    if SSWorkBook = nil then SSWorkBook := TMyWorkbook.Create;
+    if SSWorkBook = nil then
+      SSWorkBook := TMyWorkbook.Create;
     AWBK := SSWorkBook;
   end
   else if not Assigned(AWBK) then
-      AWBK := TMyWorkbook.Create;
+    AWBK := TMyWorkbook.Create;
 
-  if TMyWorkbook(AWBK).FullName <> Meter.DataBook then
+  /// å¦‚æœä¸æ˜¯åŒä¸€ä¸ªå·¥ä½œç°¿ï¼Œæˆ–è€…æ˜¯åŒä¸€ä¸ªå·¥ä½œç°¿ä½†æ˜¯ç¼–è¾‘æ—¶é—´ä¸åŒï¼Œéœ€è¦é‡æ–°æ‰“å¼€ã€‚
+  /// å¦åˆ™ï¼Œç›´æ¥ä½¿ç”¨åŸæœ‰çš„å·¥ä½œç°¿ã€‚é‡‡ç”¨æ¯”è¾ƒFile Ageçš„æ–¹å¼ï¼Œå¯ä»¥ä¸€ç›´ä½¿ç”¨Sessionæ¨¡å¼ï¼Œäº‹å®ä¸Šï¼Œåœ¨æœ¬å•å…ƒæ‰€æœ‰è°ƒç”¨æœ¬æ–¹æ³•çš„
+  /// åœ°æ–¹ï¼Œéƒ½å·²ç»é»˜è®¤é‡‡ç”¨äº†SessionÂ·æ¨¡å¼ï¼Œå› æ­¤ï¼Œè¿™é‡Œä¸éœ€è¦å†åˆ¤æ–­æ˜¯å¦æ˜¯Sessionæ¨¡å¼äº†ã€‚
+  /// ä¸‹ä¸€æ­¥çš„ä¼˜åŒ–ï¼Œå°±æ˜¯é‡‡ç”¨æ–‡ä»¶æ± çš„æ–¹å¼ï¼Œå°†æ‰€æœ‰æ‰“å¼€è¿‡çš„å·¥ä½œç°¿éƒ½ä¿ç•™ä¸‹æ¥ï¼Œä¸‹æ¬¡ç›´æ¥ä½¿ç”¨å³å¯ã€‚
+  if (TMyWorkbook(AWBK).FullName <> Meter.DataBook) 
+    or (TmyWorkBook(AWBK).FileAge <> FileAge(Meter.DataBook)) then
+  begin
     if not ExcelIO.OpenWorkbook(AWBK, Meter.DataBook) then
     begin
-      AddErrMsg('Î´ÄÜ´ò¿ª' + ADsnName + 'µÄÊı¾İ¹¤×÷²¾' + Meter.DataBook);
+      AddErrMsg('æœªèƒ½æ‰“å¼€' + ADsnName + 'çš„æ•°æ®å·¥ä½œç°¿' + Meter.DataBook);
       Exit;
-    end;
+    end
+  end;
+
+  /// åˆ°è¿™é‡Œï¼Œå·²ç»æ‰“å¼€äº†WorkBookï¼Œæ›´æ–°WBFileAgeï¼š
+  ///  ç°åœ¨TmyWorkbookè‡ªå¸¦FileAge fieldï¼Œå¯ä»¥è‡ªå·±æ›´æ–°äº†ï¼Œè¿™ä¸ªå˜é‡å–æ¶ˆ
+  /// wbfileage := Fileage(meter.DataBook);
 
   ASht := ExcelIO.GetSheet(AWBK, Meter.DataSheet);
   if ASht = nil then
   begin
-    AddErrMsg('´ò¿ª' + ADsnName + 'µÄÊı¾İ±í' + Meter.DataSheet + '³ö´í');
+    AddErrMsg('æ‰“å¼€' + ADsnName + 'çš„æ•°æ®è¡¨' + Meter.DataSheet + 'å‡ºé”™');
     Exit;
   end;
 
-    { ×ßµ½ÕâÀï£¬¿ÉÒÔ·µ»ØTrueÁË }
+  { èµ°åˆ°è¿™é‡Œï¼Œå¯ä»¥è¿”å›Trueäº† }
   Result := True;
 end;
 
-{ ¿ìËÙ¶¨Î»Ö¸¶¨ÈÕÆÚËùÔÚµÄĞĞ£¬»ò×î½Ó½üµÄÈÕÆÚËùÔÚĞĞ£¬·µ»ØÖµÎªĞĞÊı¡£
-    ²ÎÊı£º
-    StartRow:       ÒÇÆ÷Êı¾İÆğÊ¼ĞĞ£¬Ò²ÊÇ²éÕÒµÄÆğÊ¼ĞĞ£»
-    LacateOption:   0:±ØĞëµÈÓÚ¸ÃÈÕÆÚ£»1:¸ÃÈÕÆÚµÄÇ°Ò»¸ö£»2:×î½Ó½ü¸ÃÈÕÆÚ£¬ÎŞÂÛÇ°ºó¡£
+{ å¿«é€Ÿå®šä½æŒ‡å®šæ—¥æœŸæ‰€åœ¨çš„è¡Œï¼Œæˆ–æœ€æ¥è¿‘çš„æ—¥æœŸæ‰€åœ¨è¡Œï¼Œè¿”å›å€¼ä¸ºè¡Œæ•°ã€‚
+  å‚æ•°ï¼š
+  StartRow:       ä»ªå™¨æ•°æ®èµ·å§‹è¡Œï¼Œä¹Ÿæ˜¯æŸ¥æ‰¾çš„èµ·å§‹è¡Œï¼›
+  LacateOption:   0:å¿…é¡»ç­‰äºè¯¥æ—¥æœŸï¼›1:è¯¥æ—¥æœŸçš„å‰ä¸€ä¸ªï¼›2:æœ€æ¥è¿‘è¯¥æ—¥æœŸï¼Œæ— è®ºå‰åã€‚
 }
 function _LocateDTRow(Sheet: IXLSWorkSheet; DT: TDateTime; DTStartRow: Integer;
   LocateOption: TDateLocateOption = dloEqual): Integer;
 var
-  DT1, DT2    : TDateTime;
-  d1, d2      : Integer;
-  iRow        : Integer;
+  DT1, DT2: TDateTime;
+  d1, d2: Integer;
+  iRow: Integer;
   iStart, iEnd: Integer;
-// Delta       : Integer;
+  // Delta       : Integer;
   S: string;
-    { µİ¹é²éÑ¯ }
+  { é€’å½’æŸ¥è¯¢ }
   function _Locate(StartRow, EndRow: Integer): Integer;
   begin
     IAppServices.ProcessMessages;
     Result := -1;
-        // ¿¼ÂÇStartRow=EndRow, EndRow-StartRow=1µÄÇé¿ö
-        // ÆğÖ¹Á½ĞĞÏàÁÚ£¬ÈôÈÔÃ»ÕÒµ½ÔòÌôÑ¡×î½Ó½üµÄ
+    // è€ƒè™‘StartRow=EndRow, EndRow-StartRow=1çš„æƒ…å†µ
+    // èµ·æ­¢ä¸¤è¡Œç›¸é‚»ï¼Œè‹¥ä»æ²¡æ‰¾åˆ°åˆ™æŒ‘é€‰æœ€æ¥è¿‘çš„
     if EndRow - StartRow <= 1 then
     begin
       DT1 := ExcelIO.GetDateTimeValue(Sheet, StartRow, 1);
       DT2 := ExcelIO.GetDateTimeValue(Sheet, EndRow, 1);
-            // ¸ù¾İOptionÑ¡Ôñ²Ù×÷
-            // ±ØĞë¾«È·ÏàµÈ£¬ÔòÃ»ÓĞÕÒµ½
+      // æ ¹æ®Optioné€‰æ‹©æ“ä½œ
+      // å¿…é¡»ç²¾ç¡®ç›¸ç­‰ï¼Œåˆ™æ²¡æœ‰æ‰¾åˆ°
       case LocateOption of
         dloEqual:
           Exit;
@@ -248,20 +306,20 @@ var
           end;
         dloClosest:
           begin
-                        // ×î½Ó½üÖ¸¶¨ÈÕÆÚµÄÊı¾İ
-                        // Çó²îÖµ
+            // æœ€æ¥è¿‘æŒ‡å®šæ—¥æœŸçš„æ•°æ®
+            // æ±‚å·®å€¼
             d1 := DaysBetween(DT1, DT);
             d2 := DaysBetween(DT, DT2);
             if d1 < d2 then
-                Result := StartRow
+              Result := StartRow
             else
-                Result := EndRow;
+              Result := EndRow;
           end;
       end;
       Exit;
     end;
 
-        // ÔÚStartRowºÍEndRowÑ¡ÖĞ¼äĞĞ
+    // åœ¨StartRowå’ŒEndRowé€‰ä¸­é—´è¡Œ
     iRow := (StartRow + EndRow) div 2;
     DT1 := ExcelIO.GetDateTimeValue(Sheet, iRow, 1);
     if DT1 = DT then
@@ -270,31 +328,31 @@ var
       Exit;
     end;
 
-        // ±È½ÏDT1ºÍDT£¬ÖØĞÂÉèÖÃStartRowºÍEndRow,ÔÙÕÒ
+    // æ¯”è¾ƒDT1å’ŒDTï¼Œé‡æ–°è®¾ç½®StartRowå’ŒEndRow,å†æ‰¾
     if DT1 < DT then
-        StartRow := iRow
+      StartRow := iRow
     else
-        EndRow := iRow;
-        // µİ¹é£¬ÔÙÕÒ
+      EndRow := iRow;
+    // é€’å½’ï¼Œå†æ‰¾
     Result := _Locate(StartRow, EndRow);
   end;
 
 begin
   Result := -1;
   if Sheet = nil then
-      Exit;
+    Exit;
   iStart := DTStartRow;
   iEnd := Sheet.UsedRange.LastRow + 2;
 
-    // ÅĞ¶Ï5ÖÖÌØÊâÇé¿ö:Ã»Êı¾İ£¬ÆğÊ¼ĞĞÎª½á¹û£¬½ØÖ¹ĞĞÎª½á¹û, ÔçÓÚÆğÊ¼ĞĞ£¬ÍíÓÚ½ØÖ¹ĞĞ
-    // 1. Ã»Êı¾İ
+  // åˆ¤æ–­5ç§ç‰¹æ®Šæƒ…å†µ:æ²¡æ•°æ®ï¼Œèµ·å§‹è¡Œä¸ºç»“æœï¼Œæˆªæ­¢è¡Œä¸ºç»“æœ, æ—©äºèµ·å§‹è¡Œï¼Œæ™šäºæˆªæ­¢è¡Œ
+  // 1. æ²¡æ•°æ®
   if iEnd < iStart then
-      Exit;
+    Exit;
 
-    // 2. ÆğÊ¼ĞĞµÈÓÚ¸øÈÕÆÚ£¬ÈôÆğÊ¼ĞĞÈÕÆÚÎª¿ÕÔòÍË³ö£¬¼´Í¬ÑùÃ»Êı¾İ
-  S := trim(ExcelIO.GetStrValue(Sheet, iStart, 1));
+  // 2. èµ·å§‹è¡Œç­‰äºç»™æ—¥æœŸï¼Œè‹¥èµ·å§‹è¡Œæ—¥æœŸä¸ºç©ºåˆ™é€€å‡ºï¼Œå³åŒæ ·æ²¡æ•°æ®
+  S := Trim(ExcelIO.GetStrValue(Sheet, iStart, 1));
   if S = '' then
-      Exit;
+    Exit;
 
   DT1 := ExcelIO.GetDateTimeValue(Sheet, iStart, 1); // StrToDateTime(S);
   if DT1 = DT then
@@ -303,7 +361,7 @@ begin
     Exit;
   end;
 
-    // 3. ÔçÓÚÆğÊ¼ĞĞ£¬ÈôÔÊĞíÖ®ºó»òÔÊĞí½Ó½ü·µ»ØÆğÊ¼ĞĞ£¬·ñÔòÍË³ö
+  // 3. æ—©äºèµ·å§‹è¡Œï¼Œè‹¥å…è®¸ä¹‹åæˆ–å…è®¸æ¥è¿‘è¿”å›èµ·å§‹è¡Œï¼Œå¦åˆ™é€€å‡º
   if DT1 > DT then
     if LocateOption in [dloAfter, dloClosest] then
     begin
@@ -311,18 +369,18 @@ begin
       Exit;
     end
     else
-        Exit;
+      Exit;
 
-    // 4. ½ØÖ¹ĞĞµÈÓÚ¸ø¶¨ÈÕÆÚ
-    // ÏÈÌø¹ı¿ÕĞĞ£¬ÕÒµ½×îºóÒ»ĞĞÊı¾İ£¬È¡µÃ×îºóÈÕÆÚ
+  // 4. æˆªæ­¢è¡Œç­‰äºç»™å®šæ—¥æœŸ
+  // å…ˆè·³è¿‡ç©ºè¡Œï¼Œæ‰¾åˆ°æœ€åä¸€è¡Œæ•°æ®ï¼Œå–å¾—æœ€åæ—¥æœŸ
   for iRow := iEnd downto iStart do
   begin
     IAppServices.ProcessMessages;
-    S := trim(ExcelIO.GetStrValue(Sheet, iRow, 1));
+    S := Trim(ExcelIO.GetStrValue(Sheet, iRow, 1));
     if S = '' then
-        Continue
+      Continue
     else
-        Break;
+      Break;
   end;
   DT2 := ExcelIO.GetDateTimeValue(Sheet, iRow, 1); // StrToDateTime(S);
   if DT2 = DT then
@@ -331,36 +389,36 @@ begin
     Exit;
   end;
 
-    // 5. ÍíÓÚ½ØÖ¹ĞĞ
+  // 5. æ™šäºæˆªæ­¢è¡Œ
   if DT > DT2 then
-    if LocateOption in [dloBefore, dloClosest] then // ÔÊĞíÇ°ºó½Ó½ü
+    if LocateOption in [dloBefore, dloClosest] then // å…è®¸å‰åæ¥è¿‘
     begin
       Result := iRow;
       Exit;
     end
     else
-        Exit;
-    // ÒÔÉÏ5ÖÖÇé¿ö²»´æÔÚ£¬ÔòÀÏÀÏÊµÊµµØ²éÕÒ°É£º
+      Exit;
+  // ä»¥ä¸Š5ç§æƒ…å†µä¸å­˜åœ¨ï¼Œåˆ™è€è€å®å®åœ°æŸ¥æ‰¾å§ï¼š
   if iEnd <> iRow then
-      iEnd := iRow;
+    iEnd := iRow;
   Result := _Locate(iStart, iEnd);
 end;
 
-// ¸ù¾İÎïÀíÁ¿¶¨Òå´´½¨×Ö¶Î±í
+// æ ¹æ®ç‰©ç†é‡å®šä¹‰åˆ›å»ºå­—æ®µè¡¨
 procedure _CreateFieldsFromPDDefines(DS: TDataSet; APDDefines: TDataDefines);
 var
-  i : Integer;
+  i: Integer;
   DF: TFieldDef;
 begin
   TClientDataSet(DS).FieldDefs.Clear;
   TClientDataSet(DS).IndexDefs.Clear;
 
-    // ¹Û²âÈÕÆÚ×Ö¶Î
+  // è§‚æµ‹æ—¥æœŸå­—æ®µ
   DF := DS.FieldDefs.AddFieldDef;
   DF.Name := 'DTScale';
   DF.DataType := ftDateTime;
-  DF.DisplayName := '¹Û²âÈÕÆÚ';
-    // ÎïÀíÁ¿×Ö¶Î
+  DF.DisplayName := 'è§‚æµ‹æ—¥æœŸ';
+  // ç‰©ç†é‡å­—æ®µ
   for i := 0 to APDDefines.Count - 1 do
   begin
     DF := DS.FieldDefs.AddFieldDef;
@@ -368,42 +426,129 @@ begin
     DF.DisplayName := APDDefines.Items[i].Name;
     DF.DataType := ftFloat;
   end;
-    // ±¸×¢×Ö¶Î
+  // å¤‡æ³¨å­—æ®µ
   DF := DS.FieldDefs.AddFieldDef;
   DF.Name := 'Annotation';
-  DF.DisplayName := '±¸×¢';
+  DF.DisplayName := 'å¤‡æ³¨';
   DF.DataType := ftWideString;
 
   TClientDataSet(DS).IndexDefs.Add('IndexDT', 'DTScale', []);
 end;
 
-// ÉèÖÃ×Ö¶Îdisplaylabel
-procedure _SetFieldsDisplayName(DS: TDataSet; APDDefines: TDataDefines);
+// æ ¹æ®ä»ªå™¨æ•°æ®å®šä¹‰ï¼Œåˆ›å»ºè§‚æµ‹é‡å’Œç‰©ç†é‡å­—æ®µè¡¨
+procedure _CreateFieldsFromDataDefines(DS: TDataSet; AMDDefines, APDDefines: TDataDefines);
+var
+  i: Integer;
+  DF: TFieldDef;
+begin
+  TClientDataSet(DS).FieldDefs.Clear;
+  TClientDataSet(DS).IndexDefs.Clear;
+  DF := DS.FieldDefs.AddFieldDef;
+  DF.Name := 'DTScale';
+  DF.DataType := ftDateTime;
+  DF.DisplayName := 'è§‚æµ‹æ—¥æœŸ';
+  // è§‚æµ‹é‡
+  for i := 0 to AMDDefines.Count - 1 do
+  begin
+    DF := DS.FieldDefs.AddFieldDef;
+    DF.Name := 'MD' + IntToStr(i + 1);
+    DF.DisplayName := AMDDefines.Items[i].Name;
+    DF.DataType := ftFloat;
+  end;
+  // ç‰©ç†é‡
+  for i := 0 to APDDefines.Count - 1 do
+  begin
+    DF := DS.FieldDefs.AddFieldDef;
+    DF.Name := 'PD' + IntToStr(i + 1);
+    DF.DisplayName := APDDefines.Items[i].Name;
+    DF.DataType := ftFloat;
+  end;
+  DF := DS.FieldDefs.AddFieldDef;
+  DF.Name := 'Annotation';
+  DF.DisplayName := 'å¤‡æ³¨';
+  DF.DataType := ftWideString;
+  TClientDataSet(DS).IndexDefs.Add('IndexDT', 'DTScale', []);
+end;
+
+// è®¾ç½®å­—æ®µdisplaylabel
+procedure _SetPDFieldsDisplayName(DS: TDataSet; APDDefines: TDataDefines);
 var
   i: Integer;
 begin
   with DS as TClientDataSet do
   begin
-    Fields[0].DisplayLabel := '¹Û²âÈÕÆÚ';
+    Fields[0].DisplayLabel := 'è§‚æµ‹æ—¥æœŸ';
+
     for i := 0 to APDDefines.Count - 1 do
     begin
       Fields[i + 1].DisplayLabel := APDDefines.Items[i].Name;
       if Fields[i + 1].DataType = ftFloat then
         (Fields[i + 1] as TNumericField).DisplayFormat := '0.00';
     end;
-        // Èç¹û×îºóÒ»¸ö×Ö¶ÎÃûÎªAnnotation£¬ÔòÎª±¸×¢×Ö¶Î
+
+    // å¦‚æœæœ€åä¸€ä¸ªå­—æ®µåä¸ºAnnotationï¼Œåˆ™ä¸ºå¤‡æ³¨å­—æ®µ
     with Fields[Fields.Count - 1] do
       if Name = 'Annotation' then
-          DisplayLabel := '±¸×¢';
+        DisplayLabel := 'å¤‡æ³¨';
   end;
 end;
 
-// ¸ù¾İÒÇÆ÷×é¶¨Òå´´½¨Êı¾İ¼¯×Ö¶Î
+procedure _SetFieldsDisplayName(DS: TDataSet; AMDDefines, APDDefines: TDataDefines;
+  ANoCol: Integer);
+var
+  i, n: Integer;
+  S: String;
+begin
+  with DS as TClientDataSet do
+    Fields[0].DisplayLabel := 'è§‚æµ‹æ—¥æœŸ';
+
+  for i := 1 to DS.FieldCount - 1 do
+  begin
+    DS.Fields[i].DisplayLabel := DS.FieldDefs[i].DisplayName;
+    S := DS.FieldDefs[i].Name; // å­—æ®µåï¼ŒMD + Indexï¼Œæˆ–PD+Index
+    if S <> 'Annotation' then
+      n := StrToInt(Copy(S, 3, length(S) - 2)); // åºå·
+    S := Copy(S, 1, 2);
+    // ä¸ºæé«˜è¯»å–æ•°æ®çš„é€Ÿåº¦ï¼Œç›´æ¥åœ¨è¿™é‡Œå°†æ¯ä¸ªæ•°æ®é¡¹çš„åˆ—å·å†™åˆ°Field.Tagä¸­ï¼Œçœçš„è¯»
+    // çš„æ—¶å€™å†å»è®¿é—®DataDefine.Columnå±æ€§
+    if S = 'MD' then
+    begin
+      DS.Fields[i].Tag := AMDDefines.Items[n - 1].Column;
+      DS.Fields[i].DisplayLabel := AMDDefines.Items[n - 1].Name;
+    end
+    else if S = 'PD' then
+    begin
+      DS.Fields[i].Tag := APDDefines.Items[n - 1].Column;
+      DS.Fields[i].DisplayLabel := APDDefines.Items[n - 1].Name;
+    end
+    else
+    begin
+      DS.Fields[i].Tag := ANoCol;
+      DS.Fields[i].DisplayLabel := 'å¤‡æ³¨';
+    end;
+
+    if DS.Fields[i].DataType = ftFloat then
+      (DS.Fields[i] as TNumericField).DisplayFormat := '0.00'
+    else if DS.Fields[i].DataType = ftDateTime then
+      (DS.Fields[i] as TDateTimeField).DisplayFormat := 'yyyy-mm-dd hh:mm';
+
+  end;
+  // å¦‚æœæœ€åä¸€ä¸ªå­—æ®µåä¸ºAnnotationï¼Œåˆ™ä¸ºå¤‡æ³¨å­—æ®µ
+  with DS.Fields[DS.FieldCount - 1] do
+    if Name = 'Annotation' then
+    begin
+      DisplayLabel := 'å¤‡æ³¨';
+      Tag := ANoCol;
+    end;
+
+end;
+
+// æ ¹æ®ä»ªå™¨ç»„å®šä¹‰åˆ›å»ºæ•°æ®é›†å­—æ®µ
 procedure _CreateFieldsFromGroup(DS: TDataSet; AGroup: TMeterGroupItem);
 var
   i, j: Integer;
-  DF  : TFieldDef;
-  MT  : TMeterDefine;
+  DF: TFieldDef;
+  MT: TMeterDefine;
 begin
   TClientDataSet(DS).FieldDefs.Clear;
   TClientDataSet(DS).IndexDefs.Clear;
@@ -411,7 +556,7 @@ begin
   DF := DS.FieldDefs.AddFieldDef;
   DF.Name := 'DTScale';
   DF.DataType := ftDateTime;
-  DF.DisplayName := '¹Û²âÈÕÆÚ';
+  DF.DisplayName := 'è§‚æµ‹æ—¥æœŸ';
   for i := 0 to AGroup.Count - 1 do
   begin
     MT := ExcelMeters.Meter[AGroup.Items[i]];
@@ -422,25 +567,25 @@ begin
       DF.DataType := ftFloat;
     end;
   end;
-    { DONE:Ôö¼Ó±¸×¢×Ö¶Î }
+  { DONE:å¢åŠ å¤‡æ³¨å­—æ®µ }
   DF := DS.FieldDefs.AddFieldDef;
   DF.Name := 'Annotation';
   DF.DataType := ftString;
-  DF.DisplayName := '±¸×¢';
-    // Ôö¼ÓË÷Òı×Ö¶Î
+  DF.DisplayName := 'å¤‡æ³¨';
+  // å¢åŠ ç´¢å¼•å­—æ®µ
   TClientDataSet(DS).IndexDefs.Add('IndexDT', 'DTScale', []);
 end;
 
 procedure _SetGroupFieldsDisplayName(DS: TDataSet; AGroup: TMeterGroupItem);
 var
   i, j, n: Integer;
-// fld    : TField;
+  // fld    : TField;
   MT: TMeterDefine;
 begin
   with DS as TClientDataSet do
   begin
-    Fields[0].DisplayLabel := '¹Û²âÈÕÆÚ';
-    Fields[Fields.Count - 1].DisplayLabel := '±¸×¢';
+    Fields[0].DisplayLabel := 'è§‚æµ‹æ—¥æœŸ';
+    Fields[Fields.Count - 1].DisplayLabel := 'å¤‡æ³¨';
     n := 1;
     for i := 0 to AGroup.Count - 1 do
     begin
@@ -457,8 +602,19 @@ begin
   end;
 end;
 
+constructor ThjxDataQuery.Create;
+begin
+  inherited Create;
+  (IAppServices.FuncDispatcher as IFunctionDispatcher).RegistFuncRewriteData(RewriteDatas);
+  // FRW5 := TXLSReadWriteII5.Create(nil);
+  // FRW5.DirectRead := False;
+  // FRW5.DirectWrite := False;
+  //WBFileAge := -1;
+end;
+
 destructor ThjxDataQuery.Destroy;
 begin
+  // FRW5.Free;
   inherited;
 end;
 
@@ -476,59 +632,61 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetLastPDDatas
-  Description: È¡»Ø×îºóÒ»´Î¹Û²âÊı¾İ£¨ÎïÀíÁ¿£©£¬·µ»Ø½á¹ûÊı×éÎª£ºÈÕÆÚ¡¢ÎïÀíÁ¿
-  Êı×é£¬ÆäÖĞÈÕÆÚÒÔË«¾«¶È±íÊ¾
+  Description: å–å›æœ€åä¸€æ¬¡è§‚æµ‹æ•°æ®ï¼ˆç‰©ç†é‡ï¼‰ï¼Œè¿”å›ç»“æœæ•°ç»„ä¸ºï¼šæ—¥æœŸã€ç‰©ç†é‡
+  æ•°ç»„ï¼Œå…¶ä¸­æ—¥æœŸä»¥åŒç²¾åº¦è¡¨ç¤º
   ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetLastPDDatas(ADsnName: string; var Values: TDoubleDynArray): Boolean;
 var
-  Meter    : TMeterDefine;
-  wbk      : IXLSWorkBook;
-  sht      : IXLSWorkSheet;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
   iCount, i: Integer;
-  iRow     : Integer;
-  S        : String;
+  iRow: Integer;
+  S: String;
 begin
   Result := False;
   SetLength(Values, 0);
 
   Meter := ExcelMeters.Meter[ADsnName];
-(*
-  if Meter = nil then Exit;
+  (*
+    if Meter = nil then Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
 
-  if FUseSession then wbk := SSWorkBook
-  else wbk := TMyWorkbook.Create;
+    if FUseSession then wbk := SSWorkBook
+    else wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then Exit;
 
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then Exit;
-*)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-  iCount := Meter.PDDefines.Count + 1; // ÎïÀíÁ¿+¹Û²âÈÕÆÚ
+  iCount := Meter.PDDefines.Count + 1; // ç‰©ç†é‡+è§‚æµ‹æ—¥æœŸ
   SetLength(Values, iCount);
-  Values[0] := 0; // ¹Û²âÈÕÆÚÉèÖÃÎª0£¬ÈôÃ»ÓĞÊı¾İ£¬Ôò²»ÌîÈë£¬µ÷ÓÃÕßÍ¨¹ı¹Û²âÈÕÆÚÊÇ·ñÎª0ÅĞ¶ÏÊÇ·ñÓĞ¹Û²âÊı¾İ¡£
+  Values[0] := 0; // è§‚æµ‹æ—¥æœŸè®¾ç½®ä¸º0ï¼Œè‹¥æ²¡æœ‰æ•°æ®ï¼Œåˆ™ä¸å¡«å…¥ï¼Œè°ƒç”¨è€…é€šè¿‡è§‚æµ‹æ—¥æœŸæ˜¯å¦ä¸º0åˆ¤æ–­æ˜¯å¦æœ‰è§‚æµ‹æ•°æ®ã€‚
 
-    // ÏÂÃæ¿ªÊ¼µ¹Ğò²éÕÒÊı¾İ
-  for iRow := sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
+  // ä¸‹é¢å¼€å§‹å€’åºæŸ¥æ‰¾æ•°æ®
+  for iRow := Sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.BaseLine { .DTStartRow } do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, 1].Value));
-    if S = '' then Continue;
-        // ¹Û²âÈÕÆÚ
-    Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value));
+    if S = '' then
+      Continue;
+    // è§‚æµ‹æ—¥æœŸ
+    Values[0] := ExcelIO.GetDateTimeValue(Sht, iRow, 1);
 
-        // ±¸×¢ ÓÉÓÚValuesÊÇDoubleÀàĞÍÊı×é£¬ÎŞ·¨ÌîÈë±¸×¢
-        { with Meter.DataSheetStru do
-            if AnnoCol > 0 then
-                Values[iCount - 1] := ExcelIO.GetStrValue(sht, iRow, Meter.DataSheetStru.AnnoCol); }
+    // å¤‡æ³¨ ç”±äºValuesæ˜¯Doubleç±»å‹æ•°ç»„ï¼Œæ— æ³•å¡«å…¥å¤‡æ³¨
+    { with Meter.DataSheetStru do
+      if AnnoCol > 0 then
+      Values[iCount - 1] := ExcelIO.GetStrValue(sht, iRow, Meter.DataSheetStru.AnnoCol); }
 
-        // ¸÷¸öÎïÀíÁ¿
+    // å„ä¸ªç‰©ç†é‡
     for i := 0 to Meter.PDDefines.Count - 1 do
-        Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+      Values[i + 1] := ExcelIO.GetFloatValue(Sht, iRow, Meter.PDColumn(i));
     Break;
   end;
   Result := True;
@@ -536,61 +694,64 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetLastPDDatas
-  Description: ·µ»Ø×îºóÒ»´Î¹Û²âÊı¾İ£¬¸ñÊ½Îª¡°ÈÕÆÚ+ÎïÀíÁ¿Êı×é¡±£¬·µ»ØÊı¾İÎªVariant£¬
-  ÈôÊı¾İºÏ·¨ÔòÎªË«¾«¶ÈÊıÖµ£¬·ñÔòÎªNULL¡£
------------------------------------------------------------------------------ }
+  Description: è¿”å›æœ€åä¸€æ¬¡è§‚æµ‹æ•°æ®ï¼Œæ ¼å¼ä¸ºâ€œæ—¥æœŸ+ç‰©ç†é‡æ•°ç»„â€ï¼Œè¿”å›æ•°æ®ä¸ºVariantï¼Œ
+  è‹¥æ•°æ®åˆæ³•åˆ™ä¸ºåŒç²¾åº¦æ•°å€¼ï¼Œå¦åˆ™ä¸ºNULLã€‚
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetLastPDDatas(ADsnName: string; var Values: TVariantDynArray): Boolean;
 var
-  Meter    : TMeterDefine;
-  wbk      : IXLSWorkBook;
-  sht      : IXLSWorkSheet;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
   iCount, i: Integer;
-  iRow     : Integer;
-  S        : String;
+  iRow: Integer;
+  S: String;
 begin
   Result := False;
-  for i := Low(Values) to High(Values) do VarClear(Values[i]);
+  for i := Low(Values) to High(Values) do
+    VarClear(Values[i]);
   SetLength(Values, 0);
 
   Meter := ExcelMeters.Meter[ADsnName];
-(*
-  if Meter = nil then Exit;
+  (*
+    if Meter = nil then Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then Exit;
 
-  if FUseSession then wbk := SSWorkBook
-  else wbk := TMyWorkbook.Create;
+    if FUseSession then wbk := SSWorkBook
+    else wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then Exit;
 
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then Exit;
-*)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-  iCount := Meter.PDDefines.Count + 1; // ÎïÀíÁ¿+¹Û²âÈÕÆÚ
+  iCount := Meter.PDDefines.Count + 1; // ç‰©ç†é‡+è§‚æµ‹æ—¥æœŸ
   SetLength(Values, iCount);
-  Values[0] := 0; // ¹Û²âÈÕÆÚÉèÖÃÎª0£¬ÈôÃ»ÓĞÊı¾İ£¬Ôò²»ÌîÈë£¬µ÷ÓÃÕßÍ¨¹ı¹Û²âÈÕÆÚÊÇ·ñÎª0ÅĞ¶ÏÊÇ·ñÓĞ¹Û²âÊı¾İ¡£
+  Values[0] := 0; // è§‚æµ‹æ—¥æœŸè®¾ç½®ä¸º0ï¼Œè‹¥æ²¡æœ‰æ•°æ®ï¼Œåˆ™ä¸å¡«å…¥ï¼Œè°ƒç”¨è€…é€šè¿‡è§‚æµ‹æ—¥æœŸæ˜¯å¦ä¸º0åˆ¤æ–­æ˜¯å¦æœ‰è§‚æµ‹æ•°æ®ã€‚
 
-    // ÏÂÃæ¿ªÊ¼µ¹Ğò²éÕÒÊı¾İ
-  for iRow := sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
+  // ä¸‹é¢å¼€å§‹å€’åºæŸ¥æ‰¾æ•°æ®
+  for iRow := Sht.UsedRange.LastRow + 5 downto Meter.DataSheetStru.BaseLine { .DTStartRow } do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, 1].Value));
-    if S = '' then Continue;
-        // ¹Û²âÈÕÆÚ
-    Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value));
+    if S = '' then
+      Continue;
+    // è§‚æµ‹æ—¥æœŸ
+    Values[0] := ExcelIO.GetDateTimeValue(Sht, iRow, 1);
 
-        // ±¸×¢ ÓÉÓÚValuesÊÇDoubleÀàĞÍÊı×é£¬ÎŞ·¨ÌîÈë±¸×¢
-        { with Meter.DataSheetStru do
-            if AnnoCol > 0 then
-                Values[iCount - 1] := ExcelIO.GetStrValue(sht, iRow, Meter.DataSheetStru.AnnoCol); }
+    // å¤‡æ³¨ ç”±äºValuesæ˜¯Doubleç±»å‹æ•°ç»„ï¼Œæ— æ³•å¡«å…¥å¤‡æ³¨
+    { with Meter.DataSheetStru do
+      if AnnoCol > 0 then
+      Values[iCount - 1] := ExcelIO.GetStrValue(sht, iRow, Meter.DataSheetStru.AnnoCol); }
 
-        // ¸÷¸öÎïÀíÁ¿
+    // å„ä¸ªç‰©ç†é‡
     for i := 0 to Meter.PDDefines.Count - 1 do
-        Values[i + 1] := _GetFloatOrNull(sht, iRow, Meter.PDColumn(i));
-        // Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+      Values[i + 1] := _GetFloatOrNull(Sht, iRow, Meter.PDColumn(i));
+    // Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
     Break;
   end;
   Result := True;
@@ -598,81 +759,82 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetLastPDDatasInPeriod
-  Description: È¡»ØÖ¸¶¨Ê±¶ÎÄÚ×îºóÒ»´Î¹Û²âÊı¾İ
+  Description: å–å›æŒ‡å®šæ—¶æ®µå†…æœ€åä¸€æ¬¡è§‚æµ‹æ•°æ®
   ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
   var Values: TDoubleDynArray): Boolean;
 var
-  Meter    : TMeterDefine;
-  wbk      : IXLSWorkBook;
-  sht      : IXLSWorkSheet;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
   iCount, i: Integer;
-  iRow     : Integer;
-// S        : String;
-// DT1      : TDateTime;
+  iRow: Integer;
+  // S        : String;
+  // DT1      : TDateTime;
 begin
   Result := False;
   SetLength(Values, 0);
 
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
+    if Meter = nil then
+    Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
 
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
+    Exit;
 
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-  iCount := Meter.PDDefines.Count + 1; // ÎïÀíÁ¿+¹Û²âÈÕÆÚ+±¸×¢
+  iCount := Meter.PDDefines.Count + 1; // ç‰©ç†é‡+è§‚æµ‹æ—¥æœŸ+å¤‡æ³¨
   SetLength(Values, iCount);
-  Values[0] := 0; // ¹Û²âÈÕÆÚÉèÖÃÎª0£¬ÈôÃ»ÓĞÊı¾İ£¬Ôò²»ÌîÈë£¬µ÷ÓÃÕßÍ¨¹ı¹Û²âÈÕÆÚÊÇ·ñÎª0ÅĞ¶ÏÊÇ·ñÓĞ¹Û²âÊı¾İ¡£
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloBefore);
-  if (iRow <> -1) and (iRow > Meter.DataSheetStru.BaseLine{.DTStartRow}) then
+  Values[0] := 0; // è§‚æµ‹æ—¥æœŸè®¾ç½®ä¸º0ï¼Œè‹¥æ²¡æœ‰æ•°æ®ï¼Œåˆ™ä¸å¡«å…¥ï¼Œè°ƒç”¨è€…é€šè¿‡è§‚æµ‹æ—¥æœŸæ˜¯å¦ä¸º0åˆ¤æ–­æ˜¯å¦æœ‰è§‚æµ‹æ•°æ®ã€‚
+  iRow := _LocateDTRow(Sht, DT, Meter.DataSheetStru.BaseLine { .DTStartRow } , dloBefore);
+  if (iRow <> -1) and (iRow > Meter.DataSheetStru.BaseLine { .DTStartRow } ) then
   begin
-    Dec(iRow); // ÔçÒ»ĞĞ
-    Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
+    Dec(iRow); // æ—©ä¸€è¡Œ
+    Values[0] := ExcelIO.GetDateTimeValue(Sht, iRow, 1);
     for i := 0 to Meter.PDDefines.Count - 1 do
-        Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+      Values[i + 1] := ExcelIO.GetFloatValue(Sht, iRow, Meter.PDColumn(i));
   end
   else
-      Exit;
+    Exit;
 
-// for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
-// begin
-// S := Trim(VarToStr(sht.Cells[iRow, 1].value));
-// if S = '' then
-// Continue;
-//
-// if TryStrToDateTime(S, DT1) = False then
-// Continue; // Èç¹ûÊ±¼ä×Ö·û´®ÎŞĞ§£¬Ìø¹ı±¾Ìõ¼ÇÂ¼
-//
-// if DT1 > DT then
-// Continue;
-//
-// Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // ¹Û²âÈÕÆÚ
-// { with Meter.DataSheetStru do
-// if AnnoCol > 0 then
-// Values[iCount - 1] := ExcelIO.GetStrValue(sht, iRow, Meter.DataSheetStru.AnnoCol); }
-//
-// for i := 0 to Meter.PDDefines.Count - 1 do
-// Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
-// Break;
-//
-// end;
+  // for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
+  // begin
+  // S := Trim(VarToStr(sht.Cells[iRow, 1].value));
+  // if S = '' then
+  // Continue;
+  //
+  // if TryStrToDateTime(S, DT1) = False then
+  // Continue; // å¦‚æœæ—¶é—´å­—ç¬¦ä¸²æ— æ•ˆï¼Œè·³è¿‡æœ¬æ¡è®°å½•
+  //
+  // if DT1 > DT then
+  // Continue;
+  //
+  // Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // è§‚æµ‹æ—¥æœŸ
+  // { with Meter.DataSheetStru do
+  // if AnnoCol > 0 then
+  // Values[iCount - 1] := ExcelIO.GetStrValue(sht, iRow, Meter.DataSheetStru.AnnoCol); }
+  //
+  // for i := 0 to Meter.PDDefines.Count - 1 do
+  // Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+  // Break;
+  //
+  // end;
 
   Result := True;
 end;
@@ -680,88 +842,89 @@ end;
 function ThjxDataQuery.GetLastPDDatasBeforeDate(ADsnName: string; DT: TDateTime;
   var Values: TVariantDynArray): Boolean;
 var
-  Meter    : TMeterDefine;
-  wbk      : IXLSWorkBook;
-  sht      : IXLSWorkSheet;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
   iCount, i: Integer;
-  iRow     : Integer;
-// S        : String;
-// DT1      : TDateTime;
+  iRow: Integer;
+  // S        : String;
+  // DT1      : TDateTime;
 begin
   Result := False;
-  for i := Low(Values) to High(Values) do VarClear(Values[i]);
+  for i := Low(Values) to High(Values) do
+    VarClear(Values[i]);
   SetLength(Values, 0);
 
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
+    if Meter = nil then
+    Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
 
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
+    Exit;
 
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-  iCount := Meter.PDDefines.Count + 1; // ÎïÀíÁ¿+¹Û²âÈÕÆÚ+±¸×¢
+  iCount := Meter.PDDefines.Count + 1; // ç‰©ç†é‡+è§‚æµ‹æ—¥æœŸ+å¤‡æ³¨
   SetLength(Values, iCount);
-  Values[0] := 0; // ¹Û²âÈÕÆÚÉèÖÃÎª0£¬ÈôÃ»ÓĞÊı¾İ£¬Ôò²»ÌîÈë£¬µ÷ÓÃÕßÍ¨¹ı¹Û²âÈÕÆÚÊÇ·ñÎª0ÅĞ¶ÏÊÇ·ñÓĞ¹Û²âÊı¾İ¡£
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloBefore);
-  if (iRow <> -1) and (iRow > Meter.DataSheetStru.BaseLine{.DTStartRow}) then
+  Values[0] := 0; // è§‚æµ‹æ—¥æœŸè®¾ç½®ä¸º0ï¼Œè‹¥æ²¡æœ‰æ•°æ®ï¼Œåˆ™ä¸å¡«å…¥ï¼Œè°ƒç”¨è€…é€šè¿‡è§‚æµ‹æ—¥æœŸæ˜¯å¦ä¸º0åˆ¤æ–­æ˜¯å¦æœ‰è§‚æµ‹æ•°æ®ã€‚
+  iRow := _LocateDTRow(Sht, DT, Meter.DataSheetStru.BaseLine { .DTStartRow } , dloBefore);
+  if (iRow <> -1) and (iRow > Meter.DataSheetStru.BaseLine { .DTStartRow } ) then
   begin
-    Dec(iRow); // ÔçÒ»ĞĞ
-    Values[0] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
+    Dec(iRow); // æ—©ä¸€è¡Œ
+    Values[0] := ExcelIO.GetDateTimeValue(Sht, iRow, 1);
     for i := 0 to Meter.PDDefines.Count - 1 do
-        Values[i + 1] := _GetFloatOrNull(sht, iRow, Meter.PDColumn(i));
-        // Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+      Values[i + 1] := _GetFloatOrNull(Sht, iRow, Meter.PDColumn(i));
+    // Values[i + 1] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
   end
   else
-      Exit;
+    Exit;
 
   Result := True;
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetNearestPDDatas
-  Description: È¡»Ø×î½Ó½üÖ¸¶¨ÈÕÆÚµÄ¹Û²âÊı¾İ£¬Ê±¼ä¿ÉÇ°¿Éºó
+  Description: å–å›æœ€æ¥è¿‘æŒ‡å®šæ—¥æœŸçš„è§‚æµ‹æ•°æ®ï¼Œæ—¶é—´å¯å‰å¯å
   ----------------------------------------------------------------------------- }
-{ DONE:Ó¦²ÉÓÃ¸ü¿ìµÄÊı¾İ²éÕÒ·½Ê½£¬¶ø·Ç´ÓµÚÒ»ÌõÒ»Ö±ÕÒµ½×îºó }
+{ DONE:åº”é‡‡ç”¨æ›´å¿«çš„æ•°æ®æŸ¥æ‰¾æ–¹å¼ï¼Œè€Œéä»ç¬¬ä¸€æ¡ä¸€ç›´æ‰¾åˆ°æœ€å }
 function ThjxDataQuery.GetNearestPDDatas(ADsnName: string; DT: TDateTime;
-  var Values: TDoubleDynArray;
-  DTDelta: Integer = 0): Boolean;
+  var Values: TDoubleDynArray; DTDelta: Integer = 0): Boolean;
 var
-  Meter      : TMeterDefine;
-  wbk        : IXLSWorkBook;
-  sht        : IXLSWorkSheet;
-  iCount     : Integer;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  iCount: Integer;
   iRow, iLRow: Integer;
-// S           : String;
-  DT1         : TDateTime;
+  // S           : String;
+  DT1: TDateTime;
   dLast, dThis: double;
 
   procedure SetData(ARow: Integer);
   var
     ii: Integer;
   begin
-    Values[0] := ExcelIO.GetDateTimeValue(sht, ARow, 1);
-        { with Meter.DataSheetStru do
-            if AnnoCol > 0 then
-                Values[iCount - 1] := ExcelIO.GetStrValue(sht, ARow, AnnoCol); }
+    Values[0] := ExcelIO.GetDateTimeValue(Sht, ARow, 1);
+    { with Meter.DataSheetStru do
+      if AnnoCol > 0 then
+      Values[iCount - 1] := ExcelIO.GetStrValue(sht, ARow, AnnoCol); }
 
     for ii := 0 to Meter.PDDefines.Count - 1 do
-        Values[ii + 1] := ExcelIO.GetFloatValue(sht, ARow, Meter.PDColumn(ii));
+      Values[ii + 1] := ExcelIO.GetFloatValue(Sht, ARow, Meter.PDColumn(ii));
   end;
 
 begin
@@ -770,45 +933,46 @@ begin
 
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
+    if Meter = nil then
+    Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
 
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
+    Exit;
 
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-  iCount := Meter.PDDefines.Count + 1; // ÎïÀíÁ¿+¹Û²âÈÕÆÚ+±¸×¢
+  iCount := Meter.PDDefines.Count + 1; // ç‰©ç†é‡+è§‚æµ‹æ—¥æœŸ+å¤‡æ³¨
   SetLength(Values, iCount);
-  Values[0] := 0; // ¹Û²âÈÕÆÚÉèÖÃÎª0£¬ÈôÃ»ÓĞÊı¾İ£¬Ôò²»ÌîÈë£¬µ÷ÓÃÕßÍ¨¹ı¹Û²âÈÕÆÚÊÇ·ñÎª0ÅĞ¶ÏÊÇ·ñÓĞ¹Û²âÊı¾İ¡£
-    // µ¹Ğò²éÕÒ
+  Values[0] := 0; // è§‚æµ‹æ—¥æœŸè®¾ç½®ä¸º0ï¼Œè‹¥æ²¡æœ‰æ•°æ®ï¼Œåˆ™ä¸å¡«å…¥ï¼Œè°ƒç”¨è€…é€šè¿‡è§‚æµ‹æ—¥æœŸæ˜¯å¦ä¸º0åˆ¤æ–­æ˜¯å¦æœ‰è§‚æµ‹æ•°æ®ã€‚
+  // å€’åºæŸ¥æ‰¾
   dLast := -10000;
   dThis := 10000;
   iLRow := 0;
 
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloClosest);
+  iRow := _LocateDTRow(Sht, DT, Meter.DataSheetStru.BaseLine { .DTStartRow } , dloClosest);
   if iRow = -1 then
-      Exit;
+    Exit;
 
-  DT1 := ExcelIO.GetDateTimeValue(sht, iRow, 1);
-  if DTDelta <> 0 then // Èç¹ûÓĞÏŞ²î£¬ÇÒ³¬ÏŞ£¬ÔòÍË³ö
+  DT1 := ExcelIO.GetDateTimeValue(Sht, iRow, 1);
+  if DTDelta <> 0 then // å¦‚æœæœ‰é™å·®ï¼Œä¸”è¶…é™ï¼Œåˆ™é€€å‡º
   begin
     dLast := Abs(DaysBetween(DT1, DT));
     if dLast > DTDelta then
-        Exit;
+      Exit;
   end;
 
   SetData(iRow);
@@ -819,74 +983,76 @@ end;
 function ThjxDataQuery.GetNearestPDDatas(ADsnName: string; DT: TDateTime;
   var Values: TVariantDynArray; DTDelta: Integer = 0): Boolean;
 var
-  Meter      : TMeterDefine;
-  wbk        : IXLSWorkBook;
-  sht        : IXLSWorkSheet;
-  iCount, i  : Integer;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  iCount, i: Integer;
   iRow, iLRow: Integer;
-// S           : String;
-  DT1         : TDateTime;
+  // S           : String;
+  DT1: TDateTime;
   dLast, dThis: double;
 
   procedure SetData(ARow: Integer);
   var
     ii: Integer;
   begin
-    Values[0] := ExcelIO.GetDateTimeValue(sht, ARow, 1);
-        { with Meter.DataSheetStru do
-            if AnnoCol > 0 then
-                Values[iCount - 1] := ExcelIO.GetStrValue(sht, ARow, AnnoCol); }
+    Values[0] := ExcelIO.GetDateTimeValue(Sht, ARow, 1);
+    { with Meter.DataSheetStru do
+      if AnnoCol > 0 then
+      Values[iCount - 1] := ExcelIO.GetStrValue(sht, ARow, AnnoCol); }
 
     for ii := 0 to Meter.PDDefines.Count - 1 do
-        Values[ii + 1] := { ExcelIO.GetFloatValue } _GetFloatOrNull(sht, ARow, Meter.PDColumn(ii));
+      Values[ii + 1] := { ExcelIO.GetFloatValue } _GetFloatOrNull(Sht, ARow, Meter.PDColumn(ii));
   end;
 
 begin
   Result := False;
-  for i := low(Values) to high(Values) do VarClear(Values[i]);
+  for i := low(Values) to high(Values) do
+    VarClear(Values[i]);
   SetLength(Values, 0);
 
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
+    if Meter = nil then
+    Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
 
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
+    Exit;
 
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-  iCount := Meter.PDDefines.Count + 1; // ÎïÀíÁ¿+¹Û²âÈÕÆÚ+±¸×¢
+  iCount := Meter.PDDefines.Count + 1; // ç‰©ç†é‡+è§‚æµ‹æ—¥æœŸ+å¤‡æ³¨
   SetLength(Values, iCount);
-  Values[0] := 0; // ¹Û²âÈÕÆÚÉèÖÃÎª0£¬ÈôÃ»ÓĞÊı¾İ£¬Ôò²»ÌîÈë£¬µ÷ÓÃÕßÍ¨¹ı¹Û²âÈÕÆÚÊÇ·ñÎª0ÅĞ¶ÏÊÇ·ñÓĞ¹Û²âÊı¾İ¡£
-    // µ¹Ğò²éÕÒ
+  Values[0] := 0; // è§‚æµ‹æ—¥æœŸè®¾ç½®ä¸º0ï¼Œè‹¥æ²¡æœ‰æ•°æ®ï¼Œåˆ™ä¸å¡«å…¥ï¼Œè°ƒç”¨è€…é€šè¿‡è§‚æµ‹æ—¥æœŸæ˜¯å¦ä¸º0åˆ¤æ–­æ˜¯å¦æœ‰è§‚æµ‹æ•°æ®ã€‚
+  // å€’åºæŸ¥æ‰¾
   dLast := -10000;
   dThis := 10000;
   iLRow := 0;
 
-  iRow := _LocateDTRow(sht, DT, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloClosest);
+  iRow := _LocateDTRow(Sht, DT, Meter.DataSheetStru.BaseLine { .DTStartRow } , dloClosest);
   if iRow = -1 then
-      Exit;
+    Exit;
 
-  DT1 := ExcelIO.GetDateTimeValue(sht, iRow, 1);
-  if DTDelta <> 0 then // Èç¹ûÓĞÏŞ²î£¬ÇÒ³¬ÏŞ£¬ÔòÍË³ö
+  DT1 := ExcelIO.GetDateTimeValue(Sht, iRow, 1);
+  if DTDelta <> 0 then // å¦‚æœæœ‰é™å·®ï¼Œä¸”è¶…é™ï¼Œåˆ™é€€å‡º
   begin
     dLast := Abs(DaysBetween(DT1, DT));
     if dLast > DTDelta then
-        Exit;
+      Exit;
   end;
 
   SetData(iRow);
@@ -896,85 +1062,87 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetPDDatasInPeriod
-  Description: È¡»ØÖ¸¶¨Ê±¶ÎÄÚµÄ¹Û²âÊı¾İ
------------------------------------------------------------------------------ }
+  Description: å–å›æŒ‡å®šæ—¶æ®µå†…çš„è§‚æµ‹æ•°æ®
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetPDDatasInPeriod(ADsnName: string; DT1: TDateTime; DT2: TDateTime;
   DS: TDataSet): Boolean;
 var
-  wbk    : IXLSWorkBook;
-  sht    : IXLSWorkSheet;
-  Meter  : TMeterDefine;
-  S      : string;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  Meter: TMeterDefine;
+  S: string;
   iRow, i: Integer;
-  DT     : TDateTime;
+  DT: TDateTime;
   AnnoCol: Integer;
 begin
   Result := False;
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
+    if Meter = nil then
+    Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
 
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if ExcelIO.OpenWorkbook(wbk, Meter.DataBook) = False then
-      Exit;
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    if ExcelIO.OpenWorkbook(wbk, Meter.DataBook) = False then
+    Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-    // ÔËĞĞµ½ÕâÀï£¬¿ÉÒÔ³¢ÊÔ´´½¨DataSet¡¢¶ÁÈ¡Êı¾İÁË
-    // Èç¹ûDSÎª¿Õ£¬Ôò´´½¨Ö®
+  // è¿è¡Œåˆ°è¿™é‡Œï¼Œå¯ä»¥å°è¯•åˆ›å»ºDataSetã€è¯»å–æ•°æ®äº†
+  // å¦‚æœDSä¸ºç©ºï¼Œåˆ™åˆ›å»ºä¹‹
   if DS = nil then
-      DS := TClientDataSet.Create(nil)
+    DS := TClientDataSet.Create(nil)
   else
   begin
     if DS.Active then
-        DS.Close;
+      DS.Close;
     DS.FieldDefs.Clear;
   end;
-    // ¸øDSÖĞÌí¼Ó×Ö¶Î
+  // ç»™DSä¸­æ·»åŠ å­—æ®µ
   _CreateFieldsFromPDDefines(DS, Meter.PDDefines);
-    { ÕâÀïÒª×¢Òâ£¬¾¡Á¿Ê¹ÓÃTClientDataset£¡£¡£¡ }
+  { è¿™é‡Œè¦æ³¨æ„ï¼Œå°½é‡ä½¿ç”¨TClientDatasetï¼ï¼ï¼ }
   TClientDataSet(DS).CreateDataSet;
-  _SetFieldsDisplayName(DS, Meter.PDDefines);
+  _SetPDFieldsDisplayName(DS, Meter.PDDefines);
 
   if Meter.DataSheetStru.AnnoCol > 0 then
-      AnnoCol := Meter.DataSheetStru.AnnoCol
-  else AnnoCol := 0;
+    AnnoCol := Meter.DataSheetStru.AnnoCol
+  else
+    AnnoCol := 0;
 
-  for iRow := Meter.DataSheetStru.BaseLine{.DTStartRow} to sht.UsedRange.LastRow + 1 do
+  for iRow := Meter.DataSheetStru.BaseLine { .DTStartRow } to Sht.UsedRange.LastRow + 1 do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, 1].Value));
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value));
     if S = '' then
-        Continue;
+      Continue;
     if TryStrToDateTime(S, DT) = False then
-        Continue;
+      Continue;
 
     if DT > DT2 then
-        Break;
+      Break;
 
     if DT >= DT1 then
     begin
-            // ---------------------
+      // ---------------------
       DS.Append;
-            // ¹Û²âÈÕÆÚ
+      // è§‚æµ‹æ—¥æœŸ
       DS.Fields[0].Value := StrToDateTime(S);
-            // ±¸×¢
+      // å¤‡æ³¨
       if AnnoCol > 0 then
-          DS.Fields[DS.Fields.Count - 1].Value := ExcelIO.GetStrValue(sht, iRow, AnnoCol);
-            // ÎïÀíÁ¿
+        DS.Fields[DS.Fields.Count - 1].Value := ExcelIO.GetStrValue(Sht, iRow, AnnoCol);
+      // ç‰©ç†é‡
       for i := 0 to Meter.PDDefines.Count - 1 do
-          DS.Fields[i + 1].Value := _GetFloatOrNull(sht, iRow, Meter.PDColumn(i));
-          // DS.Fields[i + 1].Value := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+        DS.Fields[i + 1].Value := _GetFloatOrNull(Sht, iRow, Meter.PDColumn(i));
+      // DS.Fields[i + 1].Value := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
       DS.Post;
     end;
   end;
@@ -983,86 +1151,180 @@ end;
 
 function ThjxDataQuery.GetAllPDDatas(ADsnName: string; DS: TDataSet): Boolean;
 var
-  wbk    : IXLSWorkBook;
-  sht    : IXLSWorkSheet;
-  Meter  : TMeterDefine;
-  S      : string;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  Meter: TMeterDefine;
+  S: string;
   iRow, i: Integer;
   AnnoCol: Integer;
   function __GetFloatValue(iRow, iCol: Integer): Variant;
   var
     sVar: String;
-    d   : double;
+    d: double;
   begin
     Result := Null;
-      // sht.Cells[irow,icol].Value
-    if VarIsNumeric(sht.Cells[iRow, iCol].Value) then Result := sht.Cells[iRow, iCol].Value;
+    // sht.Cells[irow,icol].Value
+    if VarIsNumeric(Sht.Cells[iRow, iCol].Value) then
+      Result := Sht.Cells[iRow, iCol].Value;
   end;
 
 begin
   Result := False;
   Meter := ExcelMeters.Meter[ADsnName];
-(*
-  if Meter = nil then
-      Exit;
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
+  (*
+    if Meter = nil then
+    Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
 
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if ExcelIO.OpenWorkbook(wbk, Meter.DataBook) = False then
-      Exit;
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    if ExcelIO.OpenWorkbook(wbk, Meter.DataBook) = False then
+    Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  /// 2024-10-11 æ·»åŠ FUseSessionå‚æ•°ï¼Œè¿™æ ·ä¿®æ”¹äº†Excelæ–‡ä»¶åï¼Œå†æ¬¡è°ƒç”¨æ—¶å¯ä»¥è·å–æ–°æ•°æ®
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-    // ÔËĞĞµ½ÕâÀï£¬¿ÉÒÔ³¢ÊÔ´´½¨DataSet¡¢¶ÁÈ¡Êı¾İÁË
-    // Èç¹ûDSÎª¿Õ£¬Ôò´´½¨Ö®
+  // è¿è¡Œåˆ°è¿™é‡Œï¼Œå¯ä»¥å°è¯•åˆ›å»ºDataSetã€è¯»å–æ•°æ®äº†
+  // å¦‚æœDSä¸ºç©ºï¼Œåˆ™åˆ›å»ºä¹‹
   if DS = nil then
-      DS := TClientDataSet.Create(nil)
+    DS := TClientDataSet.Create(nil)
   else
   begin
     if DS.Active then
-        DS.Close;
+      DS.Close;
     DS.FieldDefs.Clear;
   end;
-    // ¸øDSÖĞÌí¼Ó×Ö¶Î
+  // ç»™DSä¸­æ·»åŠ å­—æ®µ
   _CreateFieldsFromPDDefines(DS, Meter.PDDefines);
-    { ÕâÀïÒª×¢Òâ£¬¾¡Á¿Ê¹ÓÃTClientDataset£¡£¡£¡ }
+  { è¿™é‡Œè¦æ³¨æ„ï¼Œå°½é‡ä½¿ç”¨TClientDatasetï¼ï¼ï¼ }
   TClientDataSet(DS).CreateDataSet;
-  _SetFieldsDisplayName(DS, Meter.PDDefines);
+  _SetPDFieldsDisplayName(DS, Meter.PDDefines);
 
   if Meter.DataSheetStru.AnnoCol > 0 then
-      AnnoCol := Meter.DataSheetStru.AnnoCol
-  else AnnoCol := 0;
+    AnnoCol := Meter.DataSheetStru.AnnoCol
+  else
+    AnnoCol := 0;
 
-    // ²éÑ¯¡¢Ìí¼ÓÊı¾İ
-  //for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 2 do
-  //Ê×ĞĞ´Ó³õÖµĞĞ¿ªÊ¼2022-05-01
-  for iRow := Meter.DataSheetStru.BaseLine to sht.UsedRange.LastRow + 2 do
+  // æŸ¥è¯¢ã€æ·»åŠ æ•°æ®
+  // for iRow := Meter.DataSheetStru.DTStartRow to sht.UsedRange.LastRow + 2 do
+  // é¦–è¡Œä»åˆå€¼è¡Œå¼€å§‹2022-05-01
+  for iRow := Meter.DataSheetStru.BaseLine to Sht.UsedRange.LastRow + 2 do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, 1].Value));
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value));
     if S = '' then
-        Continue;
-        // ---------------------
+      Continue;
+    // ---------------------
     DS.Append;
-    DS.Fields[0].Value := ExcelIO.GetDateTimeValue(sht, iRow, 1); // StrToDateTime(S);
+    DS.Fields[0].Value := ExcelIO.GetDateTimeValue(Sht, iRow, 1); // StrToDateTime(S);
     if AnnoCol > 0 then
-        DS.Fields[DS.Fields.Count - 1].Value := ExcelIO.GetStrValue(sht, iRow, AnnoCol);
+      DS.Fields[DS.Fields.Count - 1].Value := ExcelIO.GetStrValue(Sht, iRow, AnnoCol);
 
     for i := 0 to Meter.PDDefines.Count - 1 do
-        DS.Fields[i + 1].Value := __GetFloatValue(iRow, Meter.PDColumn(i));
-          // { todo:BUG!!µ±µ¥Ôª¸ñÃ»ÓĞÖµ»ò²»ÊÇÊıÖµÊ±£¬´Ëº¯Êı½«·µ»Ø0£¬¶ø²»ÊÇ¿ÕÖµ }
-          // DS.Fields[i + 1].value := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+      DS.Fields[i + 1].Value := __GetFloatValue(iRow, Meter.PDColumn(i));
+    // { todo:BUG!!å½“å•å…ƒæ ¼æ²¡æœ‰å€¼æˆ–ä¸æ˜¯æ•°å€¼æ—¶ï¼Œæ­¤å‡½æ•°å°†è¿”å›0ï¼Œè€Œä¸æ˜¯ç©ºå€¼ }
+    // DS.Fields[i + 1].value := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
     DS.Post;
   end;
   Result := True;
+end;
+
+{ -----------------------------------------------------------------------------
+  Procedure  : GetAllDatas
+  Description: å–å›å…¨éƒ¨æ•°æ®ï¼ŒåŒ…æ‹¬è§‚æµ‹æ•°æ®
+  ----------------------------------------------------------------------------- }
+function ThjxDataQuery.GetAllDatas(ADsnName: string; ADS: TDataSet): Boolean;
+var
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  Meter: TMeterDefine;
+  S: string;
+  iRow, i: Integer;
+  AnnoCol: Integer;
+  function __GetNummericFieldValue(iCol: Integer): Variant;
+  var
+    SS: String;
+  begin
+    Result := Null;
+    try
+      Result := VarAsType(Sht.Cells[iRow, iCol].Value, varDouble);
+    except
+      Result := Null;
+    end;
+  end;
+
+begin
+  Result := False;
+  Meter := ExcelMeters.Meter[ADsnName];
+
+  /// å¢åŠ fusesession
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
+
+  // è¿è¡Œåˆ°è¿™é‡Œï¼Œå¯ä»¥å°è¯•åˆ›å»ºDataSetã€è¯»å–æ•°æ®äº†
+  // å¦‚æœDSä¸ºç©ºï¼Œåˆ™åˆ›å»ºä¹‹
+  if ADS = nil then
+    ADS := TClientDataSet.Create(nil)
+  else
+  begin
+    if ADS.Active then
+      ADS.Close;
+    ADS.FieldDefs.Clear;
+  end;
+  // ç»™DSä¸­æ·»åŠ å­—æ®µ
+  _CreateFieldsFromDataDefines(ADS, Meter.DataSheetStru.MDs, Meter.PDDefines);
+  { è¿™é‡Œè¦æ³¨æ„ï¼Œå°½é‡ä½¿ç”¨TClientDatasetï¼ï¼ï¼ }
+  TClientDataSet(ADS).CreateDataSet;
+  _SetFieldsDisplayName(ADS, Meter.DataSheetStru.MDs, Meter.PDDefines, Meter.DataSheetStru.AnnoCol);
+
+  if Meter.DataSheetStru.AnnoCol > 0 then
+    AnnoCol := Meter.DataSheetStru.AnnoCol
+  else
+    AnnoCol := 0;
+
+  for iRow := Meter.DataSheetStru.BaseLine to Sht.UsedRange.LastRow + 2 do
+  begin
+    IAppServices.ProcessMessages;
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value)); // å–æ—¥æœŸ
+    if S = '' then // å¦‚æœä¸ºç©ºï¼Œåˆ™ä¸‹ä¸€è¡Œ
+      Continue;
+    // ---------------------
+    ADS.Append;
+    ADS.Fields[0].Value := ExcelIO.GetDateTimeValue(Sht, iRow, 1); // StrToDateTime(S);
+    if AnnoCol > 0 then
+      ADS.Fields[ADS.Fields.Count - 1].Value := ExcelIO.GetStrValue(Sht, iRow, AnnoCol);
+
+    for i := 1 to ADS.FieldCount - 1 do
+    begin
+      // Cell.Valueçš„å€¼ï¼Œå¯èƒ½æ˜¯Nullï¼Œå¯èƒ½æ˜¯''ï¼Œå¯èƒ½æ˜¯æ•°å­—
+      if (ADS.Fields[i].DataType = ftFloat) then
+        ADS.Fields[i].Value := __GetNummericFieldValue(ADS.Fields[i].Tag)
+      else
+        ADS.Fields[i].Value := Sht.Cells[iRow, ADS.Fields[i].Tag].Value; // Field.Tagæ˜¯åˆ—å·
+    end;
+
+    (*
+      for i := 0 to Meter.DataSheetStru.MDs.Count - 1 do
+      ADS.Fields[i + 1].Value := sht.Cells[iRow, Meter.DataSheetStru.MDs.Items[i].Column].Value;
+
+      for i := 0 to Meter.PDDefines.Count - 1 do
+      ADS.Fields[i + 1].Value := sht.Cells[iRow, Meter.PDColumn(i)].Value;
+
+    *)
+    // { todo:BUG!!å½“å•å…ƒæ ¼æ²¡æœ‰å€¼æˆ–ä¸æ˜¯æ•°å€¼æ—¶ï¼Œæ­¤å‡½æ•°å°†è¿”å›0ï¼Œè€Œä¸æ˜¯ç©ºå€¼ }
+    // DS.Fields[i + 1].value := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i));
+    ADS.Post;
+  end;
+  Result := True;
+
 end;
 
 type
@@ -1072,20 +1334,20 @@ type
     dtMon1, dtMon2: TDateTime;
   end;
 
-    { -----------------------------------------------------------------------------
-      Procedure  : GetEVData   £¨·ÏÆú²»ÓÃ£¬ÒòÎªÖ»·µ»ØµÚÒ»¸öÎïÀíÁ¿µÄÌØÕ÷Öµ£©
-      Description: ²éÕÒµ±Ç°ÌØÕ÷Öµ£¬Ê±¼äÎª×îºóÒ»´Î¹Û²âÊ±¼ä£¬Ä¿Ç°Ö»ÄÜ²éÑ¯PD1µÄÌØÕ÷Öµ
-      ¶ÔÓÚ¶àµãÎ»ÒÆ¼ÆÒ²ÊÇÈç´Ë¡£
-      ----------------------------------------------------------------------------- }
+  { -----------------------------------------------------------------------------
+    Procedure  : GetEVData   ï¼ˆåºŸå¼ƒä¸ç”¨ï¼Œå› ä¸ºåªè¿”å›ç¬¬ä¸€ä¸ªç‰©ç†é‡çš„ç‰¹å¾å€¼ï¼‰
+    Description: æŸ¥æ‰¾å½“å‰ç‰¹å¾å€¼ï¼Œæ—¶é—´ä¸ºæœ€åä¸€æ¬¡è§‚æµ‹æ—¶é—´ï¼Œç›®å‰åªèƒ½æŸ¥è¯¢PD1çš„ç‰¹å¾å€¼
+    å¯¹äºå¤šç‚¹ä½ç§»è®¡ä¹Ÿæ˜¯å¦‚æ­¤ã€‚
+    ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetEVData(ADsnName: string; EVData: PEVDataStru): Boolean;
 var
-  Meter  : TMeterDefine;
-  wbk    : IXLSWorkBook;
-  sht    : IXLSWorkSheet;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
   chkDate: TevCheckDate;
-  iRow   : Integer;
-  S      : String;
-  PD1    : double;
+  iRow: Integer;
+  S: String;
+  PD1: double;
   dtScale: TDateTime;
 
   procedure SetDate(DT: TDateTime);
@@ -1105,63 +1367,64 @@ begin
   chkDate.dtMon1 := 0;
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if Meter = nil then
+    Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-    { set date for check }
+  { set date for check }
   EVData.ID := Meter.DesignName;
-  for iRow := sht.UsedRange.LastRow + 2 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
+  for iRow := Sht.UsedRange.LastRow + 2 downto Meter.DataSheetStru.BaseLine { .DTStartRow } do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, 1].Value));
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value));
     if S = '' then
-        Continue;
+      Continue;
     if TryStrToDateTime(S, dtScale) = False then
-        Continue;
+      Continue;
 
-    PD1 := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(0));
+    PD1 := ExcelIO.GetFloatValue(Sht, iRow, Meter.PDColumn(0));
 
-        { ÅĞ¶ÏÊÇ·ñÉèÖÃÁËCheckDate£¬ÈôÎŞÔòÉèÖÃÖ®£º´ËÊ±Óöµ½×îºóÒ»Ìõ¼ÇÂ¼ }
+    { åˆ¤æ–­æ˜¯å¦è®¾ç½®äº†CheckDateï¼Œè‹¥æ— åˆ™è®¾ç½®ä¹‹ï¼šæ­¤æ—¶é‡åˆ°æœ€åä¸€æ¡è®°å½• }
     if chkDate.dtMon1 = 0 then
     begin
       SetDate(dtScale);
-            { µ±Ç°Öµ }
+      { å½“å‰å€¼ }
       EVData.CurValue := PD1;
       EVData.CurDate := dtScale;
     end;
 
-        { LeftEV }
+    { LeftEV }
     EVData.LifeEV.CompareData(dtScale, PD1);
 
-        { YearEV }
+    { YearEV }
     if YearOf(dtScale) = chkDate.theYear then
     begin
       EVData.YearEV.CompareData(dtScale, PD1);
-            { MonthEV }
+      { MonthEV }
       if MonthOf(dtScale) = chkDate.theMon then
-          EVData.MonthEV.CompareData(dtScale, PD1);
+        EVData.MonthEV.CompareData(dtScale, PD1);
     end;
   end;
 
   Result := True;
 end;
 
-{ ·ÏÆú²»ÓÃÁË }
+{ åºŸå¼ƒä¸ç”¨äº† }
 function ThjxDataQuery.GetEVData(ADsnName: string; var EVDatas: TDoubleDynArray): Boolean;
 var
   EVData: PEVDataStru;
@@ -1206,27 +1469,27 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetEVDatas
-  Description: ±¾·½·¨·µ»ØÒÇÆ÷ËùÓĞ¾ßÓĞÌØÕ÷ÖµµÄÎïÀíÁ¿µÄÌØÕ÷Öµ
-  ÓëGetEVData²»Í¬£¬GetEVData½ö·µ»ØµÚÒ»¸öÎïÀíÁ¿µÄÌØÕ÷Öµ£¬±¾º¯Êı·µ»ØÓĞÌØÕ÷ÖµµÄ
-  ÎïÀíÁ¿µÄÌØÕ÷Öµ¡£ÓĞĞ©ÒÇÆ÷ÓĞ¶à¸öÎïÀíÁ¿£¬±ÈÈç¶àµãÎ»ÒÆ¼Æ£¬Ã¿¸ö²âµã¶¼ĞèÒª·µ»ØÌØ
-  Õ÷Öµ£¬±¾·½·¨Ò»´ÎĞÔ½«ÕâĞ©²âµãµÄÌØÕ÷ÖµÈ«²¿È¡»Ø¡£
+  Description: æœ¬æ–¹æ³•è¿”å›ä»ªå™¨æ‰€æœ‰å…·æœ‰ç‰¹å¾å€¼çš„ç‰©ç†é‡çš„ç‰¹å¾å€¼
+  ä¸GetEVDataä¸åŒï¼ŒGetEVDataä»…è¿”å›ç¬¬ä¸€ä¸ªç‰©ç†é‡çš„ç‰¹å¾å€¼ï¼Œæœ¬å‡½æ•°è¿”å›æœ‰ç‰¹å¾å€¼çš„
+  ç‰©ç†é‡çš„ç‰¹å¾å€¼ã€‚æœ‰äº›ä»ªå™¨æœ‰å¤šä¸ªç‰©ç†é‡ï¼Œæ¯”å¦‚å¤šç‚¹ä½ç§»è®¡ï¼Œæ¯ä¸ªæµ‹ç‚¹éƒ½éœ€è¦è¿”å›ç‰¹
+  å¾å€¼ï¼Œæœ¬æ–¹æ³•ä¸€æ¬¡æ€§å°†è¿™äº›æµ‹ç‚¹çš„ç‰¹å¾å€¼å…¨éƒ¨å–å›ã€‚
   ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetEVDatas(ADsnName: string; var EVDatas: PEVDataArray): Boolean;
 var
-  Meter  : TMeterDefine;
-  i, n   : Integer;
-  wbk    : IXLSWorkBook;
-  sht    : IXLSWorkSheet;
+  Meter: TMeterDefine;
+  i, n: Integer;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
   chkDate: TevCheckDate;
-  iRow   : Integer;
-  S      : String;
+  iRow: Integer;
+  S: String;
   dtScale: TDateTime;
-    // ÊÍ·Åµ÷ÓÃÕßÌá¹©µÄevdatasÕ¼ÓÃµÄÄÚ´æ£¬²»Í¬µÄÒÇÆ÷ÌØÕ÷ÖµÊıÁ¿²»Í¬
+  // é‡Šæ”¾è°ƒç”¨è€…æä¾›çš„evdataså ç”¨çš„å†…å­˜ï¼Œä¸åŒçš„ä»ªå™¨ç‰¹å¾å€¼æ•°é‡ä¸åŒ
   procedure ReleaseEVDatas;
   var
     ii: Integer;
   begin
-    if Length(EVDatas) > 0 then
+    if length(EVDatas) > 0 then
       for ii := Low(EVDatas) to High(EVDatas) do
         try
           Dispose(EVDatas[ii]);
@@ -1245,23 +1508,23 @@ var
   end;
   procedure FindEVData(iev: Integer);
   var
-    d   : double;
+    d: double;
     iCol: Integer;
   begin
     iCol := Meter.PDColumn(EVDatas[iev].PDIndex);
-    d := ExcelIO.GetFloatValue(sht, iRow, iCol);
+    d := ExcelIO.GetFloatValue(Sht, iRow, iCol);
 
     EVDatas[iev].LifeEV.CompareData(dtScale, d);
-    EVDatas[iev].LifeEV.Increment := EVDatas[iev].CurValue - d; // 2018-09-18 ÉúÃüÆÚÔöÁ¿
+    EVDatas[iev].LifeEV.Increment := EVDatas[iev].CurValue - d; // 2018-09-18 ç”Ÿå‘½æœŸå¢é‡
 
     if YearOf(dtScale) = chkDate.theYear then
     begin
       EVDatas[iev].YearEV.CompareData(dtScale, d);
-      EVDatas[iev].YearEV.Increment := EVDatas[iev].CurValue - d; // 2018-09-18 ÄêÔöÁ¿
+      EVDatas[iev].YearEV.Increment := EVDatas[iev].CurValue - d; // 2018-09-18 å¹´å¢é‡
       if MonthOf(dtScale) = chkDate.theMon then
       begin
         EVDatas[iev].MonthEV.CompareData(dtScale, d);
-        EVDatas[iev].MonthEV.Increment := EVDatas[iev].CurValue - d; // ÔÂÔöÁ¿
+        EVDatas[iev].MonthEV.Increment := EVDatas[iev].CurValue - d; // æœˆå¢é‡
       end;
     end;
   end;
@@ -1270,31 +1533,32 @@ begin
   Result := False;
   chkDate.theYear := 0;
   chkDate.theMon := 0;
-    // ±ØÒªµÄ¼ì²éºÍ³õÊ¼»¯
+  // å¿…è¦çš„æ£€æŸ¥å’Œåˆå§‹åŒ–
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
+    if Meter = nil then
+    Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-    // ¶ÔEVDatasÊı×é³õÊ¼»¯£¬ÊÍ·Å¶àÓàµÄÄÚ´æ
+  // å¯¹EVDatasæ•°ç»„åˆå§‹åŒ–ï¼Œé‡Šæ”¾å¤šä½™çš„å†…å­˜
   ReleaseEVDatas;
-    // ¸ù¾İMeter¾ßÓĞÌØÕ÷ÖµµÄÎïÀíÁ¿ÊıÁ¿³õÊ¼»¯EVDatasÊı×é
+  // æ ¹æ®Meterå…·æœ‰ç‰¹å¾å€¼çš„ç‰©ç†é‡æ•°é‡åˆå§‹åŒ–EVDatasæ•°ç»„
   n := 0;
   for i := 0 to Meter.PDDefines.Count - 1 do
     if Meter.PDDefine[i].HasEV then
@@ -1307,33 +1571,32 @@ begin
       EVDatas[n - 1].ID := ADsnName;
     end;
 
-  for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.BaseLine{.DTStartRow} do
+  for iRow := Sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.BaseLine { .DTStartRow } do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, 1].Value));
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value));
     if S = '' then
-        Continue;
+      Continue;
     if TryStrToDateTime(S, dtScale) = False then
-        Continue;
-        // Èç¹ûÃ»ÓĞÉèÖÃÊ±¼ä£¬ÔòÏÖÔÚÉèÖÃ£º¼´ÒÔ×îºóÒ»Ìõ¼ÇÂ¼µÄÊ±¼ä×÷Îª¸ÃÒÇÆ÷µÄÌØÕ÷ÖµÍ³¼ÆÊ±¼ä
+      Continue;
+    // å¦‚æœæ²¡æœ‰è®¾ç½®æ—¶é—´ï¼Œåˆ™ç°åœ¨è®¾ç½®ï¼šå³ä»¥æœ€åä¸€æ¡è®°å½•çš„æ—¶é—´ä½œä¸ºè¯¥ä»ªå™¨çš„ç‰¹å¾å€¼ç»Ÿè®¡æ—¶é—´
     if chkDate.theYear = 0 then
     begin
-      SetDate(dtScale); // ³õÊ¼»¯Ê±¼äÉèÖÃ
-            // ÉèÖÃµ±Ç°Öµ
+      SetDate(dtScale); // åˆå§‹åŒ–æ—¶é—´è®¾ç½®
+      // è®¾ç½®å½“å‰å€¼
       for i := 0 to High(EVDatas) do
       begin
         EVDatas[i].CurDate := dtScale;
-        { todo:ÊıÖµºÏ·¨ĞÔÅĞ¶Ï }
-        EVDatas[i].CurValue := ExcelIO.GetFloatValue(sht, iRow,
-          Meter.PDColumn(EVDatas[i].PDIndex));
+        { todo:æ•°å€¼åˆæ³•æ€§åˆ¤æ–­ }
+        EVDatas[i].CurValue := ExcelIO.GetFloatValue(Sht, iRow, Meter.PDColumn(EVDatas[i].PDIndex));
       end;
     end;
-        //
+    //
     for i := 0 to High(EVDatas) do
-        FindEVData(i);
+      FindEVData(i);
   end;
 
-    // 2018-09-18Õñ·ù
+  // 2018-09-18æŒ¯å¹…
   for i := 0 to High(EVDatas) do
     with EVDatas[i]^ do
     begin
@@ -1347,28 +1610,28 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetEVDataInPeriod
-  Description: ·µ»ØÖ¸¶¨Ê±¶ÎÄÚµÄÌØÕ÷Öµ
-  2018-09-17 »ù±¾ÕÕ³­GetEVDatasº¯Êı£¬Ö»ÊÇ¸Ä±äÁË²éÑ¯·¶Î§£¬´Ó²éÑ¯È«²¿¸ÄÎªÖ»²éÑ¯
-  Ê±¶ÎÄÚ¡£ÏÂÒ»²½½«Á½¸öº¯ÊıºÏ²¢ÎªÒ»¸ö£¬GetEVDatasµ÷ÓÃ±¾º¯ÊıÍê³ÉÈ«²¿Êı¾İ²éÑ¯
------------------------------------------------------------------------------ }
+  Description: è¿”å›æŒ‡å®šæ—¶æ®µå†…çš„ç‰¹å¾å€¼
+  2018-09-17 åŸºæœ¬ç…§æŠ„GetEVDataså‡½æ•°ï¼Œåªæ˜¯æ”¹å˜äº†æŸ¥è¯¢èŒƒå›´ï¼Œä»æŸ¥è¯¢å…¨éƒ¨æ”¹ä¸ºåªæŸ¥è¯¢
+  æ—¶æ®µå†…ã€‚ä¸‹ä¸€æ­¥å°†ä¸¤ä¸ªå‡½æ•°åˆå¹¶ä¸ºä¸€ä¸ªï¼ŒGetEVDatasè°ƒç”¨æœ¬å‡½æ•°å®Œæˆå…¨éƒ¨æ•°æ®æŸ¥è¯¢
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetEVDataInPeriod(ADsnName: string; DT1: TDateTime; DT2: TDateTime;
   var EVDatas: PEVDataArray): Boolean;
 var
-  Meter     : TMeterDefine;
-  i, n      : Integer;
-  wbk       : IXLSWorkBook;
-  sht       : IXLSWorkSheet;
-  chkDate   : TevCheckDate;
-  iRow      : Integer;
-  Row1, Row2: Integer; // Ö¸¶¨ÈÕÆÚÆğÖ¹ĞĞ
-  S         : String;
-  dtScale   : TDateTime;
-    // ÊÍ·Åµ÷ÓÃÕßÌá¹©µÄevdatasÕ¼ÓÃµÄÄÚ´æ£¬²»Í¬µÄÒÇÆ÷ÌØÕ÷ÖµÊıÁ¿²»Í¬
+  Meter: TMeterDefine;
+  i, n: Integer;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  chkDate: TevCheckDate;
+  iRow: Integer;
+  Row1, Row2: Integer; // æŒ‡å®šæ—¥æœŸèµ·æ­¢è¡Œ
+  S: String;
+  dtScale: TDateTime;
+  // é‡Šæ”¾è°ƒç”¨è€…æä¾›çš„evdataså ç”¨çš„å†…å­˜ï¼Œä¸åŒçš„ä»ªå™¨ç‰¹å¾å€¼æ•°é‡ä¸åŒ
   procedure ReleaseEVDatas;
   var
     ii: Integer;
   begin
-    if Length(EVDatas) > 0 then
+    if length(EVDatas) > 0 then
       for ii := Low(EVDatas) to High(EVDatas) do
         try
           Dispose(EVDatas[ii]);
@@ -1387,11 +1650,11 @@ var
   end;
   procedure FindEVData(iev: Integer);
   var
-    d   : double;
+    d: double;
     iCol: Integer;
   begin
     iCol := Meter.PDColumn(EVDatas[iev].PDIndex);
-    d := ExcelIO.GetFloatValue(sht, iRow, iCol);
+    d := ExcelIO.GetFloatValue(Sht, iRow, iCol);
     with EVDatas[iev]^ do
     begin
       LifeEV.CompareData(dtScale, d);
@@ -1413,35 +1676,36 @@ begin
   Result := False;
   chkDate.theYear := 0;
   chkDate.theMon := 0;
-    // ±ØÒªµÄ¼ì²éºÍ³õÊ¼»¯
+  // å¿…è¦çš„æ£€æŸ¥å’Œåˆå§‹åŒ–
   Meter := ExcelMeters.Meter[ADsnName];
   (*
-  if Meter = nil then
-      Exit;
+    if Meter = nil then
+    Exit;
 
-    { ÕâÀïĞèÒª´¦Àí£ºÈç¹ûÒÇÆ÷³õÖµÈÕÆÚ±ÈDT2»¹Íí£¬¾Í²»²éÁË }
-  if Meter.Params.BaseDate > DT2 then
-      Exit;
+    { è¿™é‡Œéœ€è¦å¤„ç†ï¼šå¦‚æœä»ªå™¨åˆå€¼æ—¥æœŸæ¯”DT2è¿˜æ™šï¼Œå°±ä¸æŸ¥äº† }
+    if Meter.Params.BaseDate > DT2 then
+    Exit;
 
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-    // ¶ÔEVDatasÊı×é³õÊ¼»¯£¬ÊÍ·Å¶àÓàµÄÄÚ´æ
+  // å¯¹EVDatasæ•°ç»„åˆå§‹åŒ–ï¼Œé‡Šæ”¾å¤šä½™çš„å†…å­˜
   ReleaseEVDatas;
-    // ¸ù¾İMeter¾ßÓĞÌØÕ÷ÖµµÄÎïÀíÁ¿ÊıÁ¿³õÊ¼»¯EVDatasÊı×é
+  // æ ¹æ®Meterå…·æœ‰ç‰¹å¾å€¼çš„ç‰©ç†é‡æ•°é‡åˆå§‹åŒ–EVDatasæ•°ç»„
   n := 0;
   for i := 0 to Meter.PDDefines.Count - 1 do
     if Meter.PDDefine[i].HasEV then
@@ -1454,37 +1718,49 @@ begin
       EVDatas[n - 1].ID := ADsnName;
     end;
 
-    { ÓëGetEVDatas²»Í¬µÄµØ·½ÔÚÕâÀï£º }
-  Row1 := _LocateDTRow(sht, DT1, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloClosest);
-  Row2 := _LocateDTRow(sht, DT2, Meter.DataSheetStru.BaseLine{.DTStartRow}, dloBefore);
-    // for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
+  { ä¸GetEVDatasä¸åŒçš„åœ°æ–¹åœ¨è¿™é‡Œï¼š }
+  Row1 := _LocateDTRow(Sht, DT1, Meter.DataSheetStru.BaseLine { .DTStartRow } , dloClosest);
+  Row2 := _LocateDTRow(Sht, DT2, Meter.DataSheetStru.BaseLine { .DTStartRow } , dloBefore);
+  // å¦‚æœæ²¡æœ‰æŸ¥æ‰¾åˆ°åˆé€‚çš„è¡Œï¼Œåˆ™é€€å‡º
+  if (Row1 = -1) then
+  begin
+    Showmessage(ADsnName + 'ï¼šæœªæ‰¾åˆ°é€‚åˆçš„èµ·å§‹æ—¥æœŸï¼Œå¯èƒ½èµ·å§‹è¡Œè®¾ç½®ä¸æ­£ç¡®ï¼Œæˆ–æ—¥æœŸä¸æ­£ç¡®ï¼Œæˆ–æ²¡æœ‰æ•°æ®');
+    Exit;
+  end;
+
+  if (Row2 = -1) then
+  begin
+    Showmessage(ADsnName + 'ï¼šæœªæ‰¾åˆ°é€‚åˆçš„æˆªæ­¢æ—¥æœŸï¼Œå¯èƒ½èµ·å§‹è¡Œè®¾ç½®ä¸æ­£ç¡®ï¼Œæˆ–æ—¥æœŸä¸æ­£ç¡®ï¼Œæˆ–æ²¡æœ‰æ•°æ®');
+    Exit;
+  end;
+
+  // for iRow := sht.UsedRange.LastRow + 1 downto Meter.DataSheetStru.DTStartRow do
   for iRow := Row2 downto Row1 do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, 1].Value));
+    S := Trim(VarToStr(Sht.Cells[iRow, 1].Value));
     if S = '' then
-        Continue;
+      Continue;
     if TryStrToDateTime(S, dtScale) = False then
-        Continue;
-        // Èç¹ûÃ»ÓĞÉèÖÃÊ±¼ä£¬ÔòÏÖÔÚÉèÖÃ£º¼´ÒÔ×îºóÒ»Ìõ¼ÇÂ¼µÄÊ±¼ä×÷Îª¸ÃÒÇÆ÷µÄÌØÕ÷ÖµÍ³¼ÆÊ±¼ä
+      Continue;
+    // å¦‚æœæ²¡æœ‰è®¾ç½®æ—¶é—´ï¼Œåˆ™ç°åœ¨è®¾ç½®ï¼šå³ä»¥æœ€åä¸€æ¡è®°å½•çš„æ—¶é—´ä½œä¸ºè¯¥ä»ªå™¨çš„ç‰¹å¾å€¼ç»Ÿè®¡æ—¶é—´
     if chkDate.theYear = 0 then
     begin
-      SetDate(dtScale); // ³õÊ¼»¯Ê±¼äÉèÖÃ
-            // ÉèÖÃµ±Ç°Öµ
+      SetDate(dtScale); // åˆå§‹åŒ–æ—¶é—´è®¾ç½®
+      // è®¾ç½®å½“å‰å€¼
       for i := 0 to High(EVDatas) do
       begin
         EVDatas[i].CurDate := dtScale;
-        { todo:´Ë´¦Ó¦µ±ÅĞ¶ÏÊı¾İºÏ·¨ĞÔ }
-        EVDatas[i].CurValue := ExcelIO.GetFloatValue(sht, iRow,
-          Meter.PDColumn(EVDatas[i].PDIndex));
+        { todo:æ­¤å¤„åº”å½“åˆ¤æ–­æ•°æ®åˆæ³•æ€§ }
+        EVDatas[i].CurValue := ExcelIO.GetFloatValue(Sht, iRow, Meter.PDColumn(EVDatas[i].PDIndex));
       end;
     end;
-        //
+    //
     for i := 0 to High(EVDatas) do
-        FindEVData(i);
+      FindEVData(i);
   end;
 
-    // ¼ÆËãÕñ·ù
+  // è®¡ç®—æŒ¯å¹…
   for i := 0 to high(EVDatas) do
     with EVDatas[i]^ do
     begin
@@ -1498,13 +1774,13 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : SetFieldDisplayName
-  Description: ±¾·½·¨¸ù¾İÔÚExcel²ÎÊı±íÖĞÔ¤¶¨ÒåµÄ×Ö¶ÎÃûÓë±ğÃû¶ÔÓ¦±í¸ü»»DataSet
-  ÖĞµÄ×Ö¶ÎDisplayLabel¡£ÔÚ±¾µ¥ÔªÖĞ£¬Õâ¸ö¶ÔÓ¦±íÈ¡×ÔExcelµÄÊôĞÔ¶¨Òå¹¤×÷²¾ÖĞµÄ×Ö¶Î
-  Ãû±í£¬¸Ã±íÔÚ¼ÓÔØ²ÎÊıÊ±±»¼ÓÔØ£¬²¢´æ´¢µ½uhjx.excel.metersµ¥ÔªÖĞµÄDSNames¶ÔÏóÖĞ£¬
-  ¸Ã¶ÔÏóÓĞÒ»¸öDispName·½·¨£¬¿É¸ù¾İ×Ö¶ÎÃû·µ»Ø¶ÔÓ¦µÄDisplayLabel¡£
-  2018-05-31 ¸Ğ¾õÕâ¸ö·½·¨Ã»ÓÃ£¬Ò»°ãÉú³ÉµÄÊ±ºò×Ö¶ÎÃû¶¼ÊÇPD1,PD2..µÈµÈ£¬ÒªÌæ»»Îª
-  ÄÜÀí½âµÄ×Ö¶ÎÃû£¬ĞèÒªÓÃÒÇÆ÷¶¨ÒåÖĞµÄ×Ö¶ÎÃûÈ¥Ìæ»»
------------------------------------------------------------------------------ }
+  Description: æœ¬æ–¹æ³•æ ¹æ®åœ¨Excelå‚æ•°è¡¨ä¸­é¢„å®šä¹‰çš„å­—æ®µåä¸åˆ«åå¯¹åº”è¡¨æ›´æ¢DataSet
+  ä¸­çš„å­—æ®µDisplayLabelã€‚åœ¨æœ¬å•å…ƒä¸­ï¼Œè¿™ä¸ªå¯¹åº”è¡¨å–è‡ªExcelçš„å±æ€§å®šä¹‰å·¥ä½œç°¿ä¸­çš„å­—æ®µ
+  åè¡¨ï¼Œè¯¥è¡¨åœ¨åŠ è½½å‚æ•°æ—¶è¢«åŠ è½½ï¼Œå¹¶å­˜å‚¨åˆ°uhjx.excel.meterså•å…ƒä¸­çš„DSNameså¯¹è±¡ä¸­ï¼Œ
+  è¯¥å¯¹è±¡æœ‰ä¸€ä¸ªDispNameæ–¹æ³•ï¼Œå¯æ ¹æ®å­—æ®µåè¿”å›å¯¹åº”çš„DisplayLabelã€‚
+  2018-05-31 æ„Ÿè§‰è¿™ä¸ªæ–¹æ³•æ²¡ç”¨ï¼Œä¸€èˆ¬ç”Ÿæˆçš„æ—¶å€™å­—æ®µåéƒ½æ˜¯PD1,PD2..ç­‰ç­‰ï¼Œè¦æ›¿æ¢ä¸º
+  èƒ½ç†è§£çš„å­—æ®µåï¼Œéœ€è¦ç”¨ä»ªå™¨å®šä¹‰ä¸­çš„å­—æ®µåå»æ›¿æ¢
+  ----------------------------------------------------------------------------- }
 procedure ThjxDataQuery.SetFieldDisplayName(DS: TDataSet);
 var
   i: Integer;
@@ -1514,62 +1790,148 @@ begin
   begin
     S := DSNames.DispName(DS.Fields[i].FieldName);
     if S <> '' then
-        DS.Fields[i].DisplayLabel := S;
+      DS.Fields[i].DisplayLabel := S;
   end;
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetDataCount
-  Description: È¡»ØÖ¸¶¨ÒÇÆ÷ÔÚÖ¸¶¨Ê±¼ä¶ÎÄÚµÄ¹Û²âÊı¾İµã´Î
------------------------------------------------------------------------------ }
+  Description: å–å›æŒ‡å®šä»ªå™¨åœ¨æŒ‡å®šæ—¶é—´æ®µå†…çš„è§‚æµ‹æ•°æ®ç‚¹æ¬¡
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetDataCount(ADsnName: string; DT1: TDateTime; DT2: TDateTime): Integer;
 var
-  Meter  : TMeterDefine;
-  wbk    : IXLSWorkBook;
-  sht    : IXLSWorkSheet;
-  iRow   : Integer;
-  S      : String;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  iRow: Integer;
+  S: String;
   dtScale: TDateTime;
 begin
   Result := 0;
   Meter := ExcelMeters.Meter[ADsnName];
-    // Ç°ÆÚ×¼±¸¹¤×÷-----------------------------
+  // å‰æœŸå‡†å¤‡å·¥ä½œ-----------------------------
   (*
-  if Meter = nil then
-      Exit;
-  if (Meter.DataBook = '') or (Meter.DataSheet = '') then
-      Exit;
-  if FUseSession then
-      wbk := SSWorkBook
-  else
-      wbk := TMyWorkbook.Create;
+    if Meter = nil then
+    Exit;
+    if (Meter.DataBook = '') or (Meter.DataSheet = '') then
+    Exit;
+    if FUseSession then
+    wbk := SSWorkBook
+    else
+    wbk := TMyWorkbook.Create;
 
-  if TMyWorkbook(wbk).FullName <> Meter.DataBook then
+    if TMyWorkbook(wbk).FullName <> Meter.DataBook then
     if not ExcelIO.OpenWorkbook(wbk, Meter.DataBook) then
-        Exit;
-  sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
-  if sht = nil then
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+    Exit;
+    sht := ExcelIO.GetSheet(wbk, Meter.DataSheet);
+    if sht = nil then
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-    // -------------------------------------------
-  for iRow := Meter.DataSheetStru.BaseLine{.DTStartRow} to sht.UsedRange.LastRow + 1 do
+  // -------------------------------------------
+  for iRow := Meter.DataSheetStru.BaseLine { .DTStartRow } to Sht.UsedRange.LastRow + 1 do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(sht.Cells[iRow, Meter.DataSheetStru.DTStartCol].Value));
+    S := Trim(VarToStr(Sht.Cells[iRow, Meter.DataSheetStru.DTStartCol].Value));
     if S = '' then
-        Continue;
+      Continue;
     if TryStrToDate(S, dtScale) then
       if (dtScale >= DT1) and (dtScale <= DT2) then
-          inc(Result);
+        inc(Result);
   end;
+end;
+
+{ å–å›æŒ‡å®šä»ªå™¨åœ¨æŒ‡å®šæ—¶æ®µå†…çš„è§‚æµ‹æ¬¡æ•° }
+procedure ThjxDataQuery.GetDataCount2(ADsnName: string; DT1: TDateTime; DT2: TDateTime;
+  var V: TVariantDynArray);
+var
+  i, iCol: Integer;
+  Meter: TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  iRow: Integer;
+  S: string;
+  dtScale: TDateTime;
+
+  dMin, dMax: TDateTime;
+
+  iYear, iMonth: Integer;
+  nYear, nMonth: Integer; // dtscaleçš„å¹´ï¼Œæœˆ
+  iCount: Integer;
+begin
+  { å…ˆæ¸…ç†V }
+  if length(V) > 3 then
+  begin
+    V[0] := '';
+    V[1] := '';
+    V[2] := 0;
+    for i := 3 to High(V) do
+      VarClear(V[i]);
+  end;
+  SetLength(V, 3);
+  Meter := ExcelMeters.Meter[ADsnName];
+  if Meter = nil then
+  begin
+    SetLength(V, 0);
+    Exit;
+  end;
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
+
+  dMin := DT1;
+  if DT2 = 0 then
+    dMax := Now
+  else
+    dMax := DT2;
+
+  iCol := Meter.DataSheetStru.DTStartCol;
+  iYear := 0;
+  iMonth := 1;
+  V[2] := 0; // æ€»æ¬¡æ•°ä¸º0;
+  for iRow := Meter.DataSheetStru.DTStartRow to Sht.UsedRange.LastRow + 1 do
+  begin
+    IAppServices.ProcessMessages;
+    S := Trim(VarToStr(Sht.Cells[iRow, iCol].Value));
+    if S = '' then
+      Continue;
+    if TryStrToDateTime(S, dtScale) then
+    begin
+      // åˆ¤æ–­æ˜¯å¦åœ¨æ—¶é—´èŒƒå›´å†…
+      if (dtScale >= DT1) and (dtScale <= DT2) then
+      begin
+        nYear := YearOf(dtScale);
+        nMonth := MonthOf(dtScale);
+        if iYear = 0 then
+          V[0] := dtScale; // start date
+        // æ˜¯å¦æ–°ä¸€å¹´ï¼Ÿ
+        if iYear <> nYear then
+        begin
+          iMonth := 0; // æœˆä»½ä¸º0
+          SetLength(V, length(V) + 1);
+          V[High(V)] := VarArrayCreate([0, 13], varInteger);
+          V[high(V)][0] := nYear; // å¹´ä»½
+          V[High(V)][1] := 0; // å¹´ç»Ÿè®¡ä¸º0
+          iYear := nYear;
+        end;
+        // æ˜¯å¦æ–°æœˆ
+        if iMonth <> nMonth then
+          iMonth := nMonth;
+        V[High(V)][1] := V[high(V)][1] + 1; // å¹´ç»Ÿè®¡+1
+        V[high(V)][iMonth + 1] := V[high(V)][iMonth + 1] + 1; // æœˆç»Ÿè®¡+1
+        V[2] := V[2] + 1; // æ€»æ¬¡æ•°+1
+        V[1] := dtScale; // æ›´æ–°æˆªæ­¢æ—¥æœŸ
+      end;
+    end;
+  end;
+
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetMeterTypeName
-  Description: ·µ»Ø¼à²âÒÇÆ÷ÀàĞÍÃû³Æ£¬Èç¡°¶àµãÎ»ÒÆ¼Æ¡±¡¢¡°ÃªË÷²âÁ¦¼Æ¡±, etc.
------------------------------------------------------------------------------ }
+  Description: è¿”å›ç›‘æµ‹ä»ªå™¨ç±»å‹åç§°ï¼Œå¦‚â€œå¤šç‚¹ä½ç§»è®¡â€ã€â€œé”šç´¢æµ‹åŠ›è®¡â€, etc.
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetMeterTypeName(ADsnName: string): string;
 var
   Meter: TMeterDefine;
@@ -1577,12 +1939,12 @@ begin
   Result := '';
   Meter := ExcelMeters.Meter[ADsnName];
   if Meter = nil then
-      Exit;
+    Exit;
   Result := Meter.Params.MeterType;
 end;
 
 type
-    // ±¾½á¹¹ÓÃÓÚÖ¸ÏòÒÇÆ÷×éÄÚ¸÷ÒÇÆ÷µÄ¹¤×÷²¾ºÍ¹¤×÷±í
+  // æœ¬ç»“æ„ç”¨äºæŒ‡å‘ä»ªå™¨ç»„å†…å„ä»ªå™¨çš„å·¥ä½œç°¿å’Œå·¥ä½œè¡¨
   TGroupMeterSheet = record
     DsnName: string;
     Meter: TMeterDefine;
@@ -1591,22 +1953,22 @@ type
   end;
 
   PGroupMeterSheet = ^TGroupMeterSheet;
-  PGroupSheets     = array of PGroupMeterSheet;
+  PGroupSheets = array of PGroupMeterSheet;
 
-{ -----------------------------------------------------------------------------
-  Procedure  : _PrepareGroupDataSet
-  Description: Ô¤±¸¹¤×÷£¬ÎªÌáÈ¡×éÊı¾İ×¼±¸
-  Ô¤±¸ÄÚÈİ£º1¡¢´´½¨Ò»¸ö½á¹¹Êı×é±£´æ×éÄÚÒÇÆ÷¡¢¶ÔÓ¦µÄ¹¤×÷²¾ºÍ¹¤×÷±í£»2¡¢´ò¿ª
-  ÒÇÆ÷Êı¾İ¶ÔÓ¦µÄ¹¤×÷²¾£¬·µ»Ø¹¤×÷²¾ºÍ¹¤×÷±í¶ÔÏó£»3¡¢´´½¨×éÊı¾İ¼¯£¬ÉèÖÃ×Ö¶ÎµÈ£»
------------------------------------------------------------------------------ }
+  { -----------------------------------------------------------------------------
+    Procedure  : _PrepareGroupDataSet
+    Description: é¢„å¤‡å·¥ä½œï¼Œä¸ºæå–ç»„æ•°æ®å‡†å¤‡
+    é¢„å¤‡å†…å®¹ï¼š1ã€åˆ›å»ºä¸€ä¸ªç»“æ„æ•°ç»„ä¿å­˜ç»„å†…ä»ªå™¨ã€å¯¹åº”çš„å·¥ä½œç°¿å’Œå·¥ä½œè¡¨ï¼›2ã€æ‰“å¼€
+    ä»ªå™¨æ•°æ®å¯¹åº”çš„å·¥ä½œç°¿ï¼Œè¿”å›å·¥ä½œç°¿å’Œå·¥ä½œè¡¨å¯¹è±¡ï¼›3ã€åˆ›å»ºç»„æ•°æ®é›†ï¼Œè®¾ç½®å­—æ®µç­‰ï¼›
+    ----------------------------------------------------------------------------- }
 procedure _PrepareGroupDataSet(AGroup: TMeterGroupItem; var AGrpSheets: PGroupSheets;
   ADataSet: TDataSet);
 var
   Meter: TMeterDefine;
-  bwbk : Boolean;
-  i, j : Integer;
+  bwbk: Boolean;
+  i, j: Integer;
 begin
-    // ´ò¿ªÃ¿¸öÒÇÆ÷µÄ¹¤×÷²¾ºÍ¹¤×÷±í
+  // æ‰“å¼€æ¯ä¸ªä»ªå™¨çš„å·¥ä½œç°¿å’Œå·¥ä½œè¡¨
   SetLength(AGrpSheets, AGroup.Count);
   for i := 0 to AGroup.Count - 1 do
   begin
@@ -1615,16 +1977,16 @@ begin
     Meter := ExcelMeters.Meter[AGroup.Items[i]];
     AGrpSheets[i].Meter := Meter;
     if Meter = nil then
-        Continue;
+      Continue;
     bwbk := False;
-        // ¶ÔÓÚµÚÒ»Ö§ÒÇÆ÷£¬´ò¿ª¹¤×÷²¾ºÍ¹¤×÷±í
+    // å¯¹äºç¬¬ä¸€æ”¯ä»ªå™¨ï¼Œæ‰“å¼€å·¥ä½œç°¿å’Œå·¥ä½œè¡¨
     if i = 0 then
     begin
       AGrpSheets[0].WbkBook := TMyWorkbook.Create;
       ExcelIO.OpenWorkbook(AGrpSheets[0].WbkBook, Meter.DataBook);
       AGrpSheets[0].Sheet := ExcelIO.GetSheet(AGrpSheets[0].WbkBook, Meter.DataSheet);
     end
-    else // ¶ÔÓÚÆäËûÒÇÆ÷£¬¼ì²éÍ¬×éÒÇÆ÷µÄ¹¤×÷²¾ÊÇ·ñÏàÍ¬¡¢¹¤×÷±íÊÇ·ñÏàÍ¬£¬Èç¹ûÏàÍ¬ÔòÒıÓÃ·ñÔò´ò¿ª
+    else // å¯¹äºå…¶ä»–ä»ªå™¨ï¼Œæ£€æŸ¥åŒç»„ä»ªå™¨çš„å·¥ä½œç°¿æ˜¯å¦ç›¸åŒã€å·¥ä½œè¡¨æ˜¯å¦ç›¸åŒï¼Œå¦‚æœç›¸åŒåˆ™å¼•ç”¨å¦åˆ™æ‰“å¼€
     begin
       for j := 0 to i do
       begin
@@ -1632,7 +1994,7 @@ begin
         if TMyWorkbook(AGrpSheets[j].WbkBook).FullName = Meter.DataBook then
         begin
           AGrpSheets[i].WbkBook := AGrpSheets[j].WbkBook;
-          bwbk := True; // ÒÑÓĞ¹¤×÷²¾
+          bwbk := True; // å·²æœ‰å·¥ä½œç°¿
           Break;
         end;
       end;
@@ -1645,17 +2007,17 @@ begin
     end;
   end;
 
-    // ¹¤×÷±íÒÑ¾­´ò¿ªÍê±Ï£¬´´½¨Êı¾İ¼¯
+  // å·¥ä½œè¡¨å·²ç»æ‰“å¼€å®Œæ¯•ï¼Œåˆ›å»ºæ•°æ®é›†
   if ADataSet = nil then
-      ADataSet := TClientDataSet.Create(nil)
+    ADataSet := TClientDataSet.Create(nil)
   else
   begin
     if ADataSet.Active then
-        ADataSet.Close;
+      ADataSet.Close;
     ADataSet.FieldDefs.Clear;
   end;
 
-    // ´´½¨Êı¾İ¼¯×Ö¶Î¶¨Òå
+  // åˆ›å»ºæ•°æ®é›†å­—æ®µå®šä¹‰
   _CreateFieldsFromGroup(ADataSet, AGroup);
   TClientDataSet(ADataSet).CreateDataSet;
   _SetGroupFieldsDisplayName(ADataSet, AGroup);
@@ -1663,61 +2025,62 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetGroupAllPDDatas
-  Description: ·µ»ØÒÇÆ÷×éÈ«²¿¹Û²âÊı¾İ
------------------------------------------------------------------------------ }
+  Description: è¿”å›ä»ªå™¨ç»„å…¨éƒ¨è§‚æµ‹æ•°æ®
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetGroupAllPDDatas(AGrpName: string; DS: TDataSet): Boolean;
 var
   GroupSheets: PGroupSheets;
-  Group      : TMeterGroupItem;
-  i, j, iRow : Integer;
-  k, n       : Integer;
-  S, Msg     : String;
-  DT         : TDateTime;
+  Group: TMeterGroupItem;
+  i, j, iRow: Integer;
+  k, n: Integer;
+  S, Msg: String;
+  DT: TDateTime;
 begin
   Result := False;
   Group := MeterGroup.ItemByName[AGrpName];
   if Group = nil then
-      Exit;
-    // ×¼±¸¹¤×÷²¾¡¢¹¤×÷±í¡¢´´½¨Êı¾İ¼¯¡¢ÉèÖÃÊı¾İ¼¯×Ö¶ÎµÈµÈ×¼±¸¹¤×÷
+    Exit;
+  // å‡†å¤‡å·¥ä½œç°¿ã€å·¥ä½œè¡¨ã€åˆ›å»ºæ•°æ®é›†ã€è®¾ç½®æ•°æ®é›†å­—æ®µç­‰ç­‰å‡†å¤‡å·¥ä½œ
   _PrepareGroupDataSet(Group, GroupSheets, DS);
 
-    // Ìí¼ÓÊı¾İ¼ÇÂ¼
-    { todo:¿¼ÂÇÒÇÆ÷²»Í¬¹¤×÷±í¡¢²»Í¬¹¤×÷²¾¡¢¹Û²âÈÕÆÚ¿ÉÄÜÓĞ²îÒìµÄÇé¿ö }
-    // 2018-05-29 Îª¼Ó¿ìµ¼³ö¹Û²âÊı¾İ±íµÄ¹¦ÄÜ£¬Ä¿Ç°¼ÙÉèÒÇÆ÷×éµÄÒÇÆ÷È«²¿´¦ÓÚÏàÍ¬µÄ¹¤×÷±íÖĞ£¬
-    // ²¢¹²ÓĞÏàÍ¬µÄ¹Û²âÈÕÆÚ¡£Õâ¸ö´¦Àí·½Ê½Ä¿Ç°Õë¶ÔÃª¸ËÓ¦Á¦¼Æ×éÓĞĞ§
-  {for iRow := GroupSheets[0].Meter.DataSheetStru.DTStartRow to GroupSheets[0]
-    .Sheet.UsedRange.LastRow + 2 do}
+  // æ·»åŠ æ•°æ®è®°å½•
+  { todo:è€ƒè™‘ä»ªå™¨ä¸åŒå·¥ä½œè¡¨ã€ä¸åŒå·¥ä½œç°¿ã€è§‚æµ‹æ—¥æœŸå¯èƒ½æœ‰å·®å¼‚çš„æƒ…å†µ }
+  // 2018-05-29 ä¸ºåŠ å¿«å¯¼å‡ºè§‚æµ‹æ•°æ®è¡¨çš„åŠŸèƒ½ï¼Œç›®å‰å‡è®¾ä»ªå™¨ç»„çš„ä»ªå™¨å…¨éƒ¨å¤„äºç›¸åŒçš„å·¥ä½œè¡¨ä¸­ï¼Œ
+  // å¹¶å…±æœ‰ç›¸åŒçš„è§‚æµ‹æ—¥æœŸã€‚è¿™ä¸ªå¤„ç†æ–¹å¼ç›®å‰é’ˆå¯¹é”šæ†åº”åŠ›è®¡ç»„æœ‰æ•ˆ
+  { for iRow := GroupSheets[0].Meter.DataSheetStru.DTStartRow to GroupSheets[0]
+    .Sheet.UsedRange.LastRow + 2 do }
   for iRow := GroupSheets[0].Meter.DataSheetStru.BaseLine to GroupSheets[0]
     .Sheet.UsedRange.LastRow + 2 do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(GroupSheets[0].Sheet.Cells[iRow, 1].Value));
-    if S = '' then Continue;
-    // ÅĞ¶ÏSÊÇ·ñÊÇºÏ·¨µÄÈÕÆÚ×Ö·û´®£¬Èô²»ÊÇºÏ·¨µÄÈÕÆÚ¸ñÊ½£¬ÔòÌáÊ¾ÓÃ»§ºó¼ÌĞø£¬µ«·ÅÆú±¾ĞĞµÄ´¦Àí
+    S := Trim(VarToStr(GroupSheets[0].Sheet.Cells[iRow, 1].Value));
+    if S = '' then
+      Continue;
+    // åˆ¤æ–­Sæ˜¯å¦æ˜¯åˆæ³•çš„æ—¥æœŸå­—ç¬¦ä¸²ï¼Œè‹¥ä¸æ˜¯åˆæ³•çš„æ—¥æœŸæ ¼å¼ï¼Œåˆ™æç¤ºç”¨æˆ·åç»§ç»­ï¼Œä½†æ”¾å¼ƒæœ¬è¡Œçš„å¤„ç†
     if TryStrToDateTime(S, DT) = False then
     begin
       Msg := GroupSheets[0].Sheet.Name;
-      Msg := Format('¹¤×÷±í%sµÄµÚ%dĞĞµÚ%dÁĞµÄÄÚÈİ¡°%s¡±²»ÊÇºÏ·¨µÄÈÕÆÚ¸ñÊ½£¬Çë¼ì²é¡£', [Msg, iRow, 1, S]);
-      ShowMessage(Msg);
+      Msg := Format('å·¥ä½œè¡¨%sçš„ç¬¬%dè¡Œç¬¬%dåˆ—çš„å†…å®¹â€œ%sâ€ä¸æ˜¯åˆæ³•çš„æ—¥æœŸæ ¼å¼ï¼Œè¯·æ£€æŸ¥ã€‚', [Msg, iRow, 1, S]);
+      Showmessage(Msg);
       Continue;
     end;
 
     DS.Append;
-    DS.Fields[0].Value := StrToDateTime(S); // DTScale£¬ÕâÀïÃ»ÓĞÅĞ¶ÏSÀàĞÍ×ª»»´íÎó
+    DS.Fields[0].Value := StrToDateTime(S); // DTScaleï¼Œè¿™é‡Œæ²¡æœ‰åˆ¤æ–­Sç±»å‹è½¬æ¢é”™è¯¯
 
-        // Ìí¼ÓµÚÒ»Ö§ÒÇÆ÷µÄ±¸×¢
-        { todo:ÔÚÌîĞ´ÒÇÆ÷×é±¸×¢×Ö¶ÎÊ±£¬ÕâÀï½ö´¦ÀíÁËµÚÒ»Ö§ÒÇÆ÷µÄ±¸×¢£¬Ã»ÓĞ¿¼ÂÇÆäËûÒÇÆ÷µÄ±¸×¢×Ö¶Î }
+    // æ·»åŠ ç¬¬ä¸€æ”¯ä»ªå™¨çš„å¤‡æ³¨
+    { todo:åœ¨å¡«å†™ä»ªå™¨ç»„å¤‡æ³¨å­—æ®µæ—¶ï¼Œè¿™é‡Œä»…å¤„ç†äº†ç¬¬ä¸€æ”¯ä»ªå™¨çš„å¤‡æ³¨ï¼Œæ²¡æœ‰è€ƒè™‘å…¶ä»–ä»ªå™¨çš„å¤‡æ³¨å­—æ®µ }
     DS.Fields[DS.Fields.Count - 1].Value := ExcelIO.GetStrValue(GroupSheets[0].Sheet, iRow,
       GroupSheets[0].Meter.DataSheetStru.AnnoCol);
 
-        // Ìí¼ÓµÚÒ»Ö§ÒÇÆ÷¹Û²âÊı¾İ
+    // æ·»åŠ ç¬¬ä¸€æ”¯ä»ªå™¨è§‚æµ‹æ•°æ®
     for i := 0 to GroupSheets[0].Meter.PDDefines.Count - 1 do
-        DS.Fields[i + 1].Value := _GetFloatOrNull(GroupSheets[0].Sheet, iRow,
+      DS.Fields[i + 1].Value := _GetFloatOrNull(GroupSheets[0].Sheet, iRow,
         GroupSheets[0].Meter.PDColumn(i));
-        // DS.Fields[i + 1].Value := ExcelIO.GetFloatValue(GroupSheets[0].Sheet, iRow,
-        // GroupSheets[0].Meter.PDColumn(i));
+    // DS.Fields[i + 1].Value := ExcelIO.GetFloatValue(GroupSheets[0].Sheet, iRow,
+    // GroupSheets[0].Meter.PDColumn(i));
     n := GroupSheets[0].Meter.PDDefines.Count + 1;
-        // Ìí¼ÓÆäËûÒÇÆ÷¹Û²âÊı¾İ£¬ÕâÀï¼ÙÉè¹Û²â¼ÇÂ¼¶¼ÔÚÍ¬Ò»ĞĞ£¬¼´Ê¹²»ÔÚÍ¬Ò»ÕÅ¹¤×÷±í
+    // æ·»åŠ å…¶ä»–ä»ªå™¨è§‚æµ‹æ•°æ®ï¼Œè¿™é‡Œå‡è®¾è§‚æµ‹è®°å½•éƒ½åœ¨åŒä¸€è¡Œï¼Œå³ä½¿ä¸åœ¨åŒä¸€å¼ å·¥ä½œè¡¨
     for j := 1 to High(GroupSheets) do
       for k := 0 to GroupSheets[j].Meter.PDDefines.Count - 1 do
       begin
@@ -1728,70 +2091,70 @@ begin
         // GroupSheets[j].Meter.PDColumn(k));
         inc(n);
       end;
-        // È·¶¨
+    // ç¡®å®š
     DS.Post;
   end;
 
-    // ÊÕÎ²¹¤×÷
+  // æ”¶å°¾å·¥ä½œ
   for i := 0 to High(GroupSheets) do
-      Dispose(GroupSheets[i]);
+    Dispose(GroupSheets[i]);
   SetLength(GroupSheets, 0);
   Result := True;
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetGroupPDDatasInPeriod
-  Description: ·µ»ØÒÇÆ÷×éÔÚÖ¸¶¨Ê±¶ÎÄÚµÄ¹Û²âÊı¾İ
------------------------------------------------------------------------------ }
+  Description: è¿”å›ä»ªå™¨ç»„åœ¨æŒ‡å®šæ—¶æ®µå†…çš„è§‚æµ‹æ•°æ®
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetGroupPDDatasInPeriod(AGrpName: string; DT1: TDateTime; DT2: TDateTime;
   DS: TDataSet): Boolean;
 var
   GroupSheets: PGroupSheets;
-  Group      : TMeterGroupItem;
-  i, n, iMT  : Integer;
-  iRow       : Integer;
-  S          : string;
-  DT         : TDateTime;
+  Group: TMeterGroupItem;
+  i, n, iMT: Integer;
+  iRow: Integer;
+  S: string;
+  DT: TDateTime;
 begin
   Result := False;
   Group := MeterGroup.ItemByName[AGrpName];
   if Group = nil then
-      Exit;
+    Exit;
 
-    // ´óÁ¿µÄ×¼±¸¹¤×÷
+  // å¤§é‡çš„å‡†å¤‡å·¥ä½œ
   _PrepareGroupDataSet(Group, GroupSheets, DS);
 
-    // Ìí¼ÓÊı¾İ
-    // 2018-05-29 Îª¼Ó¿ìµ¼³ö¹Û²âÊı¾İ±íµÄ¹¦ÄÜ£¬Ä¿Ç°¼ÙÉèÒÇÆ÷×éµÄÒÇÆ÷È«²¿´¦ÓÚÏàÍ¬µÄ¹¤×÷±íÖĞ£¬
-    // ²¢¹²ÓĞÏàÍ¬µÄ¹Û²âÈÕÆÚ
-    { todo:Ğè¿¼ÂÇ²»Í¬¹¤×÷²¾¡¢²»Í¬¹¤×÷±íµÄÇé¿ö }
-  for iRow := GroupSheets[0].Meter.DataSheetStru.BaseLine{.DTStartRow} to GroupSheets[0]
+  // æ·»åŠ æ•°æ®
+  // 2018-05-29 ä¸ºåŠ å¿«å¯¼å‡ºè§‚æµ‹æ•°æ®è¡¨çš„åŠŸèƒ½ï¼Œç›®å‰å‡è®¾ä»ªå™¨ç»„çš„ä»ªå™¨å…¨éƒ¨å¤„äºç›¸åŒçš„å·¥ä½œè¡¨ä¸­ï¼Œ
+  // å¹¶å…±æœ‰ç›¸åŒçš„è§‚æµ‹æ—¥æœŸ
+  { todo:éœ€è€ƒè™‘ä¸åŒå·¥ä½œç°¿ã€ä¸åŒå·¥ä½œè¡¨çš„æƒ…å†µ }
+  for iRow := GroupSheets[0].Meter.DataSheetStru.BaseLine { .DTStartRow } to GroupSheets[0]
     .Sheet.UsedRange.LastRow + 2 do
   begin
     IAppServices.ProcessMessages;
-    S := trim(VarToStr(GroupSheets[0].Sheet.Cells[iRow, 1].Value));
+    S := Trim(VarToStr(GroupSheets[0].Sheet.Cells[iRow, 1].Value));
     if S = '' then
-        Continue;
+      Continue;
     if TryStrToDateTime(S, DT) = False then
-        Continue;
+      Continue;
     if DT >= DT2 then
-        Break;
+      Break;
     if DT >= DT1 then
     begin
       DS.Append;
       DS.Fields[0].Value := StrToDateTime(S);
 
-            // Ìí¼ÓµÚÒ»Ö§ÒÇÆ÷µÄ±¸×¢
-            { todo:ÔÚÌîĞ´ÒÇÆ÷×é±¸×¢×Ö¶ÎÊ±£¬ÕâÀï½ö´¦ÀíÁËµÚÒ»Ö§ÒÇÆ÷µÄ±¸×¢£¬Ã»ÓĞ¿¼ÂÇÆäËûÒÇÆ÷µÄ±¸×¢×Ö¶Î }
+      // æ·»åŠ ç¬¬ä¸€æ”¯ä»ªå™¨çš„å¤‡æ³¨
+      { todo:åœ¨å¡«å†™ä»ªå™¨ç»„å¤‡æ³¨å­—æ®µæ—¶ï¼Œè¿™é‡Œä»…å¤„ç†äº†ç¬¬ä¸€æ”¯ä»ªå™¨çš„å¤‡æ³¨ï¼Œæ²¡æœ‰è€ƒè™‘å…¶ä»–ä»ªå™¨çš„å¤‡æ³¨å­—æ®µ }
       DS.Fields[DS.Fields.Count - 1].Value := ExcelIO.GetStrValue(GroupSheets[0].Sheet, iRow,
         GroupSheets[0].Meter.DataSheetStru.AnnoCol);
 
-            // Ìí¼Ó¸÷¸öÒÇÆ÷Êı¾İ
+      // æ·»åŠ å„ä¸ªä»ªå™¨æ•°æ®
       n := 1;
-      for iMT := 0 to High(GroupSheets) do // ÒÇÆ÷Ñ­»·
+      for iMT := 0 to High(GroupSheets) do // ä»ªå™¨å¾ªç¯
       begin
         IAppServices.ProcessMessages;
-        for i := 0 to GroupSheets[iMT].Meter.PDDefines.Count - 1 do // ×Ö¶ÎÑ­»·
+        for i := 0 to GroupSheets[iMT].Meter.PDDefines.Count - 1 do // å­—æ®µå¾ªç¯
         begin
           DS.Fields[n].Value := _GetFloatOrNull(GroupSheets[iMT].Sheet, iRow,
             GroupSheets[iMT].Meter.PDColumn(i));
@@ -1800,174 +2163,174 @@ begin
           inc(n);
         end;
       end;
-            // È·ÈÏ
+      // ç¡®è®¤
       DS.Post;
     end;
   end;
-    // ÊÕÎ²¹¤×÷
+  // æ”¶å°¾å·¥ä½œ
   for i := 0 to High(GroupSheets) do
-      Dispose(GroupSheets[i]);
+    Dispose(GroupSheets[i]);
   SetLength(GroupSheets, 0);
   Result := True;
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetDataIncrement
-  Description: ²éÑ¯Ö¸¶¨ÒÇÆ÷ÔÚÖ¸¶¨Ê±¼äµÄÊı¾İÔöÁ¿
-  Êı¾İÔöÁ¿°üÀ¨Ö¸¶¨Ê±¼ä²âÖµ¼°ÉÏÒ»´Î²âÖµµÄÔöÁ¿£¬ÔÂÔöÁ¿Á½ÏîÄÚÈİ£¬·µ»ØÊı¾İ¸ñÊ½Îª
-        ÎïÀíÁ¿Ãû|¹Û²âÈÕÆÚ|¼ä¸ôÌìÊı|DTÊ±¼äµ±Ç°Öµ|Á½²â´ÎÔöÁ¿Öµ|ÔÂÔöÁ¿Öµ
-  ²ÎÊıValuesÊÇVariantÀàĞÍ¶¯Ì¬Êı×é£¬µ±ÒÇÆ÷ÎªÃªË÷µÈµ¥ÎïÀíÁ¿ÒÇÆ÷Ê±£¬ValuesÎª1¸ö
-  ÔªËØ£¬µ±ÒÇÆ÷Îª¶àµã»òÆ½ÃæÎ»ÒÆµãÊ±£¬ValuesÊÇ4»ò¸ü¶à¸öÔªËØ¡£Ã¿¸öÔªËØÊÇÒ»¸ö
-  VariantArrayÀàĞÍ£¬6ÔªËØ£¬¸ñÊ½ÎªÉÏÊö¶¨ÒåµÄÊı¾İ¸ñÊ½¡£
-  Ã¿ĞĞÊı×é¸÷¸öÔªËØ£º0-ÎïÀíÁ¿Ãû£»1-µ±Ç°Öµ¹Û²âÈÕÆÚ£»2-Á½´Î¹Û²â¼ä¸ôÌìÊı£»3-µ±Ç°Öµ£»
-  4-ÓëÉÏ´Î¹Û²âµÄ²îÖµ£»5-30Ìì²îÖµ
------------------------------------------------------------------------------ }
+  Description: æŸ¥è¯¢æŒ‡å®šä»ªå™¨åœ¨æŒ‡å®šæ—¶é—´çš„æ•°æ®å¢é‡
+  æ•°æ®å¢é‡åŒ…æ‹¬æŒ‡å®šæ—¶é—´æµ‹å€¼åŠä¸Šä¸€æ¬¡æµ‹å€¼çš„å¢é‡ï¼Œæœˆå¢é‡ä¸¤é¡¹å†…å®¹ï¼Œè¿”å›æ•°æ®æ ¼å¼ä¸º
+  ç‰©ç†é‡å|è§‚æµ‹æ—¥æœŸ|é—´éš”å¤©æ•°|DTæ—¶é—´å½“å‰å€¼|ä¸¤æµ‹æ¬¡å¢é‡å€¼|æœˆå¢é‡å€¼
+  å‚æ•°Valuesæ˜¯Variantç±»å‹åŠ¨æ€æ•°ç»„ï¼Œå½“ä»ªå™¨ä¸ºé”šç´¢ç­‰å•ç‰©ç†é‡ä»ªå™¨æ—¶ï¼ŒValuesä¸º1ä¸ª
+  å…ƒç´ ï¼Œå½“ä»ªå™¨ä¸ºå¤šç‚¹æˆ–å¹³é¢ä½ç§»ç‚¹æ—¶ï¼ŒValuesæ˜¯4æˆ–æ›´å¤šä¸ªå…ƒç´ ã€‚æ¯ä¸ªå…ƒç´ æ˜¯ä¸€ä¸ª
+  VariantArrayç±»å‹ï¼Œ6å…ƒç´ ï¼Œæ ¼å¼ä¸ºä¸Šè¿°å®šä¹‰çš„æ•°æ®æ ¼å¼ã€‚
+  æ¯è¡Œæ•°ç»„å„ä¸ªå…ƒç´ ï¼š0-ç‰©ç†é‡åï¼›1-å½“å‰å€¼è§‚æµ‹æ—¥æœŸï¼›2-ä¸¤æ¬¡è§‚æµ‹é—´éš”å¤©æ•°ï¼›3-å½“å‰å€¼ï¼›
+  4-ä¸ä¸Šæ¬¡è§‚æµ‹çš„å·®å€¼ï¼›5-30å¤©å·®å€¼
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetDataIncrement(ADsnName: string; DT: TDateTime;
   var Values: TVariantDynArray): Boolean;
 var
-  wbk        : IXLSWorkBook;
-  sht        : IXLSWorkSheet;
-  Meter      : TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  Meter: TMeterDefine;
   i, iDTStart: Integer;
-  iRow, iDays: Integer; // ĞĞºÅ£¬¼ä¸ôÈÕÆÚ
-  iMonRow    : Integer; // ÉÏ¸öÔÂÊı¾İËùÔÚĞĞ
-  k          : Integer; // ÓÃÓÚÆ½Ãæ±äĞÎ²âµãÎïÀíÁ¿ĞòºÅ
-// S, pdName  : String;
-  sType     : string;      // ÒÇÆ÷ÀàĞÍ
-  d, d2, d30: double;      // µ±Ç°Öµ£¬ÔöÁ¿£¬ÔÂÔöÁ¿
-  kIdx      : set of byte; // ÌØÕ÷ÖµÁĞµÄĞòºÅ¼¯ºÏ£¬¼ÙÉè¼à²âÒÇÆ÷µÄÌØÕ÷ÖµÊıÁ¿²»»á¶àÓÚ127
-  procedure ClearValues;   // ÇåÀí²¢³õÊ¼»¯´«ÈëµÄValues²ÎÊı
+  iRow, iDays: Integer; // è¡Œå·ï¼Œé—´éš”æ—¥æœŸ
+  iMonRow: Integer; // ä¸Šä¸ªæœˆæ•°æ®æ‰€åœ¨è¡Œ
+  k: Integer; // ç”¨äºå¹³é¢å˜å½¢æµ‹ç‚¹ç‰©ç†é‡åºå·
+  // S, pdName  : String;
+  sType: string; // ä»ªå™¨ç±»å‹
+  d, d2, d30: double; // å½“å‰å€¼ï¼Œå¢é‡ï¼Œæœˆå¢é‡
+  kIdx: set of byte; // ç‰¹å¾å€¼åˆ—çš„åºå·é›†åˆï¼Œå‡è®¾ç›‘æµ‹ä»ªå™¨çš„ç‰¹å¾å€¼æ•°é‡ä¸ä¼šå¤šäº127
+  procedure ClearValues; // æ¸…ç†å¹¶åˆå§‹åŒ–ä¼ å…¥çš„Valueså‚æ•°
   var
     ii: Integer;
   begin
-    if Length(Values) > 0 then
+    if length(Values) > 0 then
       for ii := Low(Values) to High(Values) do
-          VarClear(Values[ii]);
+        VarClear(Values[ii]);
     SetLength(Values, 0);
   end;
 
 begin
   Result := False;
-  ClearValues;                         // ÇåÀíValues
-  sType := GetMeterTypeName(ADsnName); // »ñÈ¡ÒÇÆ÷ÀàĞÍ
+  ClearValues; // æ¸…ç†Values
+  sType := GetMeterTypeName(ADsnName); // è·å–ä»ªå™¨ç±»å‹
   Meter := ExcelMeters.Meter[ADsnName];
-  iDTStart := Meter.DataSheetStru.BaseLine{.DTStartRow};
+  iDTStart := Meter.DataSheetStru.BaseLine { .DTStartRow };
 
-  if _GetBookAndSheet(ADsnName, wbk, sht) = False then // ·µ»ØÒÇÆ÷µÄÊı¾İ±í
-      Exit;
+  if _GetBookAndSheet(ADsnName, Wbk, Sht) = False then // è¿”å›ä»ªå™¨çš„æ•°æ®è¡¨
+    Exit;
 
-  iRow := _LocateDTRow(sht, DT, iDTStart, dloClosest); // ÕÒµ½Ö¸¶¨ÈÕÆÚ£¬»ò×î½Ó½üµÄÈÕÆÚËùÔÚµÄĞĞ
+  iRow := _LocateDTRow(Sht, DT, iDTStart, dloClosest); // æ‰¾åˆ°æŒ‡å®šæ—¥æœŸï¼Œæˆ–æœ€æ¥è¿‘çš„æ—¥æœŸæ‰€åœ¨çš„è¡Œ
   if iRow = -1 then
-      Exit;
+    Exit;
 
-  iMonRow := _LocateDTRow(sht, IncDay(DT, -30), iDTStart, dloClosest); // Ò»¸öÔÂÇ°Êı¾İËùÔÚĞĞ
+  iMonRow := _LocateDTRow(Sht, IncDay(DT, -30), iDTStart, dloClosest); // ä¸€ä¸ªæœˆå‰æ•°æ®æ‰€åœ¨è¡Œ
 
-    // ÏÂÃæ¿ªÊ¼È¡Êı¾İÁË
-  { todo:ĞŞ¸ÄÕâ¸öÓŞ´À·½·¨£¬½«ÕâÒ»¶ÑĞ´µ½ÅäÖÃÎÄ¼şÖĞÈ¥ }
-(*
-  if (sType = 'ÃªË÷²âÁ¦¼Æ') or (sType = 'Ãª¸ËÓ¦Á¦¼Æ') or (sType = 'ÉøÑ¹¼Æ') or (sType = '»ùÑÒ±äĞÎ¼Æ')
-    or (sType = '²â·ì¼Æ') or (sType = 'ÁÑ·ì¼Æ') or (sType = 'Î»´í¼Æ') or (sType = '¸Ö½î¼Æ')
-    or (sType = '¸Ö°å¼Æ') or (sType = 'Ë®Î»¼Æ') or (sType = 'Ë®Î»') or (sType = 'Á¿Ë®Ñß')
-    or (sType = 'Ó¦±ä¼Æ') or (sType = 'ÎŞÓ¦Á¦¼Æ') then
-  begin
-    { ÕâĞ©ÒÇÆ÷Êı¾İÊÇµ¥ĞĞ£¬ÇÒÈ¡µÚÒ»¸öÎïÀíÁ¿ }
+  // ä¸‹é¢å¼€å§‹å–æ•°æ®äº†
+  { todo:ä¿®æ”¹è¿™ä¸ªæ„šè ¢æ–¹æ³•ï¼Œå°†è¿™ä¸€å †å†™åˆ°é…ç½®æ–‡ä»¶ä¸­å» }
+  (*
+    if (sType = 'é”šç´¢æµ‹åŠ›è®¡') or (sType = 'é”šæ†åº”åŠ›è®¡') or (sType = 'æ¸—å‹è®¡') or (sType = 'åŸºå²©å˜å½¢è®¡')
+    or (sType = 'æµ‹ç¼è®¡') or (sType = 'è£‚ç¼è®¡') or (sType = 'ä½é”™è®¡') or (sType = 'é’¢ç­‹è®¡')
+    or (sType = 'é’¢æ¿è®¡') or (sType = 'æ°´ä½è®¡') or (sType = 'æ°´ä½') or (sType = 'é‡æ°´å °')
+    or (sType = 'åº”å˜è®¡') or (sType = 'æ— åº”åŠ›è®¡') then
+    begin
+    { è¿™äº›ä»ªå™¨æ•°æ®æ˜¯å•è¡Œï¼Œä¸”å–ç¬¬ä¸€ä¸ªç‰©ç†é‡ }
     SetLength(Values, 1);
     Values[0] := VarArrayCreate([0, 5], varVariant);
-    Values[0][0] := Meter.pdName(0); // ÎïÀíÁ¿Ãû
-    Values[0][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // ¹Û²âÈÕÆÚ
-    { TODO -oCharmer -cÊı¾İ²éÑ¯ : ´Ë´¦Ó¦µ±ÅĞ¶ÏÊı¾İºÏ·¨ĞÔ }
-    Values[0][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(0)); // µ±Ç°Öµ
-    if iRow > iDTStart then // Èôµ±Ç°ĞĞ²»ÊÇÊ×ĞĞ£¬Ôò¿ÉÒÔÇóÉÏ´Î¼°ÔÂÖµ
+    Values[0][0] := Meter.pdName(0); // ç‰©ç†é‡å
+    Values[0][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // è§‚æµ‹æ—¥æœŸ
+    { TODO -oCharmer -cæ•°æ®æŸ¥è¯¢ : æ­¤å¤„åº”å½“åˆ¤æ–­æ•°æ®åˆæ³•æ€§ }
+    Values[0][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(0)); // å½“å‰å€¼
+    if iRow > iDTStart then // è‹¥å½“å‰è¡Œä¸æ˜¯é¦–è¡Œï¼Œåˆ™å¯ä»¥æ±‚ä¸Šæ¬¡åŠæœˆå€¼
     begin
-      iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
-        ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
-      { todo:´Ë´¦Ó¦µ±ÅĞ¶ÏÊı¾İºÏ·¨ĞÔ }
-      d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(0));
-      d2 := Values[0][3] - d;
-      d30 := Values[0][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(0));
-      Values[0][2] := iDays;
-      Values[0][4] := d2;
-      Values[0][5] := d30;
+    iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
+    ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
+    { todo:æ­¤å¤„åº”å½“åˆ¤æ–­æ•°æ®åˆæ³•æ€§ }
+    d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(0));
+    d2 := Values[0][3] - d;
+    d30 := Values[0][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(0));
+    Values[0][2] := iDays;
+    Values[0][4] := d2;
+    Values[0][5] := d30;
     end
     else
     begin
-      Values[0][2] := 0;
-      Values[0][4] := Null;
-      Values[0][5] := Null;
+    Values[0][2] := 0;
+    Values[0][4] := Null;
+    Values[0][5] := Null;
     end;
-  end
-  else if (sType = '¶àµãÎ»ÒÆ¼Æ') then // Ä¿Ç°Ö»¿¼ÂÇ4µãÊ½¶àµãÎ»ÒÆ¼Æ
-  begin
-    { ¶àµãÎ»ÒÆ¼ÆÉèÖÃ4ĞĞ£¬È¡4¸öÊı¾İ }
+    end
+    else if (sType = 'å¤šç‚¹ä½ç§»è®¡') then // ç›®å‰åªè€ƒè™‘4ç‚¹å¼å¤šç‚¹ä½ç§»è®¡
+    begin
+    { å¤šç‚¹ä½ç§»è®¡è®¾ç½®4è¡Œï¼Œå–4ä¸ªæ•°æ® }
     SetLength(Values, 4);
     for i := 0 to 3 do
     begin
-      Values[i] := VarArrayCreate([0, 5], varVariant);
-      Values[i][0] := Meter.pdName(i);
-      Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
-      { todo:´Ë´¦¼°ÒÔÏÂÓ¦µ±ÅĞ¶ÏÊı¾İºÏ·¨ĞÔ }
-      Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i)); // µ±Ç°Öµ
-      if iRow > iDTStart then
-      begin
-        iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
-          ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
-        d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(i));
-        d2 := Values[i][3] - d;
-        d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(i));
-        Values[i][2] := iDays;
-        Values[i][4] := d2;
-        Values[i][5] := d30;
-      end
-      else
-      begin
-        Values[i][2] := 0;
-        Values[i][4] := Null;
-        Values[i][5] := Null;
-      end;
+    Values[i] := VarArrayCreate([0, 5], varVariant);
+    Values[i][0] := Meter.pdName(i);
+    Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
+    { todo:æ­¤å¤„åŠä»¥ä¸‹åº”å½“åˆ¤æ–­æ•°æ®åˆæ³•æ€§ }
+    Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(i)); // å½“å‰å€¼
+    if iRow > iDTStart then
+    begin
+    iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
+    ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
+    d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(i));
+    d2 := Values[i][3] - d;
+    d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(i));
+    Values[i][2] := iDays;
+    Values[i][4] := d2;
+    Values[i][5] := d30;
+    end
+    else
+    begin
+    Values[i][2] := 0;
+    Values[i][4] := Null;
+    Values[i][5] := Null;
     end;
-  end
-  else if (sType = 'Æ½ÃæÎ»ÒÆ²âµã') then
-  begin
-    { Æ½ÃæÎ»ÒÆ²âµãÔİÊ±Ö»¼ÆËã±¾µØ×ø±ê²îÖµ£¬È¡SdX',SdY',SdH }
+    end;
+    end
+    else if (sType = 'å¹³é¢ä½ç§»æµ‹ç‚¹') then
+    begin
+    { å¹³é¢ä½ç§»æµ‹ç‚¹æš‚æ—¶åªè®¡ç®—æœ¬åœ°åæ ‡å·®å€¼ï¼Œå–SdX',SdY',SdH }
     SetLength(Values, 3);
     for i := 0 to 2 do
     begin
-      Values[i] := VarArrayCreate([0, 5], varVariant);
-      // Values[i][0] := Meter.pdName(i);
-      Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
-      { todo:´Ë´¦¼°ÒÔÏÂÓ¦µ±ÅĞ¶ÏÊı¾İºÏ·¨ĞÔ }
-      case i of
-        0: k := 11; // SdX'=PD12, k=12-1=11
-        1: k := 12; // SdY'=PD13
-        2: k := 8;  // SdH =PD9
-      end;
-      Values[i][0] := Meter.pdName(k);
-      Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(k)); // µ±Ç°Öµ
-      if iRow > iDTStart then
-      begin
-        iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
-          ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
-        d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(k));
-        d2 := Values[i][3] - d;
-        d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
-        Values[i][2] := iDays;
-        Values[i][4] := d2;
-        Values[i][5] := d30;
-      end
-      else
-      begin
-        Values[i][2] := 0;
-        Values[i][4] := Null;
-        Values[i][5] := Null;
-      end;
+    Values[i] := VarArrayCreate([0, 5], varVariant);
+    // Values[i][0] := Meter.pdName(i);
+    Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1);
+    { todo:æ­¤å¤„åŠä»¥ä¸‹åº”å½“åˆ¤æ–­æ•°æ®åˆæ³•æ€§ }
+    case i of
+    0: k := 11; // SdX'=PD12, k=12-1=11
+    1: k := 12; // SdY'=PD13
+    2: k := 8;  // SdH =PD9
     end;
-  end;
-*)
-  { ÏÂÃæ¸ù¾İÒÇÆ÷Êı¾İ½á¹¹ÖĞ¶¨ÒåµÄÌØÕ÷ÖµÁ¿²éÑ¯¹Û²âÊı¾İ±ä»¯Öµ£¬¼´·²ÓĞÌØÕ÷Öµ¶¨ÒåµÄÎïÀíÁ¿¾ù½øĞĞ²éÑ¯£¬
-    ¶àÊıÒÇÆ÷½öÓĞÒ»¸öÌØÕ÷Öµ£¬µ«ÊÇ¶àµã¡¢Ë®Æ½Î»ÒÆµÈÔòÓĞ¶à¸öÌØÕ÷Öµ¡£ }
+    Values[i][0] := Meter.pdName(k);
+    Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(k)); // å½“å‰å€¼
+    if iRow > iDTStart then
+    begin
+    iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
+    ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
+    d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(k));
+    d2 := Values[i][3] - d;
+    d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
+    Values[i][2] := iDays;
+    Values[i][4] := d2;
+    Values[i][5] := d30;
+    end
+    else
+    begin
+    Values[i][2] := 0;
+    Values[i][4] := Null;
+    Values[i][5] := Null;
+    end;
+    end;
+    end;
+  *)
+  { ä¸‹é¢æ ¹æ®ä»ªå™¨æ•°æ®ç»“æ„ä¸­å®šä¹‰çš„ç‰¹å¾å€¼é‡æŸ¥è¯¢è§‚æµ‹æ•°æ®å˜åŒ–å€¼ï¼Œå³å‡¡æœ‰ç‰¹å¾å€¼å®šä¹‰çš„ç‰©ç†é‡å‡è¿›è¡ŒæŸ¥è¯¢ï¼Œ
+    å¤šæ•°ä»ªå™¨ä»…æœ‰ä¸€ä¸ªç‰¹å¾å€¼ï¼Œä½†æ˜¯å¤šç‚¹ã€æ°´å¹³ä½ç§»ç­‰åˆ™æœ‰å¤šä¸ªç‰¹å¾å€¼ã€‚ }
   kIdx := [];
   k := 0;
-  { Í³¼ÆÓĞ¶àÉÙÌØÕ÷ÖµÏî }
+  { ç»Ÿè®¡æœ‰å¤šå°‘ç‰¹å¾å€¼é¡¹ }
   for i := 0 to Meter.PDDefines.Count - 1 do
     if Meter.PDDefine[i].HasEV then
     begin
@@ -1978,20 +2341,20 @@ begin
   begin
     SetLength(Values, k);
     i := 0;
-    { ÏÂÃæ¶ÔÃ¿Ò»¸öÌØÕ÷Öµ½øĞĞ´¦Àí£¬Ã¿¸öÌØÕ÷ÖµÕ¼Ò»ĞĞ }
+    { ä¸‹é¢å¯¹æ¯ä¸€ä¸ªç‰¹å¾å€¼è¿›è¡Œå¤„ç†ï¼Œæ¯ä¸ªç‰¹å¾å€¼å ä¸€è¡Œ }
     for k in kIdx do
     begin
       Values[i] := VarArrayCreate([0, 5], varVariant);
       Values[i][0] := Meter.pdName(k);
-      Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // ¹Û²âÈÕÆÚ
-      Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(k));
+      Values[i][1] := ExcelIO.GetDateTimeValue(Sht, iRow, 1); // è§‚æµ‹æ—¥æœŸ
+      Values[i][3] := ExcelIO.GetFloatValue(Sht, iRow, Meter.PDColumn(k));
       if iRow > iDTStart then
       begin
-        iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
-          ExcelIO.GetDateTimeValue(sht, iRow - 1, 1));
-        d := ExcelIO.GetFloatValue(sht, iRow - 1, Meter.PDColumn(k));
+        iDays := DaysBetween(ExcelIO.GetDateTimeValue(Sht, iRow, 1),
+          ExcelIO.GetDateTimeValue(Sht, iRow - 1, 1));
+        d := ExcelIO.GetFloatValue(Sht, iRow - 1, Meter.PDColumn(k));
         d2 := Values[i][3] - d;
-        d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
+        d30 := Values[i][3] - ExcelIO.GetFloatValue(Sht, iMonRow, Meter.PDColumn(k));
         Values[i][2] := iDays;
         Values[i][4] := d2;
         Values[i][5] := d30;
@@ -2013,24 +2376,24 @@ end;
 function ThjxDataQuery.GetDataIncrement2(ADsnName: string; DT: TDateTime; InteralDays: Integer;
   var Values: TVariantDynArray): Boolean;
 var
-  wbk        : IXLSWorkBook;
-  sht        : IXLSWorkSheet;
-  Meter      : TMeterDefine;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  Meter: TMeterDefine;
   i, iDTStart: Integer;
-  iRow, iDays: Integer; // ĞĞºÅ£¬¼ä¸ôÈÕÆÚ
-  iEarlierRow: Integer; // ÉÏ¸öÔÂÊı¾İËùÔÚĞĞ
-  k          : Integer; // ÓÃÓÚÆ½Ãæ±äĞÎ²âµãÎïÀíÁ¿ĞòºÅ
-// S, pdName  : String;
-  sType     : string;      // ÒÇÆ÷ÀàĞÍ
-  d, d2, d30: double;      // µ±Ç°Öµ£¬ÔöÁ¿£¬ÔÂÔöÁ¿
-  kIdx      : set of byte; // ÌØÕ÷ÖµÁĞµÄĞòºÅ¼¯ºÏ£¬¼ÙÉè¼à²âÒÇÆ÷µÄÌØÕ÷ÖµÊıÁ¿²»»á¶àÓÚ127
-  procedure ClearValues;   // ÇåÀí²¢³õÊ¼»¯´«ÈëµÄValues²ÎÊı
+  iRow, iDays: Integer; // è¡Œå·ï¼Œé—´éš”æ—¥æœŸ
+  iEarlierRow: Integer; // ä¸Šä¸ªæœˆæ•°æ®æ‰€åœ¨è¡Œ
+  k: Integer; // ç”¨äºå¹³é¢å˜å½¢æµ‹ç‚¹ç‰©ç†é‡åºå·
+  // S, pdName  : String;
+  sType: string; // ä»ªå™¨ç±»å‹
+  d, d2, d30: double; // å½“å‰å€¼ï¼Œå¢é‡ï¼Œæœˆå¢é‡
+  kIdx: set of byte; // ç‰¹å¾å€¼åˆ—çš„åºå·é›†åˆï¼Œå‡è®¾ç›‘æµ‹ä»ªå™¨çš„ç‰¹å¾å€¼æ•°é‡ä¸ä¼šå¤šäº127
+  procedure ClearValues; // æ¸…ç†å¹¶åˆå§‹åŒ–ä¼ å…¥çš„Valueså‚æ•°
   var
     ii: Integer;
   begin
-    if Length(Values) > 0 then
+    if length(Values) > 0 then
       for ii := Low(Values) to High(Values) do
-          VarClear(Values[ii]);
+        VarClear(Values[ii]);
     SetLength(Values, 0);
   end;
 
@@ -2038,25 +2401,28 @@ begin
   Result := False;
   ClearValues;
 
-  sType := GetMeterTypeName(ADsnName); // »ñÈ¡ÒÇÆ÷ÀàĞÍ
+  sType := GetMeterTypeName(ADsnName); // è·å–ä»ªå™¨ç±»å‹
   Meter := ExcelMeters.Meter[ADsnName];
-  iDTStart := Meter.DataSheetStru.BaseLine{.DTStartRow};
+  iDTStart := Meter.DataSheetStru.BaseLine { .DTStartRow };
 
-  (* if _GetBookAndSheet(ADsnName, wbk, sht) = False then // ·µ»ØÒÇÆ÷µÄÊı¾İ±í
-      Exit;
- *)
-  if not _GetBookAndSheet(ADsnName, wbk, sht) then Exit;
+  (* if _GetBookAndSheet(ADsnName, wbk, sht) = False then // è¿”å›ä»ªå™¨çš„æ•°æ®è¡¨
+    Exit;
+  *)
+  if not _GetBookAndSheet(ADsnName, Wbk, Sht) then
+    Exit;
 
-  iRow := _LocateDTRow(sht, DT, iDTStart, dloClosest); // ÕÒµ½Ö¸¶¨ÈÕÆÚ£¬»ò×î½Ó½üµÄÈÕÆÚËùÔÚµÄĞĞ
-  if iRow = -1 then Exit;
+  iRow := _LocateDTRow(Sht, DT, iDTStart, dloClosest); // æ‰¾åˆ°æŒ‡å®šæ—¥æœŸï¼Œæˆ–æœ€æ¥è¿‘çš„æ—¥æœŸæ‰€åœ¨çš„è¡Œ
+  if iRow = -1 then
+    Exit;
 
-  iEarlierRow := _LocateDTRow(sht, IncDay(DT, -InteralDays), iDTStart, dloClosest); // Ò»¸öÔÂÇ°Êı¾İËùÔÚĞĞ
-  if iEarlierRow < iDTStart then iEarlierRow := iDTStart;
+  iEarlierRow := _LocateDTRow(Sht, IncDay(DT, -InteralDays), iDTStart, dloClosest); // ä¸€ä¸ªæœˆå‰æ•°æ®æ‰€åœ¨è¡Œ
+  if iEarlierRow < iDTStart then
+    iEarlierRow := iDTStart;
   { another case, iEarlierRow = iRow, then what? }
 
   kIdx := [];
   k := 0;
-  { Í³¼ÆÓĞ¶àÉÙÌØÕ÷ÖµÏî }
+  { ç»Ÿè®¡æœ‰å¤šå°‘ç‰¹å¾å€¼é¡¹ }
   for i := 0 to Meter.PDDefines.Count - 1 do
     if Meter.PDDefine[i].HasEV then
     begin
@@ -2068,18 +2434,18 @@ begin
   begin
     SetLength(Values, k);
     i := 0;
-  { ÏÂÃæ¶ÔÃ¿Ò»¸öÌØÕ÷Öµ½øĞĞ´¦Àí£¬Ã¿¸öÌØÕ÷ÖµÕ¼Ò»ĞĞ }
+    { ä¸‹é¢å¯¹æ¯ä¸€ä¸ªç‰¹å¾å€¼è¿›è¡Œå¤„ç†ï¼Œæ¯ä¸ªç‰¹å¾å€¼å ä¸€è¡Œ }
     for k in kIdx do
     begin
       Values[i] := VarArrayCreate([0, 4], varVariant);
       Values[i][0] := Meter.pdName(k);
-      Values[i][1] := ExcelIO.GetDateTimeValue(sht, iRow, 1); // ¹Û²âÈÕÆÚ
-      Values[i][3] := ExcelIO.GetFloatValue(sht, iRow, Meter.PDColumn(k));
+      Values[i][1] := ExcelIO.GetDateTimeValue(Sht, iRow, 1); // è§‚æµ‹æ—¥æœŸ
+      Values[i][3] := ExcelIO.GetFloatValue(Sht, iRow, Meter.PDColumn(k));
       if iRow > iDTStart then
       begin
-        iDays := DaysBetween(ExcelIO.GetDateTimeValue(sht, iRow, 1),
-          ExcelIO.GetDateTimeValue(sht, iEarlierRow, 1));
-        d := ExcelIO.GetFloatValue(sht, iEarlierRow, Meter.PDColumn(k));
+        iDays := DaysBetween(ExcelIO.GetDateTimeValue(Sht, iRow, 1),
+          ExcelIO.GetDateTimeValue(Sht, iEarlierRow, 1));
+        d := ExcelIO.GetFloatValue(Sht, iEarlierRow, Meter.PDColumn(k));
         d2 := Values[i][3] - d;
         // d30 := Values[i][3] - ExcelIO.GetFloatValue(sht, iMonRow, Meter.PDColumn(k));
         Values[i][2] := iDays;
@@ -2102,11 +2468,11 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : _GetPeriodDay
-  Description: ¼ÆËã²éÑ¯ÖÜÆÚµÄ½ØÖ¹ÈÕÆÚ»òÆğÊ¼ÈÕÆÚ¡£±¾·½·¨¹©GetPeriodIncrement·½·¨
-  µ÷ÓÃ¡£
-  ÈôNextPeriodÎªTrue£¬¼´ÇóÏÂÒ»¸öÖÜÆÚµÄÆğÊ¼ÈÕÆÚ£¬Ò²ÊÇ±¾ÖÜÆÚµÄ½ØÖ¹ÈÕÆÚ£¬ÈôÎª
-  False£¬ÔòÇó±¾ÖÜÆÚµÄÆğÊ¼ÈÕÆÚ¡£
------------------------------------------------------------------------------ }
+  Description: è®¡ç®—æŸ¥è¯¢å‘¨æœŸçš„æˆªæ­¢æ—¥æœŸæˆ–èµ·å§‹æ—¥æœŸã€‚æœ¬æ–¹æ³•ä¾›GetPeriodIncrementæ–¹æ³•
+  è°ƒç”¨ã€‚
+  è‹¥NextPeriodä¸ºTrueï¼Œå³æ±‚ä¸‹ä¸€ä¸ªå‘¨æœŸçš„èµ·å§‹æ—¥æœŸï¼Œä¹Ÿæ˜¯æœ¬å‘¨æœŸçš„æˆªæ­¢æ—¥æœŸï¼Œè‹¥ä¸º
+  Falseï¼Œåˆ™æ±‚æœ¬å‘¨æœŸçš„èµ·å§‹æ—¥æœŸã€‚
+  ----------------------------------------------------------------------------- }
 function _GetPeriodDay(ADate: TDateTime; Period, StartDay: Integer; NextPeriod: Boolean = True)
   : TDateTime;
 var
@@ -2119,7 +2485,7 @@ begin
   case Period of
     0:
       begin
-          // ÔÂÖÜÆÚ£¬Èç¹ûStartDay=1£¬Ôò±¾ÔÂÖÜÆÚÎª1ÈÕ~ÏÂÔÂ1ÈÕ£¬·ñÔò´ÓÉÏÔÂStartDayµ½±¾ÔÂStartDay
+        // æœˆå‘¨æœŸï¼Œå¦‚æœStartDay=1ï¼Œåˆ™æœ¬æœˆå‘¨æœŸä¸º1æ—¥~ä¸‹æœˆ1æ—¥ï¼Œå¦åˆ™ä»ä¸ŠæœˆStartDayåˆ°æœ¬æœˆStartDay
         if StartDay = 1 then
         begin
           Result := IncMonth(EncodeDate(iiYear, iiMonth, 1));
@@ -2127,16 +2493,16 @@ begin
         else
         begin
           if NextPeriod then
-              Result := IncMonth(EncodeDate(iiYear, iiMonth, StartDay))
+            Result := IncMonth(EncodeDate(iiYear, iiMonth, StartDay))
           else
-              Result := EncodeDate(iiYear, iiMonth, StartDay)
+            Result := EncodeDate(iiYear, iiMonth, StartDay)
         end;
       end;
     1:
       begin
-          /// ¶ÔÄêµÄÖÜÆÚ£¬Èç¹ûStartDay=1£¬Ôò´Ó±¾Äê¶È1ÔÂ1ÈÕ~À´Äê1ÔÂ1ÈÕ£¬·ñÔò
-          /// Ôİ¶¨Îª´ÓÇ°Ò»Äê12ÔÂÄ³ÈÕµ½±¾Äê¶È12ÔÂÄ³ÈÕ¡£Èç2018ÄêµÄÄê¶È²âÖµÈ¡Ê±·¶Î§Îª2017Äê
-          /// 12ÔÂ20ÈÕ~2018Äê12ÔÂ20ÈÕ¡£
+        /// å¯¹å¹´çš„å‘¨æœŸï¼Œå¦‚æœStartDay=1ï¼Œåˆ™ä»æœ¬å¹´åº¦1æœˆ1æ—¥~æ¥å¹´1æœˆ1æ—¥ï¼Œå¦åˆ™
+        /// æš‚å®šä¸ºä»å‰ä¸€å¹´12æœˆæŸæ—¥åˆ°æœ¬å¹´åº¦12æœˆæŸæ—¥ã€‚å¦‚2018å¹´çš„å¹´åº¦æµ‹å€¼å–æ—¶èŒƒå›´ä¸º2017å¹´
+        /// 12æœˆ20æ—¥~2018å¹´12æœˆ20æ—¥ã€‚
         if StartDay = 1 then
         begin
           Result := EncodeDate(iiYear + 1, 1, 1);
@@ -2144,64 +2510,63 @@ begin
         else
         begin
           if NextPeriod then
-              Result := EncodeDate(iiYear + 1, 12, StartDay)
+            Result := EncodeDate(iiYear + 1, 12, StartDay)
           else
-              Result := EncodeDate(iiYear, 12, StartDay);
+            Result := EncodeDate(iiYear, 12, StartDay);
         end;
       end;
     2:
-      // ¼¾¶ÈÖÜÆÚÔİÊ±²»¿¼ÂÇ
+      // å­£åº¦å‘¨æœŸæš‚æ—¶ä¸è€ƒè™‘
       begin
       end;
     3:
-      // ÖÜÖÜÆÚÔİ²»¿¼ÂÇ£¬¹Û²âÆµ´ÎÍùÍù¼ä¸ô¶¼³¬¹ıÒ»ÖÜÁË¡­¡­
+      // å‘¨å‘¨æœŸæš‚ä¸è€ƒè™‘ï¼Œè§‚æµ‹é¢‘æ¬¡å¾€å¾€é—´éš”éƒ½è¶…è¿‡ä¸€å‘¨äº†â€¦â€¦
       begin
         iPeriod := WeeksInYear(ADate);
-        Result := IncDay(ADate, 7); // ¼òµ¥´Ö±©µÄÔö¼Ó7ÌìºÃÁË
+        Result := IncDay(ADate, 7); // ç®€å•ç²—æš´çš„å¢åŠ 7å¤©å¥½äº†
       end;
   end;
 end;
 
 { -----------------------------------------------------------------------------
   Procedure  : GetPeriodIncrement
-  Description: ²éÑ¯Ö¸¶¨ÒÇÆ÷µÄÖ¸¶¨ÎïÀíÁ¿ÔÚÖ¸¶¨Ê±¼ä·¶Î§ÄÚÖ¸¶¨ÖÜÆÚÀàĞÍµÄÔöÁ¿
-  ±¾·½·¨¿ÉÓÃÓÚÏÔÊ¾ÒÇÆ÷µÄ¹Û²âÊı¾İÍ³¼Æ½á¹û¡¢»æÖÆÔöÁ¿Ö±·½Í¼¡¢Öò¹âÍ¼µÈ¸ß¼¶Í¼ĞÎ
------------------------------------------------------------------------------ }
+  Description: æŸ¥è¯¢æŒ‡å®šä»ªå™¨çš„æŒ‡å®šç‰©ç†é‡åœ¨æŒ‡å®šæ—¶é—´èŒƒå›´å†…æŒ‡å®šå‘¨æœŸç±»å‹çš„å¢é‡
+  æœ¬æ–¹æ³•å¯ç”¨äºæ˜¾ç¤ºä»ªå™¨çš„è§‚æµ‹æ•°æ®ç»Ÿè®¡ç»“æœã€ç»˜åˆ¶å¢é‡ç›´æ–¹å›¾ã€çƒ›å…‰å›¾ç­‰é«˜çº§å›¾å½¢
+  ----------------------------------------------------------------------------- }
 function ThjxDataQuery.GetPeriodIncrement(ADsnName: String; APDIndex: Integer;
   StartDate, EndDate: TDateTime; var Values: TVariantDynArray; StartDay: Integer = 20;
   Period: Integer = 0): Boolean;
 var
-  wbk  : IXLSWorkBook;
-  sht  : IXLSWorkSheet;
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
   Meter: TMeterDefine;
   sType: String;
 
-  iStartRow, iEndRow { ¸ø¶¨ÆğÖ¹ÈÕÆÚ¶ÔÓ¦µÄĞĞºÅ } ,
-    iFirstRow, iLastRow { ÖÜÆÚÆğÖ¹Ê±¼ä¶ÔÓ¦µÄĞĞºÅ } ,
-    iDay, n, i,
-    iDataCol, iRow: Integer;
-  sPeriodName     : string;    // Ã¿Ìõ¼ÇÂ¼µÄ¼ä¸ôÊ±¶ÎÃû³Æ£¬Èç¡°2018Äê9ÔÂ¡±
-  dtStart, dtEnd  : TDateTime; // ¼ä¸ôÊ±¶ÎµÄÆğÖ¹Ê±¼ä
-  dtPeriodDate    : TDateTime; // µ±Ç°ÖÜÆÚµÄÀíÂÛ½ØÖ¹Ê±¼ä£¬Ö÷ÒªÓ¦¶ÔÆğÊ¼ÈÕÔÚÖÜÆÚÖĞ¼äµÄÇé¿ö£¬¾ßÌåÀ´Ëµ
-                                 // ÓÃÓÚÔÂÖÜÆÚµÄÇé¿ö£¬Ò»°ãÖ»ÓĞÔÂÖÜÆÚµÄÆğÊ¼ÈÕ²»ÊÇÃ¿ÔÂ1ÈÕ£¬»ù±¾¶¼ÔÚÖĞ¼ä¡£
-  dStart, dEnd, dInc: double; // ¼ä¸ôÊ±¶ÎµÄÆğÖ¹²âÖµºÍÔöÁ¿Öµ
-  // dMax, dMin, dA :double; //¼ä¸ôÊ±¶ÎµÄ×î´ó×îĞ¡Öµ¼°²âÖµÔÚÆÚ¼äÄÚµÄ±ä·ù
-  // ----ÇåÀí´ıÊä³öµÄ½á¹ûValues--------------------
+  iStartRow, iEndRow { ç»™å®šèµ·æ­¢æ—¥æœŸå¯¹åº”çš„è¡Œå· } , iFirstRow, iLastRow { å‘¨æœŸèµ·æ­¢æ—¶é—´å¯¹åº”çš„è¡Œå· } , iDay, n, i, iDataCol,
+    iRow: Integer;
+  sPeriodName: string; // æ¯æ¡è®°å½•çš„é—´éš”æ—¶æ®µåç§°ï¼Œå¦‚â€œ2018å¹´9æœˆâ€
+  dtStart, dtEnd: TDateTime; // é—´éš”æ—¶æ®µçš„èµ·æ­¢æ—¶é—´
+  dtPeriodDate: TDateTime; // å½“å‰å‘¨æœŸçš„ç†è®ºæˆªæ­¢æ—¶é—´ï¼Œä¸»è¦åº”å¯¹èµ·å§‹æ—¥åœ¨å‘¨æœŸä¸­é—´çš„æƒ…å†µï¼Œå…·ä½“æ¥è¯´
+  // ç”¨äºæœˆå‘¨æœŸçš„æƒ…å†µï¼Œä¸€èˆ¬åªæœ‰æœˆå‘¨æœŸçš„èµ·å§‹æ—¥ä¸æ˜¯æ¯æœˆ1æ—¥ï¼ŒåŸºæœ¬éƒ½åœ¨ä¸­é—´ã€‚
+  dStart, dEnd, dInc: double; // é—´éš”æ—¶æ®µçš„èµ·æ­¢æµ‹å€¼å’Œå¢é‡å€¼
+  // dMax, dMin, dA :double; //é—´éš”æ—¶æ®µçš„æœ€å¤§æœ€å°å€¼åŠæµ‹å€¼åœ¨æœŸé—´å†…çš„å˜å¹…
+  // ----æ¸…ç†å¾…è¾“å‡ºçš„ç»“æœValues--------------------
   procedure __ClearValues;
   var
     ii: Integer;
   begin
-    if Length(Values) > 0 then
+    if length(Values) > 0 then
       for ii := Low(Values) to High(Values) do
-          VarClear(Values[ii]);
+        VarClear(Values[ii]);
     SetLength(Values, 0);
   end;
 
-  // ----¼ÆËãÔöÁ¿-------
+// ----è®¡ç®—å¢é‡-------
   function __GetInc(V1, V2: Variant): Variant;
   begin
     Result := Null;
-    if VarIsNumeric(V1) and VarIsNumeric(V2) then Result := V2 - V1;
+    if VarIsNumeric(V1) and VarIsNumeric(V2) then
+      Result := V2 - V1;
   end;
 
 begin
@@ -2209,110 +2574,360 @@ begin
   __ClearValues;
   sType := GetMeterTypeName(ADsnName);
   Meter := ExcelMeters.Meter[ADsnName];
-  iStartRow := Meter.DataSheetStru.BaseLine{.DTStartRow}; // Êı¾İ±íÖĞµÄµÚÒ»ĞĞ£¬¼´Êı¾İÆğÊ¼ĞĞ
-  if iStartRow = -1 then Exit;
+  iStartRow := Meter.DataSheetStru.BaseLine { .DTStartRow }; // æ•°æ®è¡¨ä¸­çš„ç¬¬ä¸€è¡Œï¼Œå³æ•°æ®èµ·å§‹è¡Œ
+  if iStartRow = -1 then
+    Exit;
 
   iDataCol := Meter.PDColumn(APDIndex);
-  if _GetBookAndSheet(ADsnName, wbk, sht) = False then Exit;
+  if _GetBookAndSheet(ADsnName, Wbk, Sht) = False then
+    Exit;
 
-  { Îª½µµÍ´úÂë¸´ÔÓ¶È£¬Ä¿Ç°Ö»¿¼ÂÇÈ¡»ØÔÂÔöÁ¿£¬ÆäËû¼ä¸ôÒÔºóÔÙËµ¡£ºÜ¾Ã²»Ğ´´úÂëÁË£¬¶¼¿ìÍü¼Ç±à³ÌÁË }
-  n := 0; // Êı×é³¤¶È
-  iStartRow := _LocateDTRow(sht, StartDate, iStartRow, dloClosest); // È¡»ØÖ¸¶¨Ê±¶ÎµÄÊ×ĞĞ
+  { ä¸ºé™ä½ä»£ç å¤æ‚åº¦ï¼Œç›®å‰åªè€ƒè™‘å–å›æœˆå¢é‡ï¼Œå…¶ä»–é—´éš”ä»¥åå†è¯´ã€‚å¾ˆä¹…ä¸å†™ä»£ç äº†ï¼Œéƒ½å¿«å¿˜è®°ç¼–ç¨‹äº† }
+  n := 0; // æ•°ç»„é•¿åº¦
+  iStartRow := _LocateDTRow(Sht, StartDate, iStartRow, dloClosest); // å–å›æŒ‡å®šæ—¶æ®µçš„é¦–è¡Œ
   iFirstRow := iStartRow;
-  iEndRow := _LocateDTRow(sht, EndDate, iStartRow, dloClosest); // ½ØÖ¹ÈÕÆÚ¶ÔÓ¦µÄĞĞ
-  dtStart := ExcelIO.GetDateTimeValue(sht, iStartRow, 1); // Ê×ĞĞÈÕÆÚ
-  dStart := ExcelIO.GetFloatValue(sht, iStartRow, iDataCol); // µÚÒ»¸öÖÜÆÚµÄÆğÊ¼Êı¾İ
+  iEndRow := _LocateDTRow(Sht, EndDate, iStartRow, dloClosest); // æˆªæ­¢æ—¥æœŸå¯¹åº”çš„è¡Œ
+  dtStart := ExcelIO.GetDateTimeValue(Sht, iStartRow, 1); // é¦–è¡Œæ—¥æœŸ
+  dStart := ExcelIO.GetFloatValue(Sht, iStartRow, iDataCol); // ç¬¬ä¸€ä¸ªå‘¨æœŸçš„èµ·å§‹æ•°æ®
   dtPeriodDate := dtStart;
-  /// ¶ÔÓÚÆğÊ¼ÈÕÆÚËùÔÚµÄµÚÒ»¸öÖÜÆÚµÄÅĞ¶Ï£¬×ñÑ­ÈçÏÂÂß¼­£º
-  /// 1¡¢ÈôDayOf(dtStart)<StartDay£¬Ôò±¾ÖÜÆÚÆğÊ¼ÈÕÆÚ=dtStart£¬½ØÖ¹ÈÕÆÚ=ÖÜÆÚµÄStartDay£¬ÈçÖÜÆÚÎªÔÂ£¬
-  /// StartDay=20£¬dtStart=2018-7-12£¬Ôò±¾ÖÜÎª2018-7-12 ~ 2018-7-20¡£
-  /// 2¡¢ÈôDayOf(dtStart)>=StartDay£¬Ôò±¾ÖÜÆÚÆğÊ¼ÈÕÆÚ=dtStart£¬½ØÖ¹ÈÕÆÚ=ÏÂÒ»ÖÜÆÚµÄStartDay¡£ÈçÖÜÆÚ
-  /// ÎªÔÂ£¬StartDay=20£¬dtStart=2018-7-25£¬Ôò±¾ÖÜÆÚÎª2018-7-25 ~ 2018-8-20¡£
-  /// Ê×¸öÖÜÆÚÖ®ºóµÄ¸÷¸öÖÜÆÚÅĞ¶Ï¾Í¼òµ¥ÁË¡£
+  /// å¯¹äºèµ·å§‹æ—¥æœŸæ‰€åœ¨çš„ç¬¬ä¸€ä¸ªå‘¨æœŸçš„åˆ¤æ–­ï¼Œéµå¾ªå¦‚ä¸‹é€»è¾‘ï¼š
+  /// 1ã€è‹¥DayOf(dtStart)<StartDayï¼Œåˆ™æœ¬å‘¨æœŸèµ·å§‹æ—¥æœŸ=dtStartï¼Œæˆªæ­¢æ—¥æœŸ=å‘¨æœŸçš„StartDayï¼Œå¦‚å‘¨æœŸä¸ºæœˆï¼Œ
+  /// StartDay=20ï¼ŒdtStart=2018-7-12ï¼Œåˆ™æœ¬å‘¨ä¸º2018-7-12 ~ 2018-7-20ã€‚
+  /// 2ã€è‹¥DayOf(dtStart)>=StartDayï¼Œåˆ™æœ¬å‘¨æœŸèµ·å§‹æ—¥æœŸ=dtStartï¼Œæˆªæ­¢æ—¥æœŸ=ä¸‹ä¸€å‘¨æœŸçš„StartDayã€‚å¦‚å‘¨æœŸ
+  /// ä¸ºæœˆï¼ŒStartDay=20ï¼ŒdtStart=2018-7-25ï¼Œåˆ™æœ¬å‘¨æœŸä¸º2018-7-25 ~ 2018-8-20ã€‚
+  /// é¦–ä¸ªå‘¨æœŸä¹‹åçš„å„ä¸ªå‘¨æœŸåˆ¤æ–­å°±ç®€å•äº†ã€‚
   iDay := DayOf(dtStart);
   if iDay < StartDay then
   begin
-    // µ±iDay<StartDayÊ±£¬ĞèÒªÅĞ¶Ï±¾ÖÜÆÚµÄ½áÊøÈÕÆÚÊÇ·ñµÈÓÚiDay¡£Èç¸ø¶¨StartDateÎª8ÔÂ17ÈÕ£¬Ã¿ÔÂ´ÓÉÏ¸ö
-    // ÔÂµÄ20ÈÕ¿ªÊ¼¼Æ£¬Ôò8ÔÂ17ÈÕÓ¦ÊôÓÚ8ÔÂµÄ²âÖµ¡£´ËÊ±ĞèÒª²éÑ¯×î½Ó½ü8ÔÂ20ÈÕµÄ¹Û²âÈÕÆÚ£¬Èô×î½Ó½ü8ÔÂ20ÈÕ
-    // µÄ¹Û²âÈÕÆÚÊÇ8ÔÂ17ÈÕ£¬ÉõÖÁÊÇ8ÔÂ16ÈÕ£¬Ó¦²éÑ¯8ÔÂ17ÈÕ~9ÔÂ20ÈÕµÄÆÚ¼ä²âÖµ¡£
-    iLastRow := _LocateDTRow(sht, _GetPeriodDay(dtStart, Period, StartDay, False), iStartRow,
+    // å½“iDay<StartDayæ—¶ï¼Œéœ€è¦åˆ¤æ–­æœ¬å‘¨æœŸçš„ç»“æŸæ—¥æœŸæ˜¯å¦ç­‰äºiDayã€‚å¦‚ç»™å®šStartDateä¸º8æœˆ17æ—¥ï¼Œæ¯æœˆä»ä¸Šä¸ª
+    // æœˆçš„20æ—¥å¼€å§‹è®¡ï¼Œåˆ™8æœˆ17æ—¥åº”å±äº8æœˆçš„æµ‹å€¼ã€‚æ­¤æ—¶éœ€è¦æŸ¥è¯¢æœ€æ¥è¿‘8æœˆ20æ—¥çš„è§‚æµ‹æ—¥æœŸï¼Œè‹¥æœ€æ¥è¿‘8æœˆ20æ—¥
+    // çš„è§‚æµ‹æ—¥æœŸæ˜¯8æœˆ17æ—¥ï¼Œç”šè‡³æ˜¯8æœˆ16æ—¥ï¼Œåº”æŸ¥è¯¢8æœˆ17æ—¥~9æœˆ20æ—¥çš„æœŸé—´æµ‹å€¼ã€‚
+    iLastRow := _LocateDTRow(Sht, _GetPeriodDay(dtStart, Period, StartDay, False), iStartRow,
       dloClosest);
-    // ÈôiLastRow <= iStartRow£¬±íÃ÷±¾ÖÜÆÚÃ»ÓĞÊı¾İ£¬Ó¦²éÑ¯ÏÂÒ»ÖÜÆÚ£¬·ñÔòÈ¡±¾ÖÜÆÚÖµ¡£Òò´Ë£¬Ö»ÓĞµ±
-    // iLastRow > iStartRowÊ±£¬±¾ÖÜÆÚ²ÅÓĞÊı¾İ£¬²ÅĞèÒªÔÚÕâÀï½øĞĞ²éÑ¯£¬·ñÔò¾Í½øÈëÕı³£µÄ²éÑ¯Ñ­»·¡£
-    // Í¬Ê±£¬ÕâÀïÒ²Ã»ÓĞ¿¼ÂÇµ½ÖĞ¼äÈ±Ê§¼¸¸öÖÜÆÚÊı¾İµÄÇé¿öÏÂ£¬Ó¦¸ÃÔõÑù±íÊ¾¡£
+    // è‹¥iLastRow <= iStartRowï¼Œè¡¨æ˜æœ¬å‘¨æœŸæ²¡æœ‰æ•°æ®ï¼Œåº”æŸ¥è¯¢ä¸‹ä¸€å‘¨æœŸï¼Œå¦åˆ™å–æœ¬å‘¨æœŸå€¼ã€‚å› æ­¤ï¼Œåªæœ‰å½“
+    // iLastRow > iStartRowæ—¶ï¼Œæœ¬å‘¨æœŸæ‰æœ‰æ•°æ®ï¼Œæ‰éœ€è¦åœ¨è¿™é‡Œè¿›è¡ŒæŸ¥è¯¢ï¼Œå¦åˆ™å°±è¿›å…¥æ­£å¸¸çš„æŸ¥è¯¢å¾ªç¯ã€‚
+    // åŒæ—¶ï¼Œè¿™é‡Œä¹Ÿæ²¡æœ‰è€ƒè™‘åˆ°ä¸­é—´ç¼ºå¤±å‡ ä¸ªå‘¨æœŸæ•°æ®çš„æƒ…å†µä¸‹ï¼Œåº”è¯¥æ€æ ·è¡¨ç¤ºã€‚
     if iLastRow > iStartRow then
     begin
       inc(n);
       iFirstRow := iStartRow;
       SetLength(Values, n);
       Values[n - 1] := VarArrayCreate([0, 9], varVariant);
-      Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart); // ÔİÊ±Ö»´¦ÀíÔÂÔöÁ¿ÎÊÌâ
+      Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart); // æš‚æ—¶åªå¤„ç†æœˆå¢é‡é—®é¢˜
       Values[n - 1][1] := dtStart;
-      Values[n - 1][2] := ExcelIO.GetDateTimeValue(sht, iLastRow, 1);
-      Values[n - 1][3] := ExcelIO.GetValue(sht, iFirstRow, iDataCol);
-      Values[n - 1][4] := ExcelIO.GetValue(sht, iLastRow, iDataCol);
-      // ÇóÔöÁ¿£º
+      Values[n - 1][2] := ExcelIO.GetDateTimeValue(Sht, iLastRow, 1);
+      Values[n - 1][3] := ExcelIO.GetValue(Sht, iFirstRow, iDataCol);
+      Values[n - 1][4] := ExcelIO.GetValue(Sht, iLastRow, iDataCol);
+      // æ±‚å¢é‡ï¼š
       Values[n - 1][5] := __GetInc(Values[n - 1][3], Values[n - 1][4]);
-      // ÔİÊ±²»²éÑ¯ÖÜÆÚÌØÕ÷ÖµºÍ±¸×¢
+      // æš‚æ—¶ä¸æŸ¥è¯¢å‘¨æœŸç‰¹å¾å€¼å’Œå¤‡æ³¨
       for i := 6 to 9 do
-          Values[n - 1][i] := Null;
+        Values[n - 1][i] := Null;
       iFirstRow := iLastRow;
       dtStart := Values[n - 1][2];
     end;
   end;
 
-  // ÖØ¸´²éÑ¯£¬Ö±µ½iEndRowµÄÈÕÆÚ³¬³öEndDate
+  // é‡å¤æŸ¥è¯¢ï¼Œç›´åˆ°iEndRowçš„æ—¥æœŸè¶…å‡ºEndDate
   repeat
     // dtPeriodDate := _GetPeriodDay(dtStart, Period, StartDay);
     dtPeriodDate := _GetPeriodDay(dtPeriodDate, Period, StartDay);
-    /// È¡ÖÜÆÚ½ØÖ¹ÈÕÆÚËùÔÚµÄĞĞºÅ
-    iLastRow := _LocateDTRow(sht, dtPeriodDate, iStartRow, dloClosest);
-    if iLastRow = -1 then Break;
-    if iLastRow > iEndRow then iLastRow := iEndRow;
-    dtEnd := ExcelIO.GetDateTimeValue(sht, iLastRow, 1);
+    /// å–å‘¨æœŸæˆªæ­¢æ—¥æœŸæ‰€åœ¨çš„è¡Œå·
+    iLastRow := _LocateDTRow(Sht, dtPeriodDate, iStartRow, dloClosest);
+    if iLastRow = -1 then
+      Break;
+    if iLastRow > iEndRow then
+      iLastRow := iEndRow;
+    dtEnd := ExcelIO.GetDateTimeValue(Sht, iLastRow, 1);
     /// get datas
     inc(n);
     SetLength(Values, n);
     Values[n - 1] := VarArrayCreate([0, 9], varVariant);
-    // Èç¹ûStartDay=1£¬ÔòÖÜÆÚÒÔStartDayÎª×¼£¬·ñÔòÒÔdtPeriodDateÎª×¼
+    // å¦‚æœStartDay=1ï¼Œåˆ™å‘¨æœŸä»¥StartDayä¸ºå‡†ï¼Œå¦åˆ™ä»¥dtPeriodDateä¸ºå‡†
     case Period of
-      0: // ÔÂÔöÁ¿
+      0: // æœˆå¢é‡
         if StartDay = 1 then
-            // Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart)
-            Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate - 1)
+          // Values[n - 1][0] := FormatDateTime('yyyy-mm', dtStart)
+          Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate - 1)
         else
-            Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate); // ÒÔ½áÊøÈÕÆÚµÄÔÂ·İ×÷Îª±¾ÖÜÆÚÔöÁ¿µÄÊ±¶ÎÃû
-      1: // ÄêÔöÁ¿
+          Values[n - 1][0] := FormatDateTime('yyyy-mm', dtPeriodDate); // ä»¥ç»“æŸæ—¥æœŸçš„æœˆä»½ä½œä¸ºæœ¬å‘¨æœŸå¢é‡çš„æ—¶æ®µå
+      1: // å¹´å¢é‡
         if StartDay = 1 then
-            Values[n - 1][0] := FormatDateTime('yyyy', dtPeriodDate - 1) + 'Äê'
+          Values[n - 1][0] := FormatDateTime('yyyy', dtPeriodDate - 1) + 'å¹´'
         else
-            Values[n - 1][0] := FormatDateTime('yyyy', dtPeriodDate) + 'Äê'; // ÒÔ½áÊøÈÕÆÚµÄÔÂ·İ×÷Îª±¾ÖÜÆÚÔöÁ¿µÄÊ±¶ÎÃû
-      2: // ¼¾¶ÈÔöÁ¿£¬Õâ¸öÂé·³Ò»µã£¬¸É´àÏÔÊ¾ÈÕÆÚµÄÁË£¬»ØÍ·ÓĞÊ±¼äÔÙ´¦Àí
-        { doto: ÖÜÆÚÔöÁ¿´¦ÀíÈçºÎÏÔÊ¾¼¾¶È }
+          Values[n - 1][0] := FormatDateTime('yyyy', dtPeriodDate) + 'å¹´'; // ä»¥ç»“æŸæ—¥æœŸçš„æœˆä»½ä½œä¸ºæœ¬å‘¨æœŸå¢é‡çš„æ—¶æ®µå
+      2: // å­£åº¦å¢é‡ï¼Œè¿™ä¸ªéº»çƒ¦ä¸€ç‚¹ï¼Œå¹²è„†æ˜¾ç¤ºæ—¥æœŸçš„äº†ï¼Œå›å¤´æœ‰æ—¶é—´å†å¤„ç†
+        { doto: å‘¨æœŸå¢é‡å¤„ç†å¦‚ä½•æ˜¾ç¤ºå­£åº¦ }
         Values[n - 1][0] := FormatDateTime('yyyy-mm-dd', dtPeriodDate);
-      3: // ÖÜÔöÁ¿
+      3: // å‘¨å¢é‡
         Values[n - 1][0] := FormatDateTime('yyyy-mm-dd', dtPeriodDate);
     end;
 
     Values[n - 1][1] := dtStart;
     Values[n - 1][2] := dtEnd;
-    Values[n - 1][3] := ExcelIO.GetValue(sht, iFirstRow, iDataCol);
-    Values[n - 1][4] := ExcelIO.GetValue(sht, iLastRow, iDataCol);
+    Values[n - 1][3] := ExcelIO.GetValue(Sht, iFirstRow, iDataCol);
+    Values[n - 1][4] := ExcelIO.GetValue(Sht, iLastRow, iDataCol);
     Values[n - 1][5] := __GetInc(Values[n - 1][3], Values[n - 1][4]);
 
-    /// ×¼±¸²éÑ¯ÏÂÒ»¸öÖÜÆÚ
-    /// 2022-02-14 ÕâÀïÓĞÎÊÌâÁË£º¼ÙÉè²éÑ¯ÔÂÔöÁ¿£¬Èç¹ûStartDay=1£¬¼ÙÉè8ÔÂ1ÈÕ×î½üµÄÊı¾İ
-    /// ÊÇ7ÔÂ29ÈÕ£¬Ôò³ÌĞò»áÓÃ7ÔÂ29ÈÕ×÷Îª8ÔÂ1ÈÕµÄÊı¾İ£¬µ«ÊÇÔÚ²éÕÒÏÂÒ»¸öÊı¾İµÄÊ±ºò£¬
-    /// _GetPeriodDayÔÚÔö¼Ó1¸öÔÂ£¬ÏÂÒ»¸öÊı¾İÈÕÆÚ»¹ÊÇ8ÔÂ1ÈÕ£¬²éÕÒ¶ÔÓ¦8ÔÂ1ÈÕµÄÊı¾İµÄÊ±ºò
-    /// ÓÖ²éµ½ÁË7ÔÂ29ÈÕ¡­¡­¾Í±ä³ÉÁË²»Í£µÄÑ­»·¡£ËùÒÔ£¬ÎÊÌâÔÚÓÚ×î½Ó½üµÄÊı¾İÈÕÆÚÔÂ·İºÍ²éÑ¯
-    /// ÈÕÆÚµÄÔÂ·İ²»Ò»ÖÂÔì³ÉµÄ¡£
+    /// å‡†å¤‡æŸ¥è¯¢ä¸‹ä¸€ä¸ªå‘¨æœŸ
+    /// 2022-02-14 è¿™é‡Œæœ‰é—®é¢˜äº†ï¼šå‡è®¾æŸ¥è¯¢æœˆå¢é‡ï¼Œå¦‚æœStartDay=1ï¼Œå‡è®¾8æœˆ1æ—¥æœ€è¿‘çš„æ•°æ®
+    /// æ˜¯7æœˆ29æ—¥ï¼Œåˆ™ç¨‹åºä¼šç”¨7æœˆ29æ—¥ä½œä¸º8æœˆ1æ—¥çš„æ•°æ®ï¼Œä½†æ˜¯åœ¨æŸ¥æ‰¾ä¸‹ä¸€ä¸ªæ•°æ®çš„æ—¶å€™ï¼Œ
+    /// _GetPeriodDayåœ¨å¢åŠ 1ä¸ªæœˆï¼Œä¸‹ä¸€ä¸ªæ•°æ®æ—¥æœŸè¿˜æ˜¯8æœˆ1æ—¥ï¼ŒæŸ¥æ‰¾å¯¹åº”8æœˆ1æ—¥çš„æ•°æ®çš„æ—¶å€™
+    /// åˆæŸ¥åˆ°äº†7æœˆ29æ—¥â€¦â€¦å°±å˜æˆäº†ä¸åœçš„å¾ªç¯ã€‚æ‰€ä»¥ï¼Œé—®é¢˜åœ¨äºæœ€æ¥è¿‘çš„æ•°æ®æ—¥æœŸæœˆä»½å’ŒæŸ¥è¯¢
+    /// æ—¥æœŸçš„æœˆä»½ä¸ä¸€è‡´é€ æˆçš„ã€‚
     iFirstRow := iLastRow;
     dtStart := dtEnd;
 
-    /// ÅĞ¶Ï½áÊøÌõ¼ş¡£ÈôÏÂÒ»ÖÜÆÚÆğÊ¼ÈÕÆÚ¡İÊ±¶Î½ØÖ¹ÈÕÆÚÊ±£¬½áÊøÑ­»·¡£
-    if iFirstRow >= iEndRow then Break;
+    /// åˆ¤æ–­ç»“æŸæ¡ä»¶ã€‚è‹¥ä¸‹ä¸€å‘¨æœŸèµ·å§‹æ—¥æœŸâ‰¥æ—¶æ®µæˆªæ­¢æ—¥æœŸæ—¶ï¼Œç»“æŸå¾ªç¯ã€‚
+    if iFirstRow >= iEndRow then
+      Break;
   until False;
   Result := True;
+end;
+
+{ ------------------------------------------------------------------------------------------------
+  æœ¬æ–¹æ³•ä»…å›å†™ç‰©ç†é‡çš„è®¡ç®—ç»“æœï¼Œç›¸å½“äºç›´æ¥ç”¨æ•°å€¼æ›¿ä»£äº†å…¬å¼ã€‚
+  æœ¬æ–¹æ³•æµ‹è¯•äº†nExcelå’ŒReadWriteII5å†™å…¥Excelæ–‡ä»¶ï¼Œç»“æœæ„Ÿäººï¼Œéƒ½å¯èƒ½ä¼šç ´åExcelå·¥ä½œç°¿ã€‚å¥‡æ€ªçš„æ˜¯ï¼Œéƒ¨åˆ†
+  å·¥ä½œç°¿å¯ä»¥æ­£å¸¸å¤šæ¬¡å†™å…¥ï¼Œä¸ä¼šé‡åˆ°é—®é¢˜ï¼Œæ¯”å¦‚åº”å˜è®¡ã€‚ä½†æ˜¯é”šç´¢åº”åŠ›è®¡å·¥ä½œç°¿ä¼šå‡ºç°å†»ç»“33è¡Œçš„æƒ…å†µï¼Œè€Œ
+  é’¢æ¿è®¡å·¥ä½œç°¿ç›´æ¥æŸååˆ°è¿Exceléƒ½æ— èƒ½ä¸ºåŠ›çš„åœ°æ­¥ã€‚ç›®å‰å°šä¸çŸ¥é€ æˆé—®é¢˜çš„åŸå› ã€‚
+  ç›¸å¯¹æ¥è¯´ï¼ŒReadWriteII5è¦æ¯”nExcelæ›´å¥½ä¸€ç‚¹ã€‚nExcelè¯»æ•°æ®æ²¡æœ‰é—®é¢˜ã€‚
+  æœ€ç»ˆï¼Œè¿˜æ˜¯å¾—éœ€è¦Excelæ¥æ“ä½œå®ƒè‡ªå·±çš„æ–‡ä»¶ã€‚
+  ------------------------------------------------------------------------------------------------- }
+procedure ThjxDataQuery.RewriteDatas(Datas: PmtDatas);
+begin
+  // ç”¨Excelå¡«å†™æ•°æ®
+  _RewriteDatasWithExcel(Datas);
+
+  //ç”¨XLSReadWriteII5å¡«å†™æ•°æ®
+  //è¿™ä¸ªç»„ä»¶ä¼šç ´åç°æœ‰Excelæ–‡ä»¶ï¼Œä½¿ä¹‹å˜å¾—ä¸å¯è¯»ï¼Œå› æ­¤åªèƒ½ç»§ç»­ç”¨Excel
+  //_rewriteDataswithxrw5(datas);
+end;
+
+procedure ThjxDataQuery._RewriteDatasWithExcel(Datas: PmtDatas);
+var
+  Meter: TMeterDefine;
+  // wbk            : XLSReadWriteII5.;
+  // Sheet          : XLSSheetData5.TXLSWorksheet;
+  iRow, iRowCount: Integer;
+  iPDCol, iDTCol: Integer;
+  iData: Integer;
+  d1, d2: double;
+  DT: TDateTime;
+  bWrited: Boolean;
+  { --- ç”¨Excelå§ --- }
+  XLSApp: OleVariant;
+  XLSWbk, XLSSht: OleVariant;
+  OpenExcelOK: Boolean;
+begin
+  Meter := ExcelMeters.Meter[Datas.DesignName];
+  if Meter = nil then
+    Exit;
+  // æ‰“å¼€å¯¹åº”çš„å·¥ä½œè¡¨
+  // FRW5.Clear;
+  // FRW5.LoadFromFile(Meter.DataBook);
+  // Sheet := FRW5.SheetByName(Meter.DataSheet);
+  XLSApp := ExcelIO.GetExcelApp(True); // ä¸ä¸»åŠ¨åˆ›å»ºApplication
+  // XLSApp.Visible := True;
+  XLSApp.ScreenUpdating := False;
+  try
+    XLSWbk := XLSApp.WorkBooks.Open(Meter.DataBook);
+    if not(VarIsNull(XLSWbk) or VarIsEmpty(XLSWbk)) then
+    begin
+      XLSSht := XLSWbk.worksheets[Meter.DataSheet];
+      if not(VarIsNull(XLSSht) or VarIsEmpty(XLSSht)) then
+      begin
+        XLSSht.activate;
+        OpenExcelOK := True;
+      end
+      else
+      begin
+        Showmessage('æ‰“å¼€å·¥ä½œè¡¨é”™è¯¯ï¼Œæ— æ³•å›å†™');
+      end;
+    end
+    else
+      Showmessage('Excelæ‰“å¼€å·¥ä½œç°¿å‡ºé”™ï¼Œæ— æ³•å›å†™');
+
+    if OpenExcelOK then
+    begin
+      iRowCount := XLSSht.UsedRange.Rows.Count;
+      iPDCol := Meter.DataSheetStru.PDs.Items[Datas.PDIndex - 1].Column;
+      iDTCol := Meter.DataSheetStru.DTStartCol;
+      iData := 0;
+      bWrited := False;
+      for iRow := Meter.DataSheetStru.DTStartRow { RWII5è§„åˆ™ } to iRowCount do
+      begin
+        DT := XLSSht.Cells[iRow, iDTCol].Value;
+        if DT = 0 then
+          Break; // å¦‚æœæ—¥æœŸ=0ï¼Œå…¶å®è¦ä¹ˆæ˜¯éæ³•æ—¥æœŸï¼Œè¦ä¹ˆæ˜¯æ—¥æœŸæ˜¯ç©º
+        // æ—¥æœŸæ˜¯åŒç²¾åº¦æ•°ï¼Œä»Excelå–å¾—çš„æ—¥æœŸå€¼ä¸Delphiä¸­çš„æ—¥æœŸå€¼ä¼šå­˜åœ¨æç«¯å¾®å°çš„å·®å¼‚ï¼Œå¯¼è‡´ä¸¤è€…ä¸æƒ³ç­‰
+        // å› æ­¤ï¼Œè‹¥ä¸æƒ³ç”¨å­—ç¬¦ä¸²æ ¼å¼åŒ–çš„æ—¥æœŸï¼Œå°±ç”¨è¿™ç§å·®å€¼è¶³å¤Ÿå°æ¥åˆ¤æ–­æ˜¯å¦ç›¸ç­‰ã€‚
+        if Abs(DT - Datas.Datas[iData].DT) < 0.00001 then
+        begin
+          d1 := XLSSht.Cells[iRow, iPDCol].Value;
+          d2 := Datas.Datas[iData].Data;
+          // æµ®ç‚¹æ•°å­˜åœ¨ä¸€å®šå·®å€¼ï¼Œå› æ­¤ä¸¤è€…å·®è‹¥å°äºä¸€å®šå€¼ï¼Œåˆ™è®¤ä¸ºç›¸ç­‰
+          if Abs(d1 - d2) > 0.0001 then
+          begin
+            try
+              XLSSht.Cells[iRow, iPDCol].Value := d2;
+              XLSSht.Range[XLSSht.Cells[iRow, iPDCol], XLSSht.Cells[iRow, iPDCol]].font.color
+                := -6737152;
+              XLSSht.Range[XLSSht.Cells[iRow, iPDCol], XLSSht.Cells[iRow, iPDCol]]
+                .font.Italic := True;
+
+              bWrited := True;
+            finally
+            end;
+          end;
+        end;
+        inc(iData);
+      end;
+
+    end;
+
+    if bWrited then
+      XLSWbk.save;
+
+    XLSWbk.Close;
+  finally
+    XLSApp.ScreenUpdating := True;
+    XLSApp.Quit; // å¦‚æœä¸æ˜¯CreateObjectæ–¹å¼è·å–XLSAPPï¼Œåˆ™ä¸å…³é—­
+  end;
+end;
+
+/// ä½¿ç”¨XLSReadWriteII5ç»„ä»¶å°†æ•°æ®å†™å›Excelå·¥ä½œç°¿ï¼Œä¼šå¸¦æ¥ç¾éš¾æ€§åæœï¼åˆ‡å‹¿ä½¿ç”¨ï¼
+procedure ThjxDataQuery._RewriteDatasWithXRW5(Datas: PmtDatas);
+var
+  Meter: TMeterDefine;
+  Wbk: TXLSReadWriteII5;
+  Sheet: XLSSheetData5.TXLSWorksheet;
+  iRow, iRowCount: Integer;
+  iPDCol, iDTCol: Integer;
+  iData: Integer;
+  d1, d2: double;
+  DT: TDateTime;
+  bWrited: Boolean;
+begin
+  Meter := ExcelMeters.Meter[Datas.DesignName];
+  if Meter = nil then
+    Exit;
+  // æ‰“å¼€å¯¹åº”çš„å·¥ä½œè¡¨
+  // FRW5.Clear;
+  // FRW5.LoadFromFile(Meter.DataBook);
+  try
+    Wbk := TXLSReadWriteII5.Create(nil);
+    wbk.LoadFromFile(meter.DataBook);
+    Sheet := wbk.SheetByName(Meter.DataSheet);
+
+    iRowCount := Sheet.LastRow + 1; // ReadWriteII5çš„åºå·éµå¾ªDelphiåºå·è§„åˆ™ï¼Œå³ä»0å¼€å§‹ï¼ŒExcelä»1å¼€å§‹
+    Showmessage(Meter.DataSheetStru.PDs.Items[Datas.PDIndex - 1].Name);
+    iPDCol := Meter.DataSheetStru.PDs.Items[Datas.PDIndex - 1].Column;
+    iDTCol := Meter.DataSheetStru.DTStartCol;
+    iData := 0;
+    bWrited := False;
+    wbk.CompileFormulas;
+    { ä¸‹é¢è¿™ä¸€æ®µå¾ªç¯çš„é€»è¾‘æœ‰é—®é¢˜ï¼Œå­˜åœ¨å‡ºé”™çš„å¯èƒ½ã€‚ç”±äºDatasæ•°ç»„åªåŒ…å«å¾…ä¿å­˜çš„æ•°æ®ï¼Œå› æ­¤åº”å½“ç”¨Datas
+      è¿›è¡Œå¾ªç¯ï¼Œç¡®ä¿æ¯ä¸€ä¸ªæ•°æ®éƒ½èƒ½ä¿å­˜ã€‚ç”¨Dataså¾ªç¯ï¼Œå¯ç”¨å¿«é€Ÿé€¼è¿‘æ³•æŸ¥æ‰¾æ•°æ®çš„æ—¶é—´ }
+    for iRow := Meter.DataSheetStru.DTStartRow - 1 { RWII5è§„åˆ™ } to iRowCount do
+    begin
+      DT := Sheet.AsDateTime[iDTCol-1, iRow]; //RWII5çš„Excelå¯¹è±¡èµ·å§‹åºå·ä¸º0
+      if DT = 0 then
+        Break; // å¦‚æœæ—¥æœŸ=0ï¼Œå…¶å®è¦ä¹ˆæ˜¯éæ³•æ—¥æœŸï¼Œè¦ä¹ˆæ˜¯æ—¥æœŸæ˜¯ç©º
+      if Abs(DT - Datas.Datas[iData].DT) < 0.00001 then
+      begin
+        d1 := Sheet.AsFloat[iPDCol-1, iRow]; // ExcelIO.GetFloatValue(Sheet, iRow, iPDCol);
+        d2 := Datas.Datas[iData].Data;
+        // æµ®ç‚¹æ•°å­˜åœ¨ä¸€å®šå·®å€¼ï¼Œå› æ­¤ä¸¤è€…å·®è‹¥å°äºä¸€å®šå€¼ï¼Œåˆ™è®¤ä¸ºç›¸ç­‰
+        if Abs(d1 - d2) > 0.0001 then
+        begin
+          try
+            Sheet.AsFloat[iPDCol-1, iRow] := d2;
+            Sheet.Cell[iPDCol-1, iRow].FontColor := 6737152;
+            Sheet.Cell[iPDCol-1, iRow].FontStyle := [xfsItalic];
+
+            bWrited := True;
+          finally
+          end;
+        end;
+        inc(iData)
+      end;
+    end;
+    //
+    if bWrited then
+    begin
+      try
+        wbk.Write;
+      except
+        on e:exception do
+          showmessage('ä¿å­˜æ•°æ®å‡ºé”™' + #13#10 + e.Message);
+      end;
+    end;
+  finally
+    Wbk.Free;
+  end;
+
+end;
+
+/// <Summary>æå–æŒ‡å®šä»ªå™¨çš„ç³»åˆ—äº‹ä»¶è®°å½•
+/// </Summary>
+function ThjxDataQuery.GetMeterEvents(ADesignName: String): PmtEvents;
+var
+  Wbk: IXLSWorkBook;
+  Sht: IXLSWorkSheet;
+  S: string;
+  iRow: Integer;
+  d1, d2: TDateTime;
+  e: string;
+begin
+  Result := nil;
+  if ENV_EventsFile = '' then
+    Exit;
+  if ExcelIO.OpenWorkbook(Wbk, ENV_EventsFile) then
+  begin
+    New(Result);
+    Result.DesignName := ADesignName;
+    Sht := ExcelIO.GetSheet(Wbk, 'ç›‘æµ‹äº‹ä»¶');
+    for iRow := 3 to Sht.UsedRange.Rows.Count do
+    begin
+      S := ExcelIO.GetStrValue(Sht, iRow, 1);
+      if S = ADesignName then
+      begin
+        d1 := ExcelIO.GetDateTimeValue(Sht, iRow, 2);
+        d2 := ExcelIO.GetDateTimeValue(Sht, iRow, 3);
+        e := ExcelIO.GetStrValue(Sht, iRow, 4);
+        Result.AddEvent(d1, d2, e);
+      end;
+    end;
+  end;
+
+end;
+
+/// å†™å…¥ä¸€æ¡äº‹ä»¶è®°å½•
+procedure ThjxDataQuery.WriteMeterEvent(ADesignName: string; AEventDate: TDateTime;
+  ALogDate: TDateTime; AEvent: string);
+var
+  Wbk: nexcel.IXLSWorkBook;
+  Sht: nexcel.IXLSWorkSheet;
+  iRow, i: Integer;
+  S: string;
+begin
+  if ENV_EventsFile = '' then
+    Exit;
+  Wbk := nexcel.txlsworkbook.Create;
+  if ExcelIO.OpenWorkbook(Wbk, ENV_EventsFile) then
+  begin
+    Sht := ExcelIO.GetSheet(Wbk, 'ç›‘æµ‹äº‹ä»¶');
+    iRow := ExcelIO.GetBlankRow(Sht, 3, 1); // å‚æ•°3ä¸ºè¯¥è¡¨æ•°æ®è®°å½•çš„é¦–è¡Œè¡Œå·
+    if iRow = 0 then // irow=0è¡¨æ˜é¦–è¡Œäº¦ä¸ºç©º
+      iRow := 3;
+    // å†™å…¥
+    Sht.Cells[iRow, 1].Value := ADesignName;
+    Sht.Cells[iRow, 2].Value := AEventDate;
+    Sht.Cells[iRow, 3].Value := ALogDate;
+    Sht.Cells[iRow, 4].Value := AEvent;
+    Wbk.save;
+    Wbk.Close;
+  end;
 end;
 
 function ThjxDataQuery.ErrorMsg: String;
@@ -2332,8 +2947,8 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : RegistClientDatas
-  Description: ×¢²á±¾Êı¾İ·ÃÎÊ¶ÔÏó
------------------------------------------------------------------------------ }
+  Description: æ³¨å†Œæœ¬æ•°æ®è®¿é—®å¯¹è±¡
+  ----------------------------------------------------------------------------- }
 procedure RegistClientDatas;
 begin
   IAppServices.RegisterClientDatas(ThjxDataQuery.Create);

@@ -39,7 +39,7 @@ unit uHJX.Intf.FunctionDispatcher;
 interface
 
 uses
-    Classes, Types;
+    Classes, Types, uHJX.Data.Types;
 
 type
     { ============================================================================================ }
@@ -96,6 +96,9 @@ type
     TGeneralCompFunc = function(AOwner: TComponent; InParams: array of Variant):
         TComponent;
 
+    { 回写数据方法2023-06-23 }
+    TMethodRewriteData = procedure(Datas:PmtDatas) of object;
+
     { 入参类型 }
     TArgType = (atNone, atStr, atStrings, atList, atStrArray, atIntArray,
         atID, atVariant, atVariantArray, atUndefine);
@@ -127,7 +130,10 @@ type
         ///<summary>显示仪器信息</summary>
         procedure ShowDMInfos(ADesignName: string);
         { 2018-06-05 新增方法，用于取代下面的DrawTrandLine和DrawMultiTrendLine }
-        ///<summary>显示仪器图形，可能是过程线、矢量图、位移图等。</summary>
+        ///<summary>显示仪器图形，可能是过程线、矢量图、位移图等。
+        ///  但是，实际上后来又添加了一个调度器GraphDispatcher，这里的ShowDataGraph实际上调用的
+        ///  是GraphDispatcher中的DrawGraph方法。
+        ///</summary>
         procedure ShowDataGraph(ADesignName: string; AContainer: TComponent = nil);
         { 2018-06-06 新增方法，弹出过程线之类的，如果指定了AContainer则将Frame放置其中 }
         ///<summary>以弹出窗口的方式显示仪器图形</summary>
@@ -136,6 +142,12 @@ type
         procedure DrawTrendLine(ADesignName: string);
         // 旧方法，将被ShowDataGraph取代
         procedure DrawMultiTrendLine(ASensors: TStrings);
+        ///<summary>回写数据方法
+        ///  2023-06-23 为了快速将修饰后的数据写回数据表，调用此方法。
+        ///  注意，本方法是临时为了满足手动调节过程线后，将调整后的数据写回，并非经过深思熟虑后设计，
+        ///  仅仅为了满足一时之需。
+        ///  </summary>
+        procedure RewriteData(Datas: PmtDatas);
 
         ///<summary>刷新仪器列表</summary>
         procedure RefreshDMList;
@@ -252,6 +264,9 @@ type
         procedure RegisterProc(AFuncName: string; AProc: TProcByIntArray); overload;
         procedure RegisterProc(AFuncName: string; AProc: TProcByID); overload;
         procedure RegisterProc(AFuncName: string; AProc: TGeneralProc); overload;
+        { 2023-06-23 }
+        procedure RegistFuncRewriteData(AFunc:TMethodRewriteData);
+
         { 注销上述这些注册 }
         procedure UnRegistMethodProc(AName: string);
         { 查找某方法是否已注册，供调用者决定自身的菜单与工具条 }

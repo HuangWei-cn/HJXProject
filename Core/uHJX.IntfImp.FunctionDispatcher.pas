@@ -6,6 +6,7 @@ uses
     Windows, SysUtils, Classes, Graphics, Forms, dialogs, Types,
     {uBaseTypes,} {uIFuncCompManager, uIAppServices, uFuncCompTypes,
     uIFunctionDispatcher} uHJX.Intf.AppServices, uHJX.Intf.FuncCompManager, uHJX.Core.FuncCompTypes,
+    uHJX.Data.Types ,
     uHJX.Intf.FunctionDispatcher;
 
 type
@@ -33,6 +34,8 @@ type
         FPopupDataGraph : TMethodByStr;
         FPopupDataViewer: TMethodByStr;
         FShowData       : TMethodByStr;
+        { 2023-0623 }
+        FRewriteData:TMethodRewriteData;
 
         { 注册的方法与过程 }
         FProcList    : TStrings;
@@ -46,17 +49,26 @@ type
         { 功能------------------------------------------------------ }
         procedure ShowDMInfos(ADesignName: string);
         // 2018-06-06
+        // 2022-10-27注  以下4个方法实际上没有再使用了，因为绘图有了专门的调度器
+        // GraphDispatcher, 在uHJX.Intf.GraphDispathcer单元中。
         procedure ShowDataGraph(ADesignName: string; AContainer: TComponent = nil);
         procedure PopupDataGraph(ADesignName: string; AContainer: TComponent = nil);
-
         procedure DrawTrendLine(ADesignName: string);
         procedure DrawMultiTrendLine(ASensors: TStrings);
+
         procedure RefreshDMList;
         procedure RefreshGroup;
         procedure BrowseSensorData(ADesignName: string);
         // 2018-06-07
         procedure PopupDataViewer(ADesignName: string; AContainer: TComponent = nil);
         procedure ShowData(ADesignName: string; AContainer: TComponent = nil);
+
+        ///<summary>回写数据方法
+        ///  2023-06-23 为了快速将修饰后的数据写回数据表，调用此方法。
+        ///  注意，本方法是临时为了满足手动调节过程线后，将调整后的数据写回，并非经过深思熟虑后设计，
+        ///  仅仅为了满足一时之需。
+        ///  </summary>
+        procedure RewriteData(Datas: PmtDatas);
 
         procedure EditDesignParams(ADesignName: string);
         procedure EditSensorParams(ADesignName: string);
@@ -136,6 +148,8 @@ type
         procedure RegistFuncPopupDataGraph(AFunc: TMethodByStr);
         procedure RegistFuncPopupDataViewer(AFunc: TMethodByStr);
         procedure RegistFuncShowData(AFunc: TMethodByStr);
+        { 2023-06-23 }
+        procedure RegistFuncRewriteData(AFunc:TMethodRewriteData);
 
         { 注册与注销通用方法 }
         { 通用方法注册 }
@@ -1390,6 +1404,18 @@ begin
         ftGeneralProc:
             TGeneralProc(fr.Proc)(InParams, OutParams);
     end;
+end;
+
+{ 注册回写数据的方法 }
+procedure TFuncDispatchCenter.RegistFuncRewriteData(AFunc: TMethodRewriteData );
+begin
+  FRewriteData := AFunc;
+end;
+{ 调用回写数据的方法 }
+procedure TFuncDispatchCenter.RewriteData(Datas: PmtDatas);
+begin
+  if Assigned(FRewriteData) then
+    Frewritedata(datas);
 end;
 
 { ============================================================================ }

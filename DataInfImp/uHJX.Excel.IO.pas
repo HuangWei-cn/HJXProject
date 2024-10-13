@@ -1,9 +1,12 @@
-{ -----------------------------------------------------------------------------
+ï»¿{ -----------------------------------------------------------------------------
   Unit Name: uHJX.Excel.IO
-  Author:    »ÆÎ°
-  Date:      09-ËÄÔÂ-2017
-  Purpose:   ±¾µ¥Ôª½èÖúnExcelÍê³É¶ÔExcel µÄ·ÃÎÊ¡£
+  Author:    é»„ä¼Ÿ
+  Date:      09-å››æœˆ-2017
+  Purpose:   æœ¬å•å…ƒå€ŸåŠ©nExcelå®Œæˆå¯¹Excel çš„è®¿é—®ã€‚
   History:
+  2024-10-11
+    ç»™TmyWorkbookå¢åŠ ä¸€ä¸ªFileAgeå±æ€§ï¼Œç”¨äºè®°å½•æ–‡ä»¶æœ€åç¼–è¾‘æ—¶é—´ï¼Œè¿™ä¸ªå±æ€§åœ¨æ£€æŸ¥å·¥ä½œç°¿
+    æ˜¯å¦åœ¨æ‰“å¼€åè¢«ä¿®æ”¹è¿‡æ—¶æœ‰ç”¨ã€‚
   ----------------------------------------------------------------------------- }
 
 unit uHJX.Excel.IO;
@@ -19,13 +22,21 @@ type
   TmyWorkbook = class(TXLSWorkbook)
     Opened: Boolean;
     FullName: string;
+    /// <summary>æ–‡ä»¶æœ€åç¼–è¾‘æ—¶é—´
+    /// å•ä½ï¼šæ¯«ç§’ï¼Œä»1970å¹´1æœˆ1æ—¥åˆå¤œï¼ˆæ ¼æ—å¨æ²»æ ‡å‡†æ—¶é—´ï¼‰å¼€å§‹çš„æ¯«ç§’æ•°
+    /// æ·»åŠ è¿™ä¸€é¡¹çš„ç›®çš„åœ¨äºï¼Œå¯ä»¥æ–¹ä¾¿åœ°åˆ¤æ–­æ–‡ä»¶æ˜¯å¦è¢«ä¿®æ”¹è¿‡ï¼Œä»¥ä¾¿åœ¨è¯»å–æ—¶è¿›è¡Œæç¤ºã€‚æœ¬ç±»æ‰“å¼€çš„å·¥ä½œç°¿ï¼Œ
+    /// æœ‰å¯èƒ½åœ¨æ‰“å¼€åè¢«Excelç¼–è¾‘è¿‡ï¼Œå› æ­¤å½“ç¨‹åºéœ€è¦å†æ¬¡è®¿é—®è¯¥å·¥ä½œç°¿æ—¶ï¼Œéœ€è¦æ£€æŸ¥æ–‡ä»¶çš„æœ€åç¼–è¾‘æ—¶é—´ï¼Œè‹¥
+    /// æ˜¯æ–°æ–‡ä»¶ï¼Œåˆ™éœ€è¦é‡æ–°æ‰“å¼€
+    ///</summary>
+    FileAge: LongInt; //å¢åŠ ä¸€ä¸ªæœ€åç¼–è¾‘æ—¶é—´çš„Field
     function Open(FileName: WideString): Integer;
     function SheetByName(AName: WideString): IXLSWorkSheet;
   public
+    constructor Create; override;
     function Close: Integer; override;
   end;
 
-    { ±¾·½·¨´ò¿ª¹¤×÷²¾£¬ÈôÓöµ½¹¤×÷²¾±»Õ¼ÓÃµÄÇé¿ö£¬»áÌáÊ¾ÓÃ»§¹Ø±ÕExcel£¬È»ºóÔÙÊÔ£¬³ı·ÇÓÃ»§²»ÔÙ³¢ÊÔ }
+  { æœ¬æ–¹æ³•æ‰“å¼€å·¥ä½œç°¿ï¼Œè‹¥é‡åˆ°å·¥ä½œç°¿è¢«å ç”¨çš„æƒ…å†µï¼Œä¼šæç¤ºç”¨æˆ·å…³é—­Excelï¼Œç„¶åå†è¯•ï¼Œé™¤éç”¨æˆ·ä¸å†å°è¯• }
 type
   TExcelIO = class
   public
@@ -39,18 +50,19 @@ type
     function GetFloatValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Double;
     function GetDateTimeValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): TDateTime;
     function GetIntValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Integer;
-    // ·µ»ØVariantÀàĞÍµÄÖµ
+    function GetBlankRow(ASheet: IXLSWorkSheet; StartRow, ACol: Integer): Integer;
+    // è¿”å›Variantç±»å‹çš„å€¼
     function GetValue(ASheet: IXLSWorkSheet; ARow, ACol: Integer): Variant;
-        // ÅĞ¶Ï¹¤×÷²¾ÊÇ·ñ´ò¿ª£¬WBK±ØĞëÊÇÓÉ±¾Àà´´½¨µÄ
+    // åˆ¤æ–­å·¥ä½œç°¿æ˜¯å¦æ‰“å¼€ï¼ŒWBKå¿…é¡»æ˜¯ç”±æœ¬ç±»åˆ›å»ºçš„
     function BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
 
-        { ------ ÏÂÃæÊÇÒ»×éµ÷ÓÃExcel³ÌĞòµÄ·½·¨ ------- }
+    { ------ ä¸‹é¢æ˜¯ä¸€ç»„è°ƒç”¨Excelç¨‹åºçš„æ–¹æ³• ------- }
     class function GetExcelApp(CreateNew: Boolean = False): OleVariant;
-    /// <summary>Æô¶¯Excel»òET£¬´ò¿ª¹¤×÷²¾£¬²¢ÉèÖ¸¶¨µÄsheetÎªActiveSheet</summary>
+    /// <summary>å¯åŠ¨Excelæˆ–ETï¼Œæ‰“å¼€å·¥ä½œç°¿ï¼Œå¹¶è®¾æŒ‡å®šçš„sheetä¸ºActiveSheet</summary>
     class procedure Excel_ShowSheet(ABKName, AShtName: string);
-    /// <summary>Æô¶¯Excel»òET£¬´ÓSrcBookÖĞ¿½±´¹¤×÷±íµ½DesBookÖĞ£¬Èç¹ûDesBook=¡®¡¯»ò²»´æÔÚ£¬Ôò´´½¨ĞÂ
-    /// ¹¤×÷²¾¡£SrcSheetsÎªĞèÒª¿½±´µÄÔ´¹¤×÷±íÁĞ±í£¬¸ñÊ½ÊÇ"Ô´±íÃû:Ä¿µÄ±íÃû#13#10"¡£Èç¹û
-    /// Ö»ÓĞÔ´±íÃû£¬ÔòÄ¿µÄ±íÃû=Ô´±íÃû£¬·ñÔòÓÃÄ¿µÄ±íÃûÖØÃüÃû¿½±´ºóµÄ¹¤×÷±í</summary>
+    /// <summary>å¯åŠ¨Excelæˆ–ETï¼Œä»SrcBookä¸­æ‹·è´å·¥ä½œè¡¨åˆ°DesBookä¸­ï¼Œå¦‚æœDesBook=â€˜â€™æˆ–ä¸å­˜åœ¨ï¼Œåˆ™åˆ›å»ºæ–°
+    /// å·¥ä½œç°¿ã€‚SrcSheetsä¸ºéœ€è¦æ‹·è´çš„æºå·¥ä½œè¡¨åˆ—è¡¨ï¼Œæ ¼å¼æ˜¯"æºè¡¨å:ç›®çš„è¡¨å#13#10"ã€‚å¦‚æœ
+    /// åªæœ‰æºè¡¨åï¼Œåˆ™ç›®çš„è¡¨å=æºè¡¨åï¼Œå¦åˆ™ç”¨ç›®çš„è¡¨åé‡å‘½åæ‹·è´åçš„å·¥ä½œè¡¨</summary>
     class function Excel_CopySheet(XLApp: OleVariant; SrcBook, TagBook: String;
       SrcSheets: String): Boolean;
   end;
@@ -63,9 +75,16 @@ implementation
 uses
   ComObj, ShellAPI;
 
+constructor TmyWorkbook.Create;
+begin
+  inherited;
+  FileAge := -1;
+end;
+
 function TmyWorkbook.Open(FileName: WideString): Integer;
 begin
   FullName := FileName;
+  FileAge := System.SysUtils.FileAge(FileName);
   Result := inherited Open(FileName);
   Opened := Result = 1;
 end;
@@ -77,7 +96,7 @@ begin
   Result := nil;
   i := Self.Sheets.Index[AName];
   if i <> -1 then
-      Result := Self.Sheets.Entries[Self.Sheets.Index[AName]];
+    Result := Self.Sheets.Entries[Self.Sheets.Index[AName]];
 end;
 
 function TmyWorkbook.Close: Integer;
@@ -89,8 +108,8 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : OpenWorkbook
-  Description: ±¾º¯Êı´ò¿ªExcel¹¤×÷²¾£¬Èç¹û¸Ã¹¤×÷²¾±»ExcelÕ¼ÓÃ£¬ÔòÌáÊ¾ÓÃ»§¹Ø±Õ
-  ExcelºóÔÙ´ò¿ª£¬¿ÉÒÔÖØ¸´¶à´Î£¬Ö±µ½³É¹¦´ò¿ª»òÓÃ»§·ÅÆú¡£
+  Description: æœ¬å‡½æ•°æ‰“å¼€Excelå·¥ä½œç°¿ï¼Œå¦‚æœè¯¥å·¥ä½œç°¿è¢«Excelå ç”¨ï¼Œåˆ™æç¤ºç”¨æˆ·å…³é—­
+  Excelåå†æ‰“å¼€ï¼Œå¯ä»¥é‡å¤å¤šæ¬¡ï¼Œç›´åˆ°æˆåŠŸæ‰“å¼€æˆ–ç”¨æˆ·æ”¾å¼ƒã€‚
   ----------------------------------------------------------------------------- }
 function TExcelIO.OpenWorkbook(var WBK: IXLSWorkBook; AName: string): Boolean;
 var
@@ -99,13 +118,13 @@ var
 begin
   Result := False;
   if WBK = nil then
-      WBK := TmyWorkbook.Create;
+    WBK := TmyWorkbook.Create;
   bExit := False;
   repeat
     if WBK is TmyWorkbook then
-        OpenResult := TmyWorkbook(WBK).Open(AName)
+      OpenResult := TmyWorkbook(WBK).Open(AName)
     else
-        OpenResult := WBK.Open(AName);
+      OpenResult := WBK.Open(AName);
 
     case OpenResult of
       1:
@@ -115,17 +134,16 @@ begin
         end;
       -1:
         begin
-          if MessageBox(0, PWideChar(AName + 'ÎŞ·¨´ò¿ª£¬ÊÇ·ñÒª¹Ø±ÕExcelºóÖØÊÔ£¿'#13#10
-            + 'ÈôExcel»òWPSÃ»ÓĞÕ¼ÓÃ¸ÃÎÄ¼ş£¬Ôò¸ÃÎÄ¼ş¿ÉÄÜÊÇÓÉWPS±à¼­¹ıµÄ¡¢´æÔÚÎÊÌâ'
-            + 'µÄExcel 2007»ò¸ü¸ß°æ±¾µÄÎÄ¼ş(xlsx¸ñÊ½), ÇëÓÃÕæÕıµÄExcel±£´æÒ»±éÔÙ'
-            + 'ÊÔÊÔ¡£Èô»¹²»ĞĞ£¬ÄÇ¾Í¸Éµã±ğµÄ°É£¬±ğÓÃÁË¡£'), '´ò¿ªExcel¹¤×÷²¾',
+          if MessageBox(0, PWideChar(AName + 'æ— æ³•æ‰“å¼€ï¼Œæ˜¯å¦è¦å…³é—­Excelåé‡è¯•ï¼Ÿ'#13#10 +
+            'è‹¥Excelæˆ–WPSæ²¡æœ‰å ç”¨è¯¥æ–‡ä»¶ï¼Œåˆ™è¯¥æ–‡ä»¶å¯èƒ½æ˜¯ç”±WPSç¼–è¾‘è¿‡çš„ã€å­˜åœ¨é—®é¢˜' +
+            'çš„Excel 2007æˆ–æ›´é«˜ç‰ˆæœ¬çš„æ–‡ä»¶(xlsxæ ¼å¼), è¯·ç”¨çœŸæ­£çš„Excelä¿å­˜ä¸€éå†' + 'è¯•è¯•ã€‚è‹¥è¿˜ä¸è¡Œï¼Œé‚£å°±å¹²ç‚¹åˆ«çš„å§ï¼Œåˆ«ç”¨äº†ã€‚'), 'æ‰“å¼€Excelå·¥ä½œç°¿',
             MB_ICONWARNING or MB_RETRYCANCEL) = IDCANCEL then
-              bExit := True;
+            bExit := True;
         end;
     else
       begin
         bExit := True;
-        showmessage('²»Ö§³ÖµÄÎÄ¼şÀàĞÍ¡£');
+        showmessage('ä¸æ”¯æŒçš„æ–‡ä»¶ç±»å‹ã€‚');
       end;
     end;
   until bExit;
@@ -174,20 +192,21 @@ end;
 
 function TExcelIO.GetDateTimeValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): TDateTime;
 var
-  S,S1: string;
+  S, S1: string;
 begin
+  Result := 0;
   try
     Result := VarToDateTime(ASheet.Cells[ARow, ACol].value);
   except
     on e: Exception do
     begin
       Result := 0;
-      S1 := VarToStr(Asheet.Cells[arow,acol].Value);
+      S1 := VarToStr(ASheet.Cells[ARow, ACol].value);
       if ASheet.Workbook is TmyWorkbook then
-          S := (ASheet.Workbook as TmyWorkbook).FullName + 'ÖĞµÄ¹¤×÷²¾' + ASheet.Name
+        S := (ASheet.Workbook as TmyWorkbook).FullName + 'ä¸­çš„å·¥ä½œç°¿' + ASheet.Name
       else
-          S := '¹¤×÷²¾' + ASheet.Name;
-      S := S + format('µÚ%dĞĞµÚ%dÁĞÄÚÈİ¡°%s¡±²»ÊÇºÏ·¨µÄÈÕÆÚ¸ñÊ½£¬Çë¼ì²é¡£', [ARow, ACol, S1]);
+        S := 'å·¥ä½œç°¿' + ASheet.Name;
+      S := S + format('ç¬¬%dè¡Œç¬¬%dåˆ—å†…å®¹â€œ%sâ€ä¸æ˜¯åˆæ³•çš„æ—¥æœŸæ ¼å¼ï¼Œè¯·æ£€æŸ¥ã€‚', [ARow, ACol, S1]);
       showmessage(S);
     end;
   end;
@@ -205,27 +224,50 @@ end;
 function TExcelIO.GetValue(ASheet: IXLSWorkSheet; ARow: Integer; ACol: Integer): Variant;
 begin
   varClear(Result);
-  Result := ASheet.Cells[ARow, ACol].Value;
+  Result := ASheet.Cells[ARow, ACol].value;
 end;
 
 function TExcelIO.BookOpened(WBK: IXLSWorkBook; AName: string): Boolean;
 begin
   Result := False;
   if WBK is TmyWorkbook then
-      Result := SameText(TmyWorkbook(WBK).FullName, AName)
+    Result := SameText(TmyWorkbook(WBK).FullName, AName)
   else
-      showmessage('Ö»ÓĞÓÃExcelIO´ò¿ªµÄ¹¤×÷²¾²ÅÄÜÅĞ¶Ï¹¤×÷²¾FullName£¬ÇëĞŞ¸Ä´úÂë');
+    showmessage('åªæœ‰ç”¨ExcelIOæ‰“å¼€çš„å·¥ä½œç°¿æ‰èƒ½åˆ¤æ–­å·¥ä½œç°¿FullNameï¼Œè¯·ä¿®æ”¹ä»£ç ');
+end;
+
+function TExcelIO.GetBlankRow(ASheet: IXLSWorkSheet; StartRow: Integer; ACol: Integer): Integer;
+var
+  i: Integer;
+  S: string;
+begin
+  Result := 0;
+  S := GetStrValue(ASheet, ASheet.UsedRange.Rows.Count, ACol);
+  if S <> '' then
+    Result := ASheet.UsedRange.Rows.Count + 1
+  else
+    for i := ASheet.UsedRange.Rows.Count downto StartRow do
+    begin
+      S := GetStrValue(ASheet, i, ACol);
+      if S <> '' then
+      begin
+        Result := i + 1;
+        Break;
+      end;
+    end;
 end;
 
 class procedure TExcelIO.Excel_ShowSheet(ABKName: string; AShtName: string);
 var
   XLApp, BK, Sht: Variant;
 begin
-  if not FileExists(ABKName) then Exit;
+  if not FileExists(ABKName) then
+    Exit;
   try
     XLApp := null;
     XLApp := GetExcelApp; // CreateOleObject('Excel.Application');
-    if VarIsNull(XLApp) or VarIsEmpty(XLApp) then XLApp := GetExcelApp(True);
+    if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
+      XLApp := GetExcelApp(True);
 
     if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
     begin
@@ -236,9 +278,11 @@ begin
     XLApp.Visible := False;
 
     BK := XLApp.WorkBooks.Open(ABKName);
-    if VarIsNull(BK) then Exit;
+    if VarIsNull(BK) then
+      Exit;
     Sht := BK.WorkSheets.Item[AShtName];
-    if Not VarIsNull(Sht) then Sht.Activate;
+    if Not VarIsNull(Sht) then
+      Sht.Activate;
 
     XLApp.Visible := True;
     XLApp.WindowState := -4143; // xlNormal
@@ -248,45 +292,47 @@ end;
 
 { -----------------------------------------------------------------------------
   Procedure  : Excel_CopySheet
-  Description: ´ÓSrcBook¹¤×÷²¾¿½±´Ö¸¶¨¹¤×÷±íµ½Ä¿±ê¹¤×÷²¾DesBook
-  Ö¸¶¨µÄ¹¤×÷±íÔÚScrSheets²ÎÊıÖĞ£¬¸Ã²ÎÊıĞÎÊ½Îª"SourcesheetName:targetsheetName#13#10"£¬
-  ¿½±´µ½ĞÂ¹¤×÷²¾ºó£¬Ô´±í½«ÃüÃûÎªTargetSheetName¡£ÈôTargetSheetName=''»òÃ»ÓĞ
-  ÕâÒ»Ïî£¬½«ÑØÓÃÔ­±íÃû¡£
-  ²ÎÊıXLAppÊÇExcelApplication£¬ÈôÎªNull£¬ÔòÔÚ±¾·½·¨ÖĞ»ñÈ¡»ò´´½¨Ò»¸ö¡£ÈôXLappÊÇ
-  ÔÚ±¾·½·¨ÖĞ»ñÈ¡»ò´´½¨µÄ£¬Ôò±¾·½·¨¸ºÔğÍË³ö£¬·ñÔò²»Ê¹ÓÃQuit·½·¨¡£
------------------------------------------------------------------------------ }
+  Description: ä»SrcBookå·¥ä½œç°¿æ‹·è´æŒ‡å®šå·¥ä½œè¡¨åˆ°ç›®æ ‡å·¥ä½œç°¿DesBook
+  æŒ‡å®šçš„å·¥ä½œè¡¨åœ¨ScrSheetså‚æ•°ä¸­ï¼Œè¯¥å‚æ•°å½¢å¼ä¸º"SourcesheetName:targetsheetName#13#10"ï¼Œ
+  æ‹·è´åˆ°æ–°å·¥ä½œç°¿åï¼Œæºè¡¨å°†å‘½åä¸ºTargetSheetNameã€‚è‹¥TargetSheetName=''æˆ–æ²¡æœ‰
+  è¿™ä¸€é¡¹ï¼Œå°†æ²¿ç”¨åŸè¡¨åã€‚
+  å‚æ•°XLAppæ˜¯ExcelApplicationï¼Œè‹¥ä¸ºNullï¼Œåˆ™åœ¨æœ¬æ–¹æ³•ä¸­è·å–æˆ–åˆ›å»ºä¸€ä¸ªã€‚è‹¥XLappæ˜¯
+  åœ¨æœ¬æ–¹æ³•ä¸­è·å–æˆ–åˆ›å»ºçš„ï¼Œåˆ™æœ¬æ–¹æ³•è´Ÿè´£é€€å‡ºï¼Œå¦åˆ™ä¸ä½¿ç”¨Quitæ–¹æ³•ã€‚
+  ----------------------------------------------------------------------------- }
 class function TExcelIO.Excel_CopySheet(XLApp: OleVariant; SrcBook: string; TagBook: string;
   SrcSheets: string): Boolean;
 var
-  SrcBk, TagBk,
-    SrcSheet, TagSheet: Variant;
-  ShtList             : TStrings;
-  i, j                : Integer;
-  S, S1, S2           : String; // s1:source sheet name;s2:taget sheet name
-  bDoQuit             : Boolean;
+  SrcBk, TagBk, SrcSheet, TagSheet: Variant;
+  ShtList                         : TStrings;
+  i, j                            : Integer;
+  S, S1, S2                       : String; // s1:source sheet name;s2:taget sheet name
+  bDoQuit                         : Boolean;
 begin
   Result := False;
-  if Trim(SrcSheets) = '' then Exit;
+  if Trim(SrcSheets) = '' then
+    Exit;
 
   try
-    bDoQuit := False; // ²»ÍË³öapplication
-    // Èç¹û´«µİ½øÀ´µÄXLAppÎª¿Õ£¬ÔòĞèÒªÔÚ±¾·½·¨ÖĞ»ñÈ¡»ò´´½¨ExcelApplication£¬µ±·½·¨½áÊøÊ±¾ÍÒªÔñ»ú
-    // ÍË³ö£»Èô´«µİ½øÀ´XLApp²ÎÊı£¬Ôò²»ÄÜÍË³ö£¬Ö»ÊÇ¹Ø±ÕÔÚ±¾·½·¨ÖĞ´ò¿ªµÄ¹¤×÷²¾¡£
+    bDoQuit := False; // ä¸é€€å‡ºapplication
+    // å¦‚æœä¼ é€’è¿›æ¥çš„XLAppä¸ºç©ºï¼Œåˆ™éœ€è¦åœ¨æœ¬æ–¹æ³•ä¸­è·å–æˆ–åˆ›å»ºExcelApplicationï¼Œå½“æ–¹æ³•ç»“æŸæ—¶å°±è¦æ‹©æœº
+    // é€€å‡ºï¼›è‹¥ä¼ é€’è¿›æ¥XLAppå‚æ•°ï¼Œåˆ™ä¸èƒ½é€€å‡ºï¼Œåªæ˜¯å…³é—­åœ¨æœ¬æ–¹æ³•ä¸­æ‰“å¼€çš„å·¥ä½œç°¿ã€‚
     if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
     begin
       bDoQuit := True;
-      // ÓÃÕâ¸ö·½·¨£¬µ±XLApp¾ÍÒªÉ÷ÓÃQuit·½·¨£¬ÒòÎªÓĞ¿ÉÄÜ°ÑÒÑ¾­´ò¿ªµÄÕıÔÚ±à¼­¹¤×÷²¾µÄÊµÀı¹Ø±Õµô¡£
-      // ÏÈ²»´´½¨£¬¶øÊÇ»ñÈ¡ÒÑ¾­´ò¿ªµÄExcelApplicationÊµÀı
+      // ç”¨è¿™ä¸ªæ–¹æ³•ï¼Œå½“XLAppå°±è¦æ…ç”¨Quitæ–¹æ³•ï¼Œå› ä¸ºæœ‰å¯èƒ½æŠŠå·²ç»æ‰“å¼€çš„æ­£åœ¨ç¼–è¾‘å·¥ä½œç°¿çš„å®ä¾‹å…³é—­æ‰ã€‚
+      // å…ˆä¸åˆ›å»ºï¼Œè€Œæ˜¯è·å–å·²ç»æ‰“å¼€çš„ExcelApplicationå®ä¾‹
       XLApp := GetExcelApp;
-      // Ã»ÓĞ£¬Ôò´´½¨Ò»¸ö
-      if VarIsNull(XLApp) or VarIsEmpty(XLApp) then XLApp := GetExcelApp(True);
+      // æ²¡æœ‰ï¼Œåˆ™åˆ›å»ºä¸€ä¸ª
+      if VarIsNull(XLApp) or VarIsEmpty(XLApp) then
+        XLApp := GetExcelApp(True);
     end;
   except
     Exit;
   end;
 
   SrcBk := XLApp.WorkBooks.Open(SrcBook);
-  if VarIsNull(SrcBk) then Exit;
+  if VarIsNull(SrcBk) then
+    Exit;
   TagBk := XLApp.WorkBooks.Add;
 
   ShtList := TStringList.Create;
@@ -309,24 +355,25 @@ begin
       end;
       SrcSheet := SrcBk.WorkSheets.Item[S1];
 
-      if VarIsNull(SrcSheet) then Continue;
+      if VarIsNull(SrcSheet) then
+        Continue;
 
       SrcSheet.Copy(null, TagBk.WorkSheets.Item[TagBk.WorkSheets.Count]);
       TagSheet := TagBk.WorkSheets.Item[TagBk.WorkSheets.Count];
       if S2 <> '' then
       begin
-        { TODO -ohw -cExcel.IO : ÏÈÅĞ¶ÏSheetNameÊÇ·ñÒÑ´æÔÚ£¬Èô´æÔÚÔòĞèÒªÖØÃüÃû }
+        { TODO -ohw -cExcel.IO : å…ˆåˆ¤æ–­SheetNameæ˜¯å¦å·²å­˜åœ¨ï¼Œè‹¥å­˜åœ¨åˆ™éœ€è¦é‡å‘½å }
         try
           TagSheet.Name := S2;
         except
         end;
       end;
     end;
-    // Ö´ĞĞµ½ÕâÀï£¬ËãÊÇ¿½±´Íê±ÏÁË
+    // æ‰§è¡Œåˆ°è¿™é‡Œï¼Œç®—æ˜¯æ‹·è´å®Œæ¯•äº†
     try
-      // É¾³ıµÚÒ»¸ö±í
+      // åˆ é™¤ç¬¬ä¸€ä¸ªè¡¨
       TagBk.WorkSheets[1].Delete;
-      { todo:¸ù¾İÀ©Õ¹ÃûÅĞ¶ÏÊÇ±£´æÎªxlExcel9795»¹ÊÇxlExcel12 }
+      { todo:æ ¹æ®æ‰©å±•ååˆ¤æ–­æ˜¯ä¿å­˜ä¸ºxlExcel9795è¿˜æ˜¯xlExcel12 }
       TagBk.SaveAs(TagBook, 56); // xlExcel8 = 56: Excel 97~2003
       // TagBk.SaveAs(TagBook);
       Sleep(1000);
@@ -334,10 +381,11 @@ begin
     finally
       SrcBk.Close(False);
       TagBk.Close(False);
-      // Èç¹ûXLAppÊÇÔÚ±¾·½·¨ÖĞ»ñÈ¡µÄ£¬ÔòĞèÒªÔñ»úÍË³ö
+      // å¦‚æœXLAppæ˜¯åœ¨æœ¬æ–¹æ³•ä¸­è·å–çš„ï¼Œåˆ™éœ€è¦æ‹©æœºé€€å‡º
       if bDoQuit then
-        // Èç¹ûÃ»ÓĞ´ò¿ªµÄ¹¤×÷²¾ÁË£¬ËµÃ÷ÊÇ¸Õ²Å´´½¨µÄ£¬¾ÍÍË³ö¡£
-        if XLApp.WordBooks.Count = 0 then XLApp.Quit
+        // å¦‚æœæ²¡æœ‰æ‰“å¼€çš„å·¥ä½œç°¿äº†ï¼Œè¯´æ˜æ˜¯åˆšæ‰åˆ›å»ºçš„ï¼Œå°±é€€å‡ºã€‚
+        if XLApp.WordBooks.Count = 0 then
+          XLApp.Quit
     end;
     Result := True;
   finally
@@ -351,18 +399,18 @@ begin
   Result := Unassigned;
   try
     if CreateNew then
-        Result := CreateOleObject('Excel.Application')
+      Result := CreateOleObject('Excel.Application')
     else
-        Result := GetActiveOleObject('Excel.Application');
+      Result := GetActiveOleObject('Excel.Application');
 
-    // ÈôExcel ApplicationÃ»ÓĞReady£¬µÈ´ı
+    // è‹¥Excel Applicationæ²¡æœ‰Readyï¼Œç­‰å¾…
     if not(VarIsNull(Result) or VarIsEmpty(Result)) then
       while Result.Ready = False do;
 
   except
     { on EOleSysError do
       try
-        Result := CreateOleObject('Excel.Application');
+      Result := CreateOleObject('Excel.Application');
       except
       end; }
   end;

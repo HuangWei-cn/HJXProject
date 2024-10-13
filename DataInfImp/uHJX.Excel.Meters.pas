@@ -500,7 +500,24 @@ var
 begin
   M1 := TMeterDefine(N1);
   M2 := TMeterDefine(N2);
-  Result := CompareText(M1.PrjParams.Position, M2.PrjParams.Position);
+  // 如果部位都不再预定义表中，则比较文字
+  if (M1.PrjParams.PosIndex = -1) and (M2.PrjParams.PosIndex = -1) then
+      Result := CompareText(M1.PrjParams.Position, M2.PrjParams.Position)
+  // 如果已经有序号，则按照序号大小排序
+  else if (M1.PrjParams.PosIndex <> -1) and (M2.PrjParams.PosIndex <> -1) then
+  begin
+    if M1.PrjParams.PosIndex < M2.PrjParams.PosIndex then
+        Result := -1
+    else if M1.PrjParams.PosIndex > M2.PrjParams.PosIndex then
+        Result := 1
+    else Result := 0;
+  end
+  //如果M1有序号，则在前
+  else if M1.PrjParams.PosIndex <> -1 then
+      Result := 1
+  else //否则M2在前
+      Result := 1;
+
   if Result = 0 then
   begin
     Result := CompareText(M1.Params.MeterType, M2.Params.MeterType);
@@ -573,7 +590,8 @@ begin
   inherited;
 end;
 
-procedure ThjxDSNameList.AddName(AFldName: string; ADispName: string);
+procedure ThjxDSNameList.AddName(AFldName: string;
+  ADispName: string);
 var
   NewDs: PhjxDSName;
 begin

@@ -31,7 +31,7 @@ object fraMeterList: TfraMeterList
     Left = 5
     Top = 332
     Width = 217
-    Height = 21
+    Height = 23
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 1
     OnChange = edtSearchChange
@@ -49,6 +49,18 @@ object fraMeterList: TfraMeterList
     object N1: TMenuItem
       Caption = '-'
     end
+    object piPopTrendLine: TMenuItem
+      Action = actPopTrendLine
+    end
+    object piPopDatas: TMenuItem
+      Action = actPopDatas
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object N3: TMenuItem
+      Action = actViewDataSheet
+    end
     object N2: TMenuItem
       Action = actOpenDataBook
     end
@@ -65,8 +77,20 @@ object fraMeterList: TfraMeterList
       OnExecute = actShowTrendLineExecute
     end
     object actOpenDataBook: TAction
-      Caption = #25171#24320#35266#27979#25968#25454#35745#31639#34920
+      Caption = #25171#24320#35266#27979#25968#25454#35745#31639#34920'(Excel)'
       OnExecute = actOpenDataBookExecute
+    end
+    object actViewDataSheet: TAction
+      Caption = #26597#30475#21407#22987#25968#25454
+      OnExecute = actViewDataSheetExecute
+    end
+    object actPopTrendLine: TAction
+      Caption = #24377#20986#36807#31243#32447
+      OnExecute = actPopTrendLineExecute
+    end
+    object actPopDatas: TAction
+      Caption = #24377#20986#35266#27979#25968#25454
+      OnExecute = actPopDatasExecute
     end
   end
 end

@@ -15,7 +15,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, uHJX.Classes.Meters,
-  Vcl.ComCtrls, System.Actions, Vcl.ActnList, Vcl.Menus;
+  Vcl.ComCtrls, System.Actions, Vcl.ActnList, Vcl.Menus, Vcl.WinXCtrls;
 
 type
   TfrmFindNewSheets = class(TForm)
@@ -26,6 +26,7 @@ type
     piAppendNewSheet: TMenuItem;
     ActionList1: TActionList;
     actAppendNewSheet: TAction;
+    ActivityIndicator1: TActivityIndicator;
     procedure btnFindNewClick(Sender: TObject);
     procedure actAppendNewSheetExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -91,6 +92,9 @@ var
 begin
   lvwNewSheets.Clear;
   wbks := TStringList.Create;
+  Self.ActivityIndicator1.Visible := True;
+  activityIndicator1.Animate := True;
+  screen.Cursor := crHourGlass;
   try
     // 首先将现有仪器过一遍，找出现有工作簿及其对应的工作表：
     for i := 0 to ExcelMeters.Count - 1 do
@@ -144,6 +148,9 @@ begin
   finally
     for i := 0 to wbks.Count - 1 do wbks.Objects[i].Free;
     wbks.Free;
+    Self.ActivityIndicator1.Visible := False;
+    activityIndicator1.Animate := False;
+    screen.Cursor := crDefault;
   end;
 end;
 

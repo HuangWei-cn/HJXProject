@@ -53,9 +53,6 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     Visible = False
     Touch.InteractiveGestures = [igPan]
     Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
-    ExplicitLeft = 5
-    ExplicitTop = 181
-    ExplicitHeight = 426
   end
   object Panel1: TPanel
     Left = 2
@@ -705,8 +702,8 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     object lblMeterName: TLabel
       Left = 20
       Top = 58
-      Width = 65
-      Height = 13
+      Width = 76
+      Height = 15
       Caption = 'lblMeterName'
     end
     object lblBreak: TLabel
@@ -742,7 +739,6 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
     BevelOuter = bvNone
     TabOrder = 3
     Visible = False
-    ExplicitTop = 61
     DesignSize = (
       803
       120)
@@ -792,8 +788,8 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
         Top = 18
         Width = 96
         Height = 21
-        Date = 43249.477369722220000000
-        Time = 43249.477369722220000000
+        Date = 43249.000000000000000000
+        Time = 0.477369722219009400
         TabOrder = 2
         OnClick = dtpStartClick
       end
@@ -802,8 +798,8 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
         Top = 18
         Width = 96
         Height = 21
-        Date = 43249.477899884260000000
-        Time = 43249.477899884260000000
+        Date = 43249.000000000000000000
+        Time = 0.477899884259386500
         TabOrder = 3
         OnClick = dtpStartClick
       end
@@ -897,22 +893,22 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
       object Label1: TLabel
         Left = 3
         Top = 24
-        Width = 12
-        Height = 13
+        Width = 13
+        Height = 15
         Caption = #38271
       end
       object Label2: TLabel
         Left = 72
         Top = 23
-        Width = 12
-        Height = 13
+        Width = 13
+        Height = 15
         Caption = #39640
       end
       object Edit1: TEdit
         Left = 16
         Top = 20
         Width = 35
-        Height = 21
+        Height = 23
         TabOrder = 0
         Text = '600'
       end
@@ -920,7 +916,7 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
         Left = 86
         Top = 20
         Width = 34
-        Height = 21
+        Height = 23
         TabOrder = 1
         Text = '300'
       end
@@ -928,7 +924,7 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
         Left = 51
         Top = 20
         Width = 16
-        Height = 21
+        Height = 23
         Associate = Edit1
         Min = 300
         Max = 2048
@@ -939,7 +935,7 @@ object fraRptDataHTMLGrid: TfraRptDataHTMLGrid
         Left = 120
         Top = 20
         Width = 16
-        Height = 21
+        Height = 23
         Associate = Edit2
         Min = 100
         Max = 1080
