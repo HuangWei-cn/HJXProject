@@ -7,6 +7,9 @@
   2024-10-11
     给TmyWorkbook增加一个FileAge属性，用于记录文件最后编辑时间，这个属性在检查工作簿
     是否在打开后被修改过时有用。
+  2024-10-14
+    修改了TmyWorkbook的Open方法，现在采用先用TFileStream打开文件，再用inherited Open(FileStream)的方式打开。
+    这样就可以解决文件被独占的问题。
   ----------------------------------------------------------------------------- }
 
 unit uHJX.Excel.IO;
@@ -30,6 +33,8 @@ type
     /// 是新文件，则需要重新打开
     ///</summary>
     FileAge: LongInt; //增加一个最后编辑时间的Field
+    /// 修改了Open方法。之前是用inherited Open(FileName)，当Excel已经打开了文件，会因文件被独占而无法打开。
+    /// 现在采用先用TFileStream打开文件，再用inherited Open(FileStream)的方式打开。这样就可以解决文件被独占的问题。
     function Open(FileName: WideString): Integer;
     function SheetByName(AName: WideString): IXLSWorkSheet;
   public
@@ -82,13 +87,34 @@ begin
   FileAge := -1;
 end;
 
+
+{
+  Function: TmyWorkbook.Open
+  Purpose: Opens the specified Excel workbook file.
+
+  Parameters:
+    FileName: WideString - The name of the Excel workbook file to be opened.
+
+  Return Value:
+    Integer - The result of the workbook opening operation. A value of 1 indicates
+              successful opening, while a value of -1 indicates failure.
+}
 function TmyWorkbook.Open(FileName: WideString): Integer;
+var
+  FStream: TFileStream;
 begin
   FullName := FileName;
   FileAge := System.SysUtils.FileAge(FileName);
-  Result := inherited Open(FileName);
-  Opened := Result = 1;
+  FStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
+  try
+    Result := inherited Open(FStream);
+    Opened := Result = 1;
+  finally
+    FStream.Free;
+  end;
+  //Result := inherited Open(FileName);
 end;
+
 
 function TmyWorkbook.SheetByName(AName: WideString): IXLSWorkSheet;
 var
