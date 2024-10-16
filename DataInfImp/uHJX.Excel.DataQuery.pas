@@ -22,6 +22,9 @@
   修改了_GetBookAndSheet方法，增加了检查工作簿最后编辑时间的逻辑，如果SSWorkBook的
   最后编辑时间早于文件时间，表明工作簿在打开后被编辑，需要重新打开。
   在没有增加这一条逻辑之前，即便修改了文件，程序查询的时候也不会显示最新的数据。
+  2024-10-16
+  采用文件池方式打开Excel工作簿，修改了_GetBookAndSheet方法适应之。UseSession和
+  SSWorkbook已经没有用了。
   ----------------------------------------------------------------------------- }
 
 unit uHJX.Excel.DataQuery;
@@ -187,6 +190,7 @@ var
   /// 为了提高访问数据的速度，避免重复创建对象、重复打开上次已经打开的文件，可使用Session模式，调用
   ///  SessionBegin方法，保留上次打开的工作簿对象，当仪器工作簿相同时，不必再次加载数据.
   ///  只使用一个SSWorkbook，还是太保守了，为了提高效率，应该使用多个对象，用文件池的方式
+  ///  2024-10-16 已经采用文件池方式了，本变量已经没有用了。
   SSWorkBook: IXLSWorkBook; // 会话期间使用的Workbook
   /// SSWorkBook打开的工作簿的最后修改时间，这个变量用于当采用Session方式时，如果目标工作簿发生了
   /// 改变，则再次访问该工作簿时，需要重新打开，以获取新数据，这个变量在_GetBookAndSheet方法中使用
@@ -205,6 +209,8 @@ begin
 end;
 
 { 返回仪器的工作簿及工作表对象 }
+/// 2024-10-16 在新方法中，UseSession参数已经没用了，因为采用了文件池的方式，允许
+/// 打开任意多的工作簿
 function ThjxDataQuery._GetBookAndSheet(ADsnName: string; var AWBK: IXLSWorkBook;
   var ASht: IXLSWorkSheet; UseSession: Boolean = True): Boolean;
 var
@@ -225,6 +231,8 @@ begin
     AddErrMsg('未找到' + ADsnName + '的数据表');
     Exit;
   end;
+
+  (* 2024-10-16 ExcelIO单元已经采用了文件池的方式处理工作簿的打开问题，下面的代码已经过期不用了
   { todo:这里增加判断，如果AWBK就是仪器的工作簿，则无需再经过打开的步骤了 }
   if UseSession then
   begin
@@ -248,11 +256,27 @@ begin
       Exit;
     end
   end;
+  *)
+  if ExcelIO.OpenWorkbook(AWBK, Meter.DataBook) then
+  begin
+    ASht := ExcelIO.GetSheet(AWBK, Meter.DataSheet);
+    if ASht = nil then
+    begin
+      AddErrMsg('打开' + ADsnName + '的数据表' + Meter.DataSheet + '出错');
+      Exit;
+    end;
+    Result := True;
+  end
+  else
+  begin
+    AddErrMsg('未能打开' + ADsnName + '的数据工作簿' + Meter.DataBook);
+    Exit;
+  end;
 
   /// 到这里，已经打开了WorkBook，更新WBFileAge：
   ///  现在TmyWorkbook自带FileAge field，可以自己更新了，这个变量取消
   /// wbfileage := Fileage(meter.DataBook);
-
+  (*
   ASht := ExcelIO.GetSheet(AWBK, Meter.DataSheet);
   if ASht = nil then
   begin
@@ -262,6 +286,7 @@ begin
 
   { 走到这里，可以返回True了 }
   Result := True;
+  *)
 end;
 
 { 快速定位指定日期所在的行，或最接近的日期所在行，返回值为行数。
