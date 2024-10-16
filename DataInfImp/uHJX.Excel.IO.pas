@@ -5,21 +5,24 @@
   Purpose:   本单元借助nExcel完成对Excel 的访问。
   History:
   2024-10-11
-    给TmyWorkbook增加一个FileAge属性，用于记录文件最后编辑时间，这个属性在检查工作簿
-    是否在打开后被修改过时有用。
+  给TmyWorkbook增加一个FileAge属性，用于记录文件最后编辑时间，这个属性在检查工作簿
+  是否在打开后被修改过时有用。
   2024-10-14
-    修改了TmyWorkbook的Open方法，现在采用先用TFileStream打开文件，再用inherited Open(FileStream)的方式打开。
-    这样就可以解决文件被独占的问题。
+  修改了TmyWorkbook的Open方法，现在采用先用TFileStream打开文件，再用inherited Open(FileStream)的方式打开。
+  这样就可以解决文件被独占的问题。
+  2024-10-16
+  修改了TExcelIO的OpenWorkbook方法，现在可以打开被Excel占用的工作簿，并且采用了文件池的方式。
   ----------------------------------------------------------------------------- }
 
 unit uHJX.Excel.IO;
-{ TODO:采用文件池的方式提供更佳的性能。若要避免打开的文件被破坏，可以考虑用TXLSWorkbook.OpenWorkbook
-方法中打开流的方式 }
+
+{ DONE:采用文件池的方式提供更佳的性能。若要避免打开的文件被破坏，可以考虑用TXLSWorkbook.OpenWorkbook
+  方法中打开流的方式 }
 interface
 
 uses
   System.Classes, System.SysUtils, System.Variants, System.Generics.Collections, System.Types,
-  System.StrUtils, Winapi.Windows, Vcl.Dialogs,
+  System.StrUtils, Winapi.Windows, Vcl.Dialogs, System.SyncObjs,
   nExcel;
 
 type
@@ -31,8 +34,8 @@ type
     /// 添加这一项的目的在于，可以方便地判断文件是否被修改过，以便在读取时进行提示。本类打开的工作簿，
     /// 有可能在打开后被Excel编辑过，因此当程序需要再次访问该工作簿时，需要检查文件的最后编辑时间，若
     /// 是新文件，则需要重新打开
-    ///</summary>
-    FileAge: LongInt; //增加一个最后编辑时间的Field
+    /// </summary>
+    FileAge: LongInt; // 增加一个最后编辑时间的Field
     /// 修改了Open方法。之前是用inherited Open(FileName)，当Excel已经打开了文件，会因文件被独占而无法打开。
     /// 现在采用先用TFileStream打开文件，再用inherited Open(FileStream)的方式打开。这样就可以解决文件被独占的问题。
     function Open(FileName: WideString): Integer;
@@ -45,7 +48,18 @@ type
   { 本方法打开工作簿，若遇到工作簿被占用的情况，会提示用户关闭Excel，然后再试，除非用户不再尝试 }
 type
   TExcelIO = class
+  private
+    FWbkList: Tstrings;
+    /// <summary>用于保护FWorkbooks的线程安全</summary>
+    Fcriticalsection: TCriticalSection; // 用以保护FWorkbooks的线程安全
   public
+    constructor Create;
+    destructor Destroy; override;
+    procedure CloseAllWorkbooks;
+    function CloseSpecificWorkbook(AName: string): Boolean;
+
+    /// <summary>打开Excel工作簿，新的TmyWorkbook对象可以打开被Excel占用的工作簿，并且采用了
+    /// 文件池的方式，可以避免打开的文件被破坏。</summary>
     function OpenWorkbook(var WBK: IXLSWorkBook; AName: String): Boolean;
 
     function HasSheet(ABook: IXLSWorkBook; AName: string): Boolean;
@@ -87,17 +101,16 @@ begin
   FileAge := -1;
 end;
 
-
 {
   Function: TmyWorkbook.Open
   Purpose: Opens the specified Excel workbook file.
 
   Parameters:
-    FileName: WideString - The name of the Excel workbook file to be opened.
+  FileName: WideString - The name of the Excel workbook file to be opened.
 
   Return Value:
-    Integer - The result of the workbook opening operation. A value of 1 indicates
-              successful opening, while a value of -1 indicates failure.
+  Integer - The result of the workbook opening operation. A value of 1 indicates
+  successful opening, while a value of -1 indicates failure.
 }
 function TmyWorkbook.Open(FileName: WideString): Integer;
 var
@@ -112,9 +125,8 @@ begin
   finally
     FStream.Free;
   end;
-  //Result := inherited Open(FileName);
+  // Result := inherited Open(FileName);
 end;
-
 
 function TmyWorkbook.SheetByName(AName: WideString): IXLSWorkSheet;
 var
@@ -133,47 +145,162 @@ begin
   Opened := False;
 end;
 
+constructor TExcelIO.Create;
+begin
+  inherited Create;
+  Fcriticalsection := TCriticalSection.Create;
+  FWbkList := TStringList.Create;
+end;
+
+destructor TExcelIO.Destroy;
+begin
+  CloseAllWorkbooks;
+  Fcriticalsection.Free;
+  FWbkList.Free;
+  inherited;
+end;
+
+procedure TExcelIO.CloseAllWorkbooks;
+var
+  i: Integer;
+begin
+  Fcriticalsection.Enter;
+  try
+    for i := 0 to FWbkList.Count - 1 do
+      TmyWorkbook(FWbkList.Objects[i])._Release;
+    FWbkList.Clear;
+  finally
+    Fcriticalsection.Leave;
+  end;
+end;
+
+function TExcelIO.CloseSpecificWorkbook(AName: string): Boolean;
+var
+  Workbook: TmyWorkbook;
+  i: Integer;
+begin
+  Result := False;
+  Fcriticalsection.Enter;
+  try
+    for i := 0 to FWbkList.Count - 1 do
+    begin
+      Workbook := TmyWorkbook(FWbkList.Objects[i]);
+      if SameText(Workbook.FullName, AName) then
+      begin
+        FWbkList.Delete(i);
+        Workbook.Free;
+        Result := True;
+        Break;
+      end;
+      Result := True;
+    end;
+  finally
+    Fcriticalsection.Leave;
+  end;
+end;
+
 { -----------------------------------------------------------------------------
   Procedure  : OpenWorkbook
   Description: 本函数打开Excel工作簿，如果该工作簿被Excel占用，则提示用户关闭
   Excel后再打开，可以重复多次，直到成功打开或用户放弃。
+  2024-10-16
+    采用了文件池。
   ----------------------------------------------------------------------------- }
 function TExcelIO.OpenWorkbook(var WBK: IXLSWorkBook; AName: string): Boolean;
 var
-  bExit     : Boolean;
-  OpenResult: Integer;
+  // bExist     : Boolean;
+  // OpenResult: Integer;
+  myWorkbook: TmyWorkbook;
+  IWorkbook: IXLSWorkBook;
+  CurrentFileAge: LongInt;
+  i: Integer;
 begin
   Result := False;
-  if WBK = nil then
-    WBK := TmyWorkbook.Create;
-  bExit := False;
-  repeat
-    if WBK is TmyWorkbook then
-      OpenResult := TmyWorkbook(WBK).Open(AName)
-    else
-      OpenResult := WBK.Open(AName);
-
-    case OpenResult of
-      1:
+  CurrentFileAge := System.SysUtils.FileAge(AName);
+  Fcriticalsection.Enter;
+  try
+    /// 先检查是否有同名的工作簿，若有，则检查文件是否被修改过，若文件被修改过，则重新打开
+    i := FWbkList.IndexOf(AName);
+    if i <> -1 then
+    begin
+      myWorkbook := TmyWorkbook(FWbkList.Objects[i]);
+      if SameText(myWorkbook.FullName, AName) then
+      begin
+        if myWorkbook.FileAge <> CurrentFileAge then
         begin
-          bExit := True;
+          if myWorkbook.Open(AName) = 1 then
+          begin
+            WBK := myWorkbook;
+            Result := True;
+          end
+          else
+          begin
+            myWorkbook.Free;
+            FWbkList.Delete(i);
+          end;
+        end
+        else
+        begin
+          WBK := myWorkbook;
           Result := True;
         end;
-      -1:
-        begin
-          if MessageBox(0, PWideChar(AName + '无法打开，是否要关闭Excel后重试？'#13#10 +
-            '若Excel或WPS没有占用该文件，则该文件可能是由WPS编辑过的、存在问题' +
-            '的Excel 2007或更高版本的文件(xlsx格式), 请用真正的Excel保存一遍再' + '试试。若还不行，那就干点别的吧，别用了。'), '打开Excel工作簿',
-            MB_ICONWARNING or MB_RETRYCANCEL) = IDCANCEL then
-            bExit := True;
-        end;
+      end;
+    end
     else
+    begin
+      myWorkbook := TmyWorkbook.Create;
+      if myWorkbook.Open(AName) = 1 then
       begin
-        bExit := True;
-        showmessage('不支持的文件类型。');
+        Result := True;
+        /// 需要加上_AddRef这一句，否则一旦调用程序不再需要wbk，则对象将自动释放。
+        ///  经测试，文件池无论是采用TDictionary还是TObjectList，或者现在采用的
+        ///  TStrings，TXLSWorkbook这个TInterfacedObject都在调用结束后自动释放，无法
+        ///  持续保存，因此必须人为增加一个引用计数。
+        myWorkbook._AddRef;
+        FWbkList.AddObject(AName, myWorkbook);
+        WBK := myWorkbook;
+      end
+      else
+      begin
+        ShowMessage('无法打开文件' + AName);
       end;
     end;
-  until bExit;
+  finally
+    Fcriticalsection.Leave;
+  end;
+
+
+  // 2024-10-16 下面是旧代码，已用文件池替代
+  // if WBK = nil then
+  // WBK := TmyWorkbook.Create;
+  // bExit := False;
+  // repeat
+  // if WBK is TmyWorkbook then
+  // OpenResult := TmyWorkbook(WBK).Open(AName)
+  // else
+  // OpenResult := WBK.Open(AName);
+
+  // case OpenResult of
+  // 1:
+  // begin
+  // bExit := True;
+  // Result := True;
+  // end;
+  // -1:
+  // begin
+  // if MessageBox(0, PWideChar(AName + '无法打开，是否要关闭Excel后重试？'#13#10 +
+  // '若Excel或WPS没有占用该文件，则该文件可能是由WPS编辑过的、存在问题' +
+  // '的Excel 2007或更高版本的文件(xlsx格式), 请用真正的Excel保存一遍再' + '试试。若还不行，那就干点别的吧，别用了。'), '打开Excel工作簿',
+  // MB_ICONWARNING or MB_RETRYCANCEL) = IDCANCEL then
+  // bExit := True;
+  // end;
+  // else
+  // begin
+  // bExit := True;
+  // showmessage('不支持的文件类型。');
+  // end;
+  // end;
+  // until bExit;
 end;
 
 function TExcelIO.HasSheet(ABook: IXLSWorkBook; AName: string): Boolean;
@@ -234,7 +361,7 @@ begin
       else
         S := '工作簿' + ASheet.Name;
       S := S + format('第%d行第%d列内容“%s”不是合法的日期格式，请检查。', [ARow, ACol, S1]);
-      showmessage(S);
+      ShowMessage(S);
     end;
   end;
 end;
@@ -260,7 +387,7 @@ begin
   if WBK is TmyWorkbook then
     Result := SameText(TmyWorkbook(WBK).FullName, AName)
   else
-    showmessage('只有用ExcelIO打开的工作簿才能判断工作簿FullName，请修改代码');
+    ShowMessage('只有用ExcelIO打开的工作簿才能判断工作簿FullName，请修改代码');
 end;
 
 function TExcelIO.GetBlankRow(ASheet: IXLSWorkSheet; StartRow: Integer; ACol: Integer): Integer;
@@ -330,10 +457,10 @@ class function TExcelIO.Excel_CopySheet(XLApp: OleVariant; SrcBook: string; TagB
   SrcSheets: string): Boolean;
 var
   SrcBk, TagBk, SrcSheet, TagSheet: Variant;
-  ShtList                         : TStrings;
-  i, j                            : Integer;
-  S, S1, S2                       : String; // s1:source sheet name;s2:taget sheet name
-  bDoQuit                         : Boolean;
+  ShtList: Tstrings;
+  i, j: Integer;
+  S, S1, S2: String; // s1:source sheet name;s2:taget sheet name
+  bDoQuit: Boolean;
 begin
   Result := False;
   if Trim(SrcSheets) = '' then
