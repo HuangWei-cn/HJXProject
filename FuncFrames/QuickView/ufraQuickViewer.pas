@@ -1,4 +1,4 @@
-{ -----------------------------------------------------------------------------
+﻿{ -----------------------------------------------------------------------------
  Unit Name: ufraQuickViewer
  Author:    黄伟
  Date:      07-六月-2018
@@ -1155,7 +1155,11 @@ begin
           Continue;
 
       lblDesignName.Caption := Meter.DesignName;
-      lblProgress.Caption := Format('正在处理第%d支，共%d支', [iMeter, iCount]);
+      // 2024-10-16 见鬼了，下面之所以不用Format，改为笨拙的手工连接字符串，是因为使用了Format之后
+      // 居然显示的是乱码，连带dbgrid的GroupPanel显示的都是乱码。改为手工处理后，又一切正常了，简直
+      // 不可理喻。
+      //lblProgress.Caption := Format('正在处理第%d支，共%d支', [iMeter, iCount]);
+      lblProgress.Caption := '正在处理第' + intTostr(iMeter) + '支，共' + inttostr(icount) + '支';
       ProgressBar.Position := iMeter;
       IAppServices.ProcessMessages;
 

@@ -3,6 +3,13 @@ object fraQuickViewer: TfraQuickViewer
   Top = 0
   Width = 843
   Height = 522
+  Font.Charset = GB2312_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Font.Quality = fqClearTypeNatural
+  ParentFont = False
   TabOrder = 0
   object wbViewer: TWebBrowser
     Left = 23
@@ -841,11 +848,12 @@ object fraQuickViewer: TfraQuickViewer
     DataSource = dsDatas
     DynProps = <>
     EditActions = [geaCopyEh]
-    Font.Charset = ANSI_CHARSET
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
     Font.Name = 'Consolas'
     Font.Style = []
+    Font.Quality = fqClearTypeNatural
     IndicatorOptions = [gioShowRowIndicatorEh, gioShowRecNoEh]
     IndicatorParams.FillStyle = cfstGradientEh
     IndicatorTitle.ShowDropDownSign = True
@@ -883,7 +891,7 @@ object fraQuickViewer: TfraQuickViewer
         Left = 5
         Top = 20
         Width = 96
-        Height = 21
+        Height = 23
         Date = 43418.000000000000000000
         Time = 43418.000000000000000000
         ImeMode = imDisable
@@ -908,7 +916,7 @@ object fraQuickViewer: TfraQuickViewer
         Left = 107
         Top = 20
         Width = 71
-        Height = 21
+        Height = 23
         Date = 43419.000000000000000000
         Time = 43419.000000000000000000
         Kind = dtkTime
@@ -926,7 +934,7 @@ object fraQuickViewer: TfraQuickViewer
         Left = 10
         Top = 20
         Width = 96
-        Height = 21
+        Height = 23
         Date = 43419.000000000000000000
         Time = 43419.000000000000000000
         ImeMode = imDisable
@@ -951,7 +959,7 @@ object fraQuickViewer: TfraQuickViewer
         Left = 112
         Top = 20
         Width = 71
-        Height = 21
+        Height = 23
         Date = 43419.000000000000000000
         Time = 43419.000000000000000000
         Kind = dtkTime
@@ -1009,9 +1017,17 @@ object fraQuickViewer: TfraQuickViewer
       Left = 16
       Top = 63
       Width = 373
-      Height = 16
+      Height = 18
       Alignment = taCenter
       AutoSize = False
+      Caption = #20320#22909
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #23435#20307
+      Font.Style = []
+      Font.Quality = fqAntialiased
+      ParentFont = False
     end
     object ProgressBar: TProgressBar
       Left = 16
